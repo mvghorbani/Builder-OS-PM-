@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -29,6 +29,17 @@ import {
   HelpCircle,
 } from "lucide-react";
 import type { Property, Activity } from "@shared/schema";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface DashboardStats {
   activeProjects: number;
@@ -41,8 +52,12 @@ interface DashboardStats {
 export default function Home() {
   const [activeView, setActiveView] = useState('projects');
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+  const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
+  const [newProjectAddress, setNewProjectAddress] = useState('');
+  const [newProjectType, setNewProjectType] = useState('');
   const { user, isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: properties = [], isLoading: propertiesLoading } = useQuery<Property[]>({
     queryKey: ['/api/properties'],
@@ -57,6 +72,41 @@ export default function Home() {
   const { data: activities = [] } = useQuery<Activity[]>({
     queryKey: ['/api/activities'],
     enabled: isAuthenticated && !isLoading,
+  });
+
+  const createProjectMutation = useMutation({
+    mutationFn: async ({ address, projectType }: { address: string; projectType: string }) => {
+      const response = await fetch('/api/v1/projects', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ address, projectType }),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create project');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+      toast({
+        title: "Project Created",
+        description: "Your new project has been created successfully.",
+        variant: "success",
+      });
+      setIsNewProjectModalOpen(false);
+      setNewProjectAddress('');
+      setNewProjectType('');
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
   });
 
   useEffect(() => {
@@ -92,7 +142,7 @@ export default function Home() {
   };
 
   const PropertyCard = ({ property }: { property: Property }) => (
-    <Card 
+    <Card
       className="hover-lift cursor-pointer border border-border shadow-sm"
       onClick={() => setSelectedProperty(property)}
       data-testid={`card-property-${property.id}`}
@@ -111,7 +161,7 @@ export default function Home() {
             {property.status}
           </Badge>
         </div>
-        
+
         <div className="mb-6">
           <div className="flex justify-between text-sm text-muted-foreground mb-2">
             <span>Progress</span>
@@ -156,6 +206,11 @@ export default function Home() {
     </Card>
   );
 
+  const handleCreateProject = (e: React.FormEvent) => {
+    e.preventDefault();
+    createProjectMutation.mutate({ address: newProjectAddress, projectType: newProjectType });
+  };
+
   return (
     <div className="min-h-screen bg-background flex">
       {/* Sidebar */}
@@ -185,7 +240,7 @@ export default function Home() {
               {properties.length}
             </Badge>
           </Button>
-          
+
           <Button
             variant={activeView === 'dashboard' ? 'default' : 'ghost'}
             className="w-full justify-start"
@@ -195,7 +250,7 @@ export default function Home() {
             <ChartLine className="w-5 h-5 mr-3" />
             <span className="font-medium">Dashboard</span>
           </Button>
-          
+
           <Button
             variant={activeView === 'schedule' ? 'default' : 'ghost'}
             className="w-full justify-start"
@@ -205,7 +260,7 @@ export default function Home() {
             <Calendar className="w-5 h-5 mr-3" />
             <span className="font-medium">Schedule</span>
           </Button>
-          
+
           <Button
             variant={activeView === 'budget' ? 'default' : 'ghost'}
             className="w-full justify-start"
@@ -215,7 +270,7 @@ export default function Home() {
             <DollarSign className="w-5 h-5 mr-3" />
             <span className="font-medium">Budget</span>
           </Button>
-          
+
           <Button
             variant={activeView === 'vendors' ? 'default' : 'ghost'}
             className="w-full justify-start"
@@ -225,7 +280,7 @@ export default function Home() {
             <Users className="w-5 h-5 mr-3" />
             <span className="font-medium">Vendors</span>
           </Button>
-          
+
           <Button
             variant={activeView === 'permits' ? 'default' : 'ghost'}
             className="w-full justify-start"
@@ -235,7 +290,7 @@ export default function Home() {
             <FileText className="w-5 h-5 mr-3" />
             <span className="font-medium">Permits</span>
           </Button>
-          
+
           <Button
             variant={activeView === 'documents' ? 'default' : 'ghost'}
             className="w-full justify-start"
@@ -282,18 +337,63 @@ export default function Home() {
               <h2 className="text-2xl font-bold text-foreground">Active Projects</h2>
               <p className="text-sm text-muted-foreground">Manage your construction projects and milestones</p>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <Button variant="secondary" data-testid="button-filter">
                 <Filter className="w-4 h-4 mr-2" />
                 Filter
               </Button>
-              
-              <Button data-testid="button-new-project">
-                <Plus className="w-4 h-4 mr-2" />
-                New Project
-              </Button>
-              
+
+              <Dialog open={isNewProjectModalOpen} onOpenChange={setIsNewProjectModalOpen}>
+                <DialogTrigger asChild>
+                  <Button data-testid="button-new-project">
+                    <Plus className="w-4 h-4 mr-2" />
+                    New Project
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Create New Project</DialogTitle>
+                    <DialogDescription>
+                      Enter the project details below. Click save when you're done.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <form onSubmit={handleCreateProject}>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="address" className="text-right">
+                          Address
+                        </Label>
+                        <Input
+                          id="address"
+                          value={newProjectAddress}
+                          onChange={(e) => setNewProjectAddress(e.target.value)}
+                          className="col-span-3"
+                          required
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="projectType" className="text-right">
+                          Project Type
+                        </Label>
+                        <Input
+                          id="projectType"
+                          value={newProjectType}
+                          onChange={(e) => setNewProjectType(e.target.value)}
+                          className="col-span-3"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button type="submit" disabled={createProjectMutation.isPending}>
+                        {createProjectMutation.isPending ? 'Saving...' : 'Save Project'}
+                      </Button>
+                    </DialogFooter>
+                  </form>
+                </DialogContent>
+              </Dialog>
+
               <Button variant="ghost" size="icon" data-testid="button-notifications">
                 <Bell className="w-5 h-5" />
                 <span className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full"></span>
