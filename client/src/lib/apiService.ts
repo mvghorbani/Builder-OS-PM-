@@ -482,7 +482,7 @@ class APIService {
   }
   // AI Permit Lookup
   async lookupPermit(data: { projectAddress: string; scopeOfWork: string }) {
-    return this.request('/v1/permits/lookup', {
+    return this.request('/api/v1/permits/lookup', {
       method: 'POST',
       body: data,
     });
