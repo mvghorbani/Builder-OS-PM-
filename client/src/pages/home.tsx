@@ -68,10 +68,10 @@ const StatusBadge = ({ status }: { status: string }) => (
   </Badge>
 );
 
-const PropertyCard = ({ property, onSelect }: { property: Property; onSelect: (property: Property) => void }) => (
+const PropertyCard = ({ property, onSelect }: { property: Property; onSelect?: (property: Property) => void }) => (
   <Card
     className="mb-3 cursor-pointer hover:shadow-md transition-shadow"
-    onClick={() => onSelect(property)}
+    onClick={() => onSelect?.(property)}
     data-testid={`card-property-${property.id}`}
   >
     <CardContent className="p-6">
