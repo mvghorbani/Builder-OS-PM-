@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { apiService } from "@/lib/apiService";
 
 interface DashboardStats {
   activeProjects: number;
@@ -76,18 +77,7 @@ export default function Home() {
 
   const createProjectMutation = useMutation({
     mutationFn: async ({ address, projectType }: { address: string; projectType: string }) => {
-      const response = await fetch('/api/v1/projects', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ address, project_type: projectType }),
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create project');
-      }
-      return response.json();
+      return apiService.createProject({ address, project_type: projectType });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
