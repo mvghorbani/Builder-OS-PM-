@@ -189,7 +189,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteProperty(id: string): Promise<boolean> {
     const result = await db.delete(properties).where(eq(properties.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Milestone operations
@@ -222,7 +222,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteMilestone(id: string): Promise<boolean> {
     const result = await db.delete(milestones).where(eq(milestones.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Vendor operations
@@ -251,7 +251,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteVendor(id: string): Promise<boolean> {
     const result = await db.delete(vendors).where(eq(vendors.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Budget operations
@@ -284,7 +284,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteBudgetLine(id: string): Promise<boolean> {
     const result = await db.delete(budgetLines).where(eq(budgetLines.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // RFQ operations
@@ -317,7 +317,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteRFQ(id: string): Promise<boolean> {
     const result = await db.delete(rfqs).where(eq(rfqs.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   async addVendorToRFQ(rfqId: string, vendorId: string): Promise<boolean> {
@@ -333,7 +333,7 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .delete(rfqVendors)
       .where(and(eq(rfqVendors.rfqId, rfqId), eq(rfqVendors.vendorId, vendorId)));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Bid operations
@@ -403,7 +403,7 @@ export class DatabaseStorage implements IStorage {
 
   async deletePermit(id: string): Promise<boolean> {
     const result = await db.delete(permits).where(eq(permits.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Risk operations
@@ -436,7 +436,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteRisk(id: string): Promise<boolean> {
     const result = await db.delete(risks).where(eq(risks.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Document operations
@@ -466,7 +466,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteDocument(id: string): Promise<boolean> {
     const result = await db.delete(documents).where(eq(documents.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Activity operations
