@@ -217,6 +217,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create company (vendor) endpoint
+  app.post('/api/v1/companies', authenticateJWT, async (req: any, res) => {
+    try {
+      const { name, type } = req.body;
+
+      if (!name || !type) {
+        return res.status(400).json({ 
+          message: "Missing required fields: name and type" 
+        });
+      }
+
+      const vendorData = {
+        name,
+        trades: [type], // Store company type in trades array
+        isLicensed: false,
+        isBonded: false,
+      };
+
+      const vendor = await storage.createVendor(vendorData);
+
+      res.status(201).json(vendor);
+    } catch (error) {
+      console.error("Error creating company:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   // Create project endpoint
   app.post('/api/v1/projects', authenticateJWT, async (req: any, res) => {
     try {
