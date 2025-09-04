@@ -109,9 +109,66 @@ export async function setupAuth(app: Express) {
   });
 
   app.get("/api/callback", (req, res, next) => {
-    passport.authenticate(`replitauth:${req.hostname}`, {
-      successReturnToOrRedirect: "/",
-      failureRedirect: "/api/login",
+    passport.authenticate(`replitauth:${req.hostname}`, async (err, user) => {
+      if (err) {
+        console.error("Authentication error:", err);
+        return res.redirect("/api/login");
+      }
+      
+      if (!user) {
+        return res.redirect("/api/login");
+      }
+
+      try {
+        // Log the user in with passport session
+        req.logIn(user, async (loginErr) => {
+          if (loginErr) {
+            console.error("Login error:", loginErr);
+            return res.redirect("/api/login");
+          }
+
+          // Get user claims from the authenticated user
+          const claims = user.claims;
+          if (!claims) {
+            console.error("No claims found in user object");
+            return res.redirect("/api/login");
+          }
+
+          // Find the user in the database
+          const dbUser = await storage.getUser(claims.sub);
+          if (!dbUser) {
+            console.error("User not found in database");
+            return res.redirect("/api/login");
+          }
+
+          // Generate JWT token for the frontend
+          const jwt = await import('jsonwebtoken');
+          const jwtSecret = process.env.JWT_SECRET || 'your-secret-key';
+          const token = jwt.sign(
+            { 
+              id: dbUser.id, 
+              role: dbUser.role,
+              email: dbUser.email 
+            },
+            jwtSecret,
+            { expiresIn: '24h' }
+          );
+
+          // Set JWT as httpOnly cookie
+          res.cookie('auth_token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 24 * 60 * 60 * 1000 // 24 hours
+          });
+
+          // Redirect to dashboard
+          res.redirect("/");
+        });
+      } catch (error) {
+        console.error("Callback processing error:", error);
+        res.redirect("/api/login");
+      }
     })(req, res, next);
   });
 

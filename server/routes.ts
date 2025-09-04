@@ -29,6 +29,15 @@ const upload = multer({
   },
 });
 
+// Middleware to extract JWT from cookie and set in header
+const extractJWTFromCookie = (req: any, res: any, next: any) => {
+  const token = req.cookies?.auth_token;
+  if (token && !req.headers.authorization) {
+    req.headers.authorization = `Bearer ${token}`;
+  }
+  next();
+};
+
 // JWT authentication middleware
 const authenticateJWT = (req: any, res: any, next: any) => {
   const authHeader = req.headers.authorization;
@@ -49,6 +58,13 @@ const authenticateJWT = (req: any, res: any, next: any) => {
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Add cookie parser
+  const cookieParser = await import('cookie-parser');
+  app.use(cookieParser.default());
+  
+  // Apply JWT extraction middleware globally
+  app.use(extractJWTFromCookie);
+
   // Health check endpoint
   app.get('/health', (req, res) => {
     res.status(200).json({
@@ -105,6 +121,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       res.status(500).json({ message: "Internal server error" });
     }
+  });
+
+  // JWT logout endpoint  
+  app.post('/api/v1/auth/logout', (req, res) => {
+    res.clearCookie('auth_token');
+    res.status(200).json({ message: "Logged out successfully" });
   });
 
   // Get projects endpoint
