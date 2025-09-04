@@ -1,20 +1,22 @@
-
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { GoogleLogin } from '@react-oauth/google';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null); // State for Google auth error
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null); // Clear previous errors
 
     try {
       const response = await axios.post('/api/v1/auth/login', {
@@ -37,7 +39,7 @@ export default function LoginForm() {
     } catch (error) {
       // Display error message
       let errorMessage = 'Login failed. Please try again.';
-      
+
       if (axios.isAxiosError(error) && error.response) {
         errorMessage = error.response.data?.message || errorMessage;
       }
@@ -96,19 +98,76 @@ export default function LoginForm() {
             {isLoading ? 'Signing in...' : 'Sign In'}
           </Button>
         </form>
-        
+
         <div className="mt-4 text-center">
           <p className="text-sm text-muted-foreground">or</p>
           <Button 
             variant="outline"
             className="w-full mt-2"
-            onClick={() => window.location.href = '/api/login'}
+            onClick={() => window.location.href = '/api/v1/auth/replit'} // Corrected Replit auth endpoint
             data-testid="button-replit-login"
           >
             Continue with Replit
           </Button>
+          <div className="mt-2">
+            <GoogleLogin
+              onSuccess={async (credentialResponse) => {
+                console.log("Login Success:", credentialResponse);
+                try {
+                  const response = await fetch('/api/v1/auth/google/callback', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      credential: credentialResponse.credential
+                    }),
+                  });
+
+                  if (response.ok) {
+                    const data = await response.json();
+                    console.log("Authentication successful:", data);
+                    // The JWT token is now set as a cookie, redirect to dashboard
+                    window.location.href = '/';
+                  } else {
+                    const error = await response.json();
+                    console.error("Authentication failed:", error);
+                    setError(error.message || "Authentication failed");
+                    toast({
+                      title: "Google Login Failed",
+                      description: error.message || "Authentication failed. Please try again.",
+                      variant: "destructive",
+                    });
+                  }
+                } catch (error) {
+                  console.error("Network error:", error);
+                  setError("Network error occurred");
+                  toast({
+                    title: "Google Login Failed",
+                    description: "A network error occurred. Please try again.",
+                    variant: "destructive",
+                  });
+                }
+              }}
+              onError={() => {
+                console.log('Login Failed');
+                setError("Google login failed. Please try again.");
+                toast({
+                  title: "Google Login Failed",
+                  description: "Google login failed. Please try again.",
+                  variant: "destructive",
+                });
+              }}
+              size="large"
+              shape="rectangular"
+              theme="outline"
+              type="icon"
+              width="100%"
+            />
+            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+          </div>
         </div>
-        
+
         <p className="text-xs text-muted-foreground mt-4 text-center">
           Secure authentication powered by ConstructPro
         </p>

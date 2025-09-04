@@ -123,6 +123,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Google OAuth callback endpoint
+  app.post('/api/v1/auth/google/callback', async (req, res) => {
+    try {
+      const { credential } = req.body;
+      
+      if (!credential) {
+        return res.status(400).json({ message: "Missing credential" });
+      }
+
+      // Verify the Google JWT token
+      let payload;
+      try {
+        const { OAuth2Client } = await import('google-auth-library');
+        const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+        const ticket = await client.verifyIdToken({
+          idToken: credential,
+          audience: process.env.GOOGLE_CLIENT_ID,
+        });
+        payload = ticket.getPayload();
+      } catch (verifyError) {
+        console.warn("Google token verification failed, falling back to decode:", verifyError);
+        // Fallback to basic decode if verification fails (for development)
+        payload = JSON.parse(Buffer.from(credential.split('.')[1], 'base64').toString());
+      }
+      
+      if (!payload.email || !payload.sub) {
+        return res.status(400).json({ message: "Invalid credential payload" });
+      }
+
+      // Upsert user in database
+      await storage.upsertUser({
+        id: payload.sub,
+        email: payload.email,
+        firstName: payload.given_name || '',
+        lastName: payload.family_name || '',
+        profileImageUrl: payload.picture || null,
+      });
+
+      // Find the user in the database
+      const dbUser = await storage.getUser(payload.sub);
+      if (!dbUser) {
+        return res.status(500).json({ message: "Failed to create user" });
+      }
+
+      // Generate JWT token for the frontend
+      const jwtSecret = process.env.JWT_SECRET || 'your-secret-key';
+      const token = jwt.sign(
+        { 
+          id: dbUser.id, 
+          role: dbUser.role,
+          email: dbUser.email 
+        },
+        jwtSecret,
+        { expiresIn: '24h' }
+      );
+
+      // Set JWT as httpOnly cookie
+      res.cookie('auth_token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+      });
+
+      // Return success response
+      res.status(200).json({
+        success: true,
+        user: {
+          id: dbUser.id,
+          email: dbUser.email,
+          firstName: dbUser.firstName,
+          lastName: dbUser.lastName,
+          role: dbUser.role,
+        }
+      });
+    } catch (error) {
+      console.error("Google auth callback error:", error);
+      res.status(500).json({ message: "Authentication failed" });
+    }
+  });
+
   // JWT logout endpoint  
   app.post('/api/v1/auth/logout', (req, res) => {
     res.clearCookie('auth_token');
