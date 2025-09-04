@@ -61,7 +61,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add cookie parser
   const cookieParser = await import('cookie-parser');
   app.use(cookieParser.default());
-  
+
   // Apply JWT extraction middleware globally
   app.use(extractJWTFromCookie);
 
@@ -73,7 +73,92 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  // Traditional login endpoint
+  // Google OAuth callback route
+  app.post("/api/v1/auth/google/callback", async (req, res) => {
+    try {
+      const { credential } = req.body;
+
+      if (!credential) {
+        return res.status(400).json({ message: "No credential provided" });
+      }
+
+      // Verify the Google token
+      const { OAuth2Client } = await import('google-auth-library');
+      const client = new OAuth2Client(process.env.VITE_GOOGLE_CLIENT_ID);
+      const ticket = await client.verifyIdToken({
+        idToken: credential,
+        audience: process.env.VITE_GOOGLE_CLIENT_ID,
+      });
+
+      const payload = ticket.getPayload();
+      if (!payload) {
+        return res.status(400).json({ message: "Invalid token" });
+      }
+
+      // Extract user information
+      const { sub: googleId, email, given_name: firstName, family_name: lastName, picture: profileImageUrl } = payload;
+
+      if (!email) {
+        return res.status(400).json({ message: "Email not provided by Google" });
+      }
+
+      // Check if user exists or create new user
+      let user = await storage.getUserByEmail(email);
+
+      if (!user) {
+        // Create new user
+        const newUserId = await storage.createUser({
+          email,
+          firstName: firstName || "",
+          lastName: lastName || "",
+          profileImageUrl: profileImageUrl || "",
+          role: "viewer"
+        });
+        user = await storage.getUser(newUserId);
+      }
+
+      if (!user) {
+        return res.status(500).json({ message: "Failed to create or retrieve user" });
+      }
+
+      // Generate JWT token
+      const jwtSecret = process.env.JWT_SECRET || 'your-secret-key';
+      const token = jwt.sign(
+        { 
+          id: user.id, 
+          role: user.role,
+          email: user.email 
+        },
+        jwtSecret,
+        { expiresIn: '24h' }
+      );
+
+      // Set JWT as httpOnly cookie
+      res.cookie('auth_token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+      });
+
+      res.json({ 
+        message: "Authentication successful",
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role
+        }
+      });
+
+    } catch (error) {
+      console.error("Google OAuth error:", error);
+      res.status(500).json({ message: "Authentication failed" });
+    }
+  });
+
+  // Traditional login route
   app.post('/api/v1/auth/login', async (req, res) => {
     try {
       const validatedData = loginSchema.parse(req.body);
@@ -127,7 +212,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/v1/auth/google/callback', async (req, res) => {
     try {
       const { credential } = req.body;
-      
+
       if (!credential) {
         return res.status(400).json({ message: "Missing credential" });
       }
@@ -147,7 +232,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Fallback to basic decode if verification fails (for development)
         payload = JSON.parse(Buffer.from(credential.split('.')[1], 'base64').toString());
       }
-      
+
       if (!payload.email || !payload.sub) {
         return res.status(400).json({ message: "Invalid credential payload" });
       }
@@ -311,7 +396,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (status === 'complete') {
           activityDescription = `Completed milestone ${updatedMilestone.name}`;
         }
-        
+
         await storage.createActivity({
           userId: req.user.id,
           propertyId: existingMilestone.propertyId,
@@ -594,10 +679,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedData = insertPropertySchema.parse(req.body);
       const property = await storage.createProperty(validatedData);
-      
+
       await createAuditLog(req, 'create', 'property', property.id, null, property);
       await createActivity(req.user.claims.sub, property.id, 'created', `Created property ${property.address}`, 'property', property.id);
-      
+
       res.status(201).json(property);
     } catch (error) {
       console.error("Error creating property:", error);
@@ -614,10 +699,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const validatedData = insertPropertySchema.partial().parse(req.body);
       const property = await storage.updateProperty(req.params.id, validatedData);
-      
+
       await createAuditLog(req, 'update', 'property', req.params.id, oldProperty, property);
       await createActivity(req.user.claims.sub, req.params.id, 'updated', `Updated property ${property?.address}`, 'property', req.params.id);
-      
+
       res.json(property);
     } catch (error) {
       console.error("Error updating property:", error);
@@ -636,9 +721,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!deleted) {
         return res.status(500).json({ message: "Failed to delete property" });
       }
-      
+
       await createAuditLog(req, 'delete', 'property', req.params.id, property, null);
-      
+
       res.status(204).send();
     } catch (error) {
       console.error("Error deleting property:", error);
@@ -664,10 +749,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         propertyId: req.params.propertyId,
       });
       const milestone = await storage.createMilestone(validatedData);
-      
+
       await createAuditLog(req, 'create', 'milestone', milestone.id, null, milestone);
       await createActivity(req.user.claims.sub, req.params.propertyId, 'milestone_created', `Created milestone ${milestone.name}`, 'milestone', milestone.id);
-      
+
       res.status(201).json(milestone);
     } catch (error) {
       console.error("Error creating milestone:", error);
@@ -684,13 +769,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const validatedData = insertMilestoneSchema.partial().parse(req.body);
       const milestone = await storage.updateMilestone(req.params.id, validatedData);
-      
+
       await createAuditLog(req, 'update', 'milestone', req.params.id, oldMilestone, milestone);
-      
+
       if (milestone && milestone.status === 'complete' && oldMilestone.status !== 'complete') {
         await createActivity(req.user.claims.sub, milestone.propertyId, 'milestone_completed', `Completed milestone ${milestone.name}`, 'milestone', milestone.id);
       }
-      
+
       res.json(milestone);
     } catch (error) {
       console.error("Error updating milestone:", error);
@@ -713,9 +798,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedData = insertVendorSchema.parse(req.body);
       const vendor = await storage.createVendor(validatedData);
-      
+
       await createAuditLog(req, 'create', 'vendor', vendor.id, null, vendor);
-      
+
       res.status(201).json(vendor);
     } catch (error) {
       console.error("Error creating vendor:", error);
@@ -741,10 +826,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         propertyId: req.params.propertyId,
       });
       const budgetLine = await storage.createBudgetLine(validatedData);
-      
+
       await createAuditLog(req, 'create', 'budget_line', budgetLine.id, null, budgetLine);
       await createActivity(req.user.claims.sub, req.params.propertyId, 'budget_added', `Added budget line ${budgetLine.scope}`, 'budget_line', budgetLine.id);
-      
+
       res.status(201).json(budgetLine);
     } catch (error) {
       console.error("Error creating budget line:", error);
@@ -771,10 +856,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         createdBy: req.user.claims.sub,
       });
       const rfq = await storage.createRFQ(validatedData);
-      
+
       await createAuditLog(req, 'create', 'rfq', rfq.id, null, rfq);
       await createActivity(req.user.claims.sub, rfq.propertyId, 'rfq_created', `Created RFQ ${rfq.title}`, 'rfq', rfq.id);
-      
+
       res.status(201).json(rfq);
     } catch (error) {
       console.error("Error creating RFQ:", error);
@@ -800,9 +885,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         rfqId: req.params.rfqId,
       });
       const bid = await storage.createBid(validatedData);
-      
+
       await createAuditLog(req, 'create', 'bid', bid.id, null, bid);
-      
+
       res.status(201).json(bid);
     } catch (error) {
       console.error("Error creating bid:", error);
@@ -816,9 +901,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!bid) {
         return res.status(404).json({ message: "Bid not found" });
       }
-      
+
       await createAuditLog(req, 'update', 'bid', req.params.id, null, bid);
-      
+
       res.json(bid);
     } catch (error) {
       console.error("Error awarding bid:", error);
@@ -844,10 +929,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         propertyId: req.params.propertyId,
       });
       const permit = await storage.createPermit(validatedData);
-      
+
       await createAuditLog(req, 'create', 'permit', permit.id, null, permit);
       await createActivity(req.user.claims.sub, req.params.propertyId, 'permit_created', `Created ${permit.type} permit`, 'permit', permit.id);
-      
+
       res.status(201).json(permit);
     } catch (error) {
       console.error("Error creating permit:", error);
@@ -873,10 +958,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         propertyId: req.params.propertyId,
       });
       const risk = await storage.createRisk(validatedData);
-      
+
       await createAuditLog(req, 'create', 'risk', risk.id, null, risk);
       await createActivity(req.user.claims.sub, req.params.propertyId, 'risk_created', `Created ${risk.type}: ${risk.description}`, 'risk', risk.id);
-      
+
       res.status(201).json(risk);
     } catch (error) {
       console.error("Error creating risk:", error);
@@ -904,13 +989,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         uploadedBy: req.user.claims.sub,
       });
       const document = await storage.createDocument(validatedData);
-      
+
       await createAuditLog(req, 'create', 'document', document.id, null, document);
-      
+
       if (document.propertyId) {
         await createActivity(req.user.claims.sub, document.propertyId, 'document_uploaded', `Uploaded ${document.name}`, 'document', document.id);
       }
-      
+
       res.status(201).json(document);
     } catch (error) {
       console.error("Error creating document:", error);

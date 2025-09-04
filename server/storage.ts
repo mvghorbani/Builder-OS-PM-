@@ -44,6 +44,8 @@ export interface IStorage {
   // User operations (required for Replit Auth)
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
+  findUserByEmail(email: string): Promise<User | null>; // Added for clarity
+  createUser(user: { email: string; firstName: string; lastName: string; profileImageUrl: string; role: string }): Promise<string>; // Added for Replit Auth
 
   // Property operations
   getProperties(): Promise<Property[]>;
@@ -129,7 +131,7 @@ export class DatabaseStorage implements IStorage {
   async upsertUser(user: UpsertUser): Promise<User> {
     // Try to find existing user by email first
     const existingUser = await this.findUserByEmail(user.email || "");
-    
+
     if (existingUser) {
       // Update existing user
       const result = await db
@@ -142,7 +144,7 @@ export class DatabaseStorage implements IStorage {
         })
         .where(eq(users.email, user.email!))
         .returning();
-      
+
       return result[0];
     } else {
       // Insert new user with conflict resolution on ID
@@ -177,6 +179,22 @@ export class DatabaseStorage implements IStorage {
       .limit(1);
 
     return result[0] || null;
+  }
+
+  async createUser(user: { email: string; firstName: string; lastName: string; profileImageUrl: string; role: string }): Promise<string> {
+    const result = await db.insert(users).values({
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      profileImageUrl: user.profileImageUrl,
+      role: user.role,
+    }).returning({ id: users.id });
+
+    if (!result[0]) {
+      throw new Error("Failed to create user");
+    }
+
+    return result[0].id;
   }
 
   // Property operations
