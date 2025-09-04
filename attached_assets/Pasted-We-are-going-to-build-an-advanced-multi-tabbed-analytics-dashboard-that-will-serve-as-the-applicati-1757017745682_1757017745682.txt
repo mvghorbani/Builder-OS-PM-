@@ -1,0 +1,35 @@
+We are going to build an advanced, multi-tabbed analytics dashboard that will serve as the application's main landing page. This dashboard will provide descriptive, diagnostic, predictive, and prescriptive insights.
+
+Please create a new, dedicated React component for this dashboard.
+
+**Requirements:**
+
+**1. Data Fetching:**
+   - The dashboard will fetch its data from a new set of analytics endpoints. For now, assume the following endpoints exist:
+     - `GET /api/v1/analytics/gantt`
+     - `GET /api/v1/analytics/financials`
+     - `POST /api/v1/analytics/ai-recommendation`
+   - Use the `apiService` and display a loading state while fetching.
+
+**2. UI Layout:**
+   - Create a tabbed interface with three main tabs: "Portfolio Schedule", "Financial Deep Dive", and "AI Insights Engine".
+
+**3. Tab 1: Portfolio Schedule (Descriptive):**
+   - The main feature of this tab is an interactive **Gantt Chart**. Use a suitable library like `d3-gantt` or find another modern React-based Gantt chart library.
+   - The chart should display all projects and their milestones, color-coded by status (e.g., complete, on-track, overdue).
+   - Implement tooltips that show details when hovering over a taskbar.
+
+**4. Tab 2: Financial Deep Dive (Diagnostic):**
+   - Use the `recharts` library for these visuals.
+   - **First Chart:** Create a "Budget Variance Waterfall Chart" to break down cost overruns from the portfolio level down to the project level.
+   - **Second Chart:** Create a "Cash Flow Projection Line Chart" that forecasts cash needs for the next 90 days.
+
+**5. Tab 3: AI Insights Engine (Predictive & Prescriptive):**
+   - This tab will interact with our AI analytics.
+   - **Risk Forecast Section:** Display a list of projects with the highest "AI Risk Scores" as returned by the API.
+   - **Prescriptive Actions Section:**
+     - Create a "Get Recommendation" button next to each high-risk item.
+     - When clicked, this button will make a `POST` request to `/api/v1/analytics/ai-recommendation` with the project and risk context.
+     - Display the natural language recommendation returned from the API in a clean, easy-to-read format.
+
+Please implement this dashboard with a clean, professional, and highly visual design using Tailwind CSS.

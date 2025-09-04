@@ -41,6 +41,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { apiService } from "@/lib/apiService";
+import AnalyticsDashboard from "@/components/AnalyticsDashboard";
 
 interface DashboardStats {
   activeProjects: number;
@@ -684,14 +685,7 @@ export default function Home() {
             )}
 
             {activeView === 'dashboard' && (
-              <div className="space-y-6">
-                <h3 className="text-xl font-semibold text-foreground">Dashboard Analytics</h3>
-                <Card>
-                  <CardContent className="p-6">
-                    <p className="text-muted-foreground">Dashboard view with charts and analytics coming soon!</p>
-                  </CardContent>
-                </Card>
-              </div>
+              <AnalyticsDashboard />
             )}
 
             {activeView === 'schedule' && (
