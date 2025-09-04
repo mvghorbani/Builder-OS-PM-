@@ -68,7 +68,7 @@ const StatusBadge = ({ status }: { status: string }) => (
   </Badge>
 );
 
-const PropertyCard = ({ property, onSelect }: { property: Property; onSelect?: (property: Property) => void }) => (
+const PropertyCard = ({ property, onSelect }: { property: Property; onSelect: (property: Property) => void }) => (
   <Card
     className="mb-3 cursor-pointer hover:shadow-md transition-shadow"
     onClick={() => onSelect?.(property)}
@@ -694,7 +694,39 @@ export default function Home() {
                 <h3 className="text-xl font-semibold text-foreground">Project Schedule</h3>
                 <Card>
                   <CardContent className="p-6">
-                    <p className="text-muted-foreground">Schedule management and timeline view coming soon!</p>
+                    {selectedProperty ? (
+                      <div className="space-y-4">
+                        <h4 className="text-lg font-medium">Schedule for {selectedProperty.address}</h4>
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
+                            <div>
+                              <p className="font-medium">Project Progress</p>
+                              <p className="text-sm text-muted-foreground">{selectedProperty.progress || 0}% Complete</p>
+                            </div>
+                            <Progress value={selectedProperty.progress || 0} className="w-32" />
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <Card>
+                              <CardContent className="p-4">
+                                <h5 className="font-medium mb-2">Next Milestone</h5>
+                                <p className="text-sm text-muted-foreground">Foundation completion</p>
+                                <p className="text-xs text-muted-foreground mt-1">Due: {selectedProperty.dueDate ? new Date(selectedProperty.dueDate).toLocaleDateString() : 'TBD'}</p>
+                              </CardContent>
+                            </Card>
+                            <Card>
+                              <CardContent className="p-4">
+                                <h5 className="font-medium mb-2">Schedule Adherence</h5>
+                                <p className={`text-sm ${(selectedProperty.scheduleAdherence || 0) < 85 ? 'text-red-600' : 'text-green-600'}`}>
+                                  {selectedProperty.scheduleAdherence || 0}% On Track
+                                </p>
+                              </CardContent>
+                            </Card>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-muted-foreground">Please select a project to view its schedule.</p>
+                    )}
                   </CardContent>
                 </Card>
               </div>
@@ -705,7 +737,40 @@ export default function Home() {
                 <h3 className="text-xl font-semibold text-foreground">Budget Management</h3>
                 <Card>
                   <CardContent className="p-6">
-                    <p className="text-muted-foreground">Budget tracking and financial management coming soon!</p>
+                    {selectedProperty ? (
+                      <div className="space-y-4">
+                        <h4 className="text-lg font-medium">Budget for {selectedProperty.address}</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <Card>
+                            <CardContent className="p-4">
+                              <h5 className="font-medium mb-2">Total Budget</h5>
+                              <p className="text-2xl font-bold text-foreground">${(parseFloat(selectedProperty.totalBudget || '0') / 1000).toFixed(0)}k</p>
+                            </CardContent>
+                          </Card>
+                          <Card>
+                            <CardContent className="p-4">
+                              <h5 className="font-medium mb-2">Spent</h5>
+                              <p className="text-2xl font-bold text-orange-600">${(parseFloat(selectedProperty.spentBudget || '0') / 1000).toFixed(0)}k</p>
+                            </CardContent>
+                          </Card>
+                          <Card>
+                            <CardContent className="p-4">
+                              <h5 className="font-medium mb-2">Remaining</h5>
+                              <p className="text-2xl font-bold text-green-600">${((parseFloat(selectedProperty.totalBudget || '0') - parseFloat(selectedProperty.spentBudget || '0')) / 1000).toFixed(0)}k</p>
+                            </CardContent>
+                          </Card>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span>Budget Progress</span>
+                            <span>{((parseFloat(selectedProperty.spentBudget || '0') / parseFloat(selectedProperty.totalBudget || '1')) * 100).toFixed(1)}%</span>
+                          </div>
+                          <Progress value={(parseFloat(selectedProperty.spentBudget || '0') / parseFloat(selectedProperty.totalBudget || '1')) * 100} className="h-2" />
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-muted-foreground">Please select a project to view its budget details.</p>
+                    )}
                   </CardContent>
                 </Card>
               </div>
@@ -713,10 +778,64 @@ export default function Home() {
 
             {activeView === 'vendors' && (
               <div className="space-y-6">
-                <h3 className="text-xl font-semibold text-foreground">Vendor Management</h3>
+                <div className="flex justify-between items-center">
+                  <h3 className="text-xl font-semibold text-foreground">Vendor Management</h3>
+                  <Button 
+                    onClick={() => toast({ title: "Add Vendor", description: "Vendor addition feature coming soon!" })}
+                    data-testid="button-add-vendor"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Vendor
+                  </Button>
+                </div>
                 <Card>
                   <CardContent className="p-6">
-                    <p className="text-muted-foreground">Vendor directory and management tools coming soon!</p>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <Card>
+                          <CardContent className="p-4">
+                            <h5 className="font-medium mb-2">ABC Construction</h5>
+                            <p className="text-sm text-muted-foreground mb-2">General Contractor</p>
+                            <div className="flex gap-2">
+                              <Button size="sm" variant="outline" onClick={() => toast({ title: "Contact", description: "Contact feature coming soon!" })}>
+                                Contact
+                              </Button>
+                              <Button size="sm" variant="outline" onClick={() => toast({ title: "View Profile", description: "Profile feature coming soon!" })}>
+                                Profile
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                        <Card>
+                          <CardContent className="p-4">
+                            <h5 className="font-medium mb-2">Elite Electrical</h5>
+                            <p className="text-sm text-muted-foreground mb-2">Electrical Contractor</p>
+                            <div className="flex gap-2">
+                              <Button size="sm" variant="outline" onClick={() => toast({ title: "Contact", description: "Contact feature coming soon!" })}>
+                                Contact
+                              </Button>
+                              <Button size="sm" variant="outline" onClick={() => toast({ title: "View Profile", description: "Profile feature coming soon!" })}>
+                                Profile
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                        <Card>
+                          <CardContent className="p-4">
+                            <h5 className="font-medium mb-2">Pro Plumbing</h5>
+                            <p className="text-sm text-muted-foreground mb-2">Plumbing Contractor</p>
+                            <div className="flex gap-2">
+                              <Button size="sm" variant="outline" onClick={() => toast({ title: "Contact", description: "Contact feature coming soon!" })}>
+                                Contact
+                              </Button>
+                              <Button size="sm" variant="outline" onClick={() => toast({ title: "View Profile", description: "Profile feature coming soon!" })}>
+                                Profile
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
@@ -731,10 +850,69 @@ export default function Home() {
 
             {activeView === 'documents' && (
               <div className="space-y-6">
-                <h3 className="text-xl font-semibold text-foreground">Document Management</h3>
+                <div className="flex justify-between items-center">
+                  <h3 className="text-xl font-semibold text-foreground">Document Management</h3>
+                  <Button 
+                    onClick={() => toast({ title: "Upload Document", description: "Document upload feature coming soon!" })}
+                    data-testid="button-upload-document-main"
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload Document
+                  </Button>
+                </div>
                 <Card>
                   <CardContent className="p-6">
-                    <p className="text-muted-foreground">Document storage and sharing tools coming soon!</p>
+                    {selectedProperty ? (
+                      <div className="space-y-4">
+                        <h4 className="text-lg font-medium">Documents for {selectedProperty.address}</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          <Card>
+                            <CardContent className="p-4">
+                              <div className="flex items-center gap-3 mb-2">
+                                <FileText className="h-8 w-8 text-blue-600" />
+                                <div>
+                                  <h5 className="font-medium">Project Plans</h5>
+                                  <p className="text-xs text-muted-foreground">PDF • 2.1 MB</p>
+                                </div>
+                              </div>
+                              <Button size="sm" variant="outline" className="w-full" onClick={() => toast({ title: "View Document", description: "Document viewer coming soon!" })}>
+                                View
+                              </Button>
+                            </CardContent>
+                          </Card>
+                          <Card>
+                            <CardContent className="p-4">
+                              <div className="flex items-center gap-3 mb-2">
+                                <FileText className="h-8 w-8 text-green-600" />
+                                <div>
+                                  <h5 className="font-medium">Building Permit</h5>
+                                  <p className="text-xs text-muted-foreground">PDF • 1.5 MB</p>
+                                </div>
+                              </div>
+                              <Button size="sm" variant="outline" className="w-full" onClick={() => toast({ title: "View Document", description: "Document viewer coming soon!" })}>
+                                View
+                              </Button>
+                            </CardContent>
+                          </Card>
+                          <Card>
+                            <CardContent className="p-4">
+                              <div className="flex items-center gap-3 mb-2">
+                                <FileText className="h-8 w-8 text-purple-600" />
+                                <div>
+                                  <h5 className="font-medium">Contract</h5>
+                                  <p className="text-xs text-muted-foreground">PDF • 856 KB</p>
+                                </div>
+                              </div>
+                              <Button size="sm" variant="outline" className="w-full" onClick={() => toast({ title: "View Document", description: "Document viewer coming soon!" })}>
+                                View
+                              </Button>
+                            </CardContent>
+                          </Card>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-muted-foreground">Please select a project to view its documents.</p>
+                    )}
                   </CardContent>
                 </Card>
               </div>
