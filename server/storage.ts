@@ -127,26 +127,46 @@ export class DatabaseStorage implements IStorage {
   }
 
   async upsertUser(user: UpsertUser): Promise<User> {
-    const result = await db
-      .insert(users)
-      .values(user)
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          email: user.email,
+    // Try to find existing user by email first
+    const existingUser = await this.findUserByEmail(user.email || "");
+    
+    if (existingUser) {
+      // Update existing user
+      const result = await db
+        .update(users)
+        .set({
           firstName: user.firstName,
           lastName: user.lastName,
           profileImageUrl: user.profileImageUrl,
           updatedAt: new Date(),
-        },
-      })
-      .returning();
+        })
+        .where(eq(users.email, user.email!))
+        .returning();
+      
+      return result[0];
+    } else {
+      // Insert new user with conflict resolution on ID
+      const result = await db
+        .insert(users)
+        .values(user)
+        .onConflictDoUpdate({
+          target: users.id,
+          set: {
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            profileImageUrl: user.profileImageUrl,
+            updatedAt: new Date(),
+          },
+        })
+        .returning();
 
-    if (!result[0]) {
-      throw new Error("Failed to upsert user");
+      if (!result[0]) {
+        throw new Error("Failed to upsert user");
+      }
+
+      return result[0];
     }
-
-    return result[0];
   }
 
   async findUserByEmail(email: string): Promise<User | null> {
@@ -441,17 +461,27 @@ export class DatabaseStorage implements IStorage {
 
   // Document operations
   async getDocuments(propertyId?: string, milestoneId?: string): Promise<Document[]> {
-    let query = db.select().from(documents);
-
     if (propertyId && milestoneId) {
-      query = query.where(and(eq(documents.propertyId, propertyId), eq(documents.milestoneId, milestoneId)));
+      return await db
+        .select()
+        .from(documents)
+        .where(and(eq(documents.propertyId, propertyId), eq(documents.milestoneId, milestoneId)))
+        .orderBy(desc(documents.createdAt));
     } else if (propertyId) {
-      query = query.where(eq(documents.propertyId, propertyId));
+      return await db
+        .select()
+        .from(documents)
+        .where(eq(documents.propertyId, propertyId))
+        .orderBy(desc(documents.createdAt));
     } else if (milestoneId) {
-      query = query.where(eq(documents.milestoneId, milestoneId));
+      return await db
+        .select()
+        .from(documents)
+        .where(eq(documents.milestoneId, milestoneId))
+        .orderBy(desc(documents.createdAt));
     }
 
-    return await query.orderBy(desc(documents.createdAt));
+    return await db.select().from(documents).orderBy(desc(documents.createdAt));
   }
 
   async getDocument(id: string): Promise<Document | undefined> {
@@ -471,13 +501,20 @@ export class DatabaseStorage implements IStorage {
 
   // Activity operations
   async getActivities(propertyId?: string, limit: number = 50): Promise<Activity[]> {
-    let query = db.select().from(activities);
-
     if (propertyId) {
-      query = query.where(eq(activities.propertyId, propertyId));
+      return await db
+        .select()
+        .from(activities)
+        .where(eq(activities.propertyId, propertyId))
+        .orderBy(desc(activities.createdAt))
+        .limit(limit);
     }
 
-    return await query.orderBy(desc(activities.createdAt)).limit(limit);
+    return await db
+      .select()
+      .from(activities)
+      .orderBy(desc(activities.createdAt))
+      .limit(limit);
   }
 
   async createActivity(activity: InsertActivity): Promise<Activity> {
@@ -492,15 +529,27 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAuditLogs(entityType?: string, entityId?: string, limit: number = 100): Promise<AuditLog[]> {
-    let query = db.select().from(auditLogs);
-
     if (entityType && entityId) {
-      query = query.where(and(eq(auditLogs.entityType, entityType), eq(auditLogs.entityId, entityId)));
+      return await db
+        .select()
+        .from(auditLogs)
+        .where(and(eq(auditLogs.entityType, entityType), eq(auditLogs.entityId, entityId)))
+        .orderBy(desc(auditLogs.createdAt))
+        .limit(limit);
     } else if (entityType) {
-      query = query.where(eq(auditLogs.entityType, entityType));
+      return await db
+        .select()
+        .from(auditLogs)
+        .where(eq(auditLogs.entityType, entityType))
+        .orderBy(desc(auditLogs.createdAt))
+        .limit(limit);
     }
 
-    return await query.orderBy(desc(auditLogs.createdAt)).limit(limit);
+    return await db
+      .select()
+      .from(auditLogs)
+      .orderBy(desc(auditLogs.createdAt))
+      .limit(limit);
   }
 }
 
