@@ -1,9 +1,9 @@
 
-const bcrypt = require('bcrypt');
-const { Pool, neonConfig } = require('@neondatabase/serverless');
-const { drizzle } = require('drizzle-orm/neon-serverless');
-const { users } = require('../shared/schema');
-const ws = require('ws');
+import bcrypt from 'bcrypt';
+import { Pool, neonConfig } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-serverless';
+import { users } from '../shared/schema.js';
+import ws from 'ws';
 
 // Configure neon for serverless
 neonConfig.webSocketConstructor = ws;
