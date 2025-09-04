@@ -480,6 +480,13 @@ class APIService {
       method: 'POST',
     });
   }
+  // AI Permit Lookup
+  async lookupPermit(data: { projectAddress: string; scopeOfWork: string }) {
+    return this.request('/v1/permits/lookup', {
+      method: 'POST',
+      body: data,
+    });
+  }
 }
 
 export const apiService = new APIService();

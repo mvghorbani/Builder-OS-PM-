@@ -16,10 +16,12 @@ import {
   insertDocumentSchema,
   insertActivitySchema,
   loginSchema,
+  permitLookupSchema,
 } from "@shared/schema";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import multer from "multer";
+import { geminiService } from "./geminiService";
 
 // Configure multer for file uploads
 const upload = multer({
@@ -931,6 +933,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error creating permit:", error);
       res.status(500).json({ message: "Failed to create permit" });
+    }
+  });
+
+  // AI-powered permit lookup endpoint
+  app.post('/api/v1/permits/lookup', authenticateJWT, async (req: any, res) => {
+    try {
+      const validatedData = permitLookupSchema.parse(req.body);
+      
+      console.log('Permit lookup request:', validatedData);
+      
+      const permitInfo = await geminiService.lookupPermitRequirements(
+        validatedData.projectAddress,
+        validatedData.scopeOfWork
+      );
+
+      await createActivity(req.user.id, null, 'permit_lookup', `AI permit lookup for ${validatedData.projectAddress}`, 'permit_lookup', null);
+
+      res.json(permitInfo);
+    } catch (error) {
+      console.error("Error in permit lookup:", error);
+      res.status(500).json({ 
+        message: "Failed to lookup permit requirements",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 

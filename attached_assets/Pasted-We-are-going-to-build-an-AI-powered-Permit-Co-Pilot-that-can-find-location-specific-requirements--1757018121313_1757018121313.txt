@@ -1,0 +1,23 @@
+We are going to build an AI-powered "Permit Co-Pilot" that can find location-specific requirements. This will replace the existing "Permits & Compliance" placeholder.
+
+Please implement this feature with the following requirements:
+
+**1. New Backend Endpoint:**
+   - Create a new, authenticated backend endpoint at `POST /api/v1/permits/lookup`.
+   - This endpoint must accept a JSON body containing a `projectAddress` string and a `scopeOfWork` string.
+
+**2. Backend AI Integration:**
+   - When this endpoint is called, it must make a server-side call to the Gemini API (`gemini-2.5-flash-preview-05-20` model) with **Google Search grounding enabled**.
+   - The prompt sent to the Gemini API must be structured to find local permit information based on the address and scope of work. Use a system prompt like this:
+     "You are an expert compliance assistant for construction projects in Florida. Given a property address and a scope of work, you MUST use Google Search to find the official municipal permit requirements for that specific city. Return a single JSON object with the following schema: { \"permitName\": string, \"issuingAuthority\": string, \"formUrl\": string, \"notes\": string }."
+   - The endpoint should then return the structured JSON it receives from the Gemini API to the frontend.
+
+**3. Frontend Component Changes:**
+   - In the "Permits & Compliance" React component (or create it if it doesn't exist), the primary feature should be a button labeled "🔎 Find Permit Requirements".
+   - When this button is clicked, open a modal that asks the user for a "Description of Work" (a simple textarea).
+   - When the user submits this form, use our `apiService` to call the new `POST /api/v1/permits/lookup` endpoint, sending the project's address and the user's description.
+
+**4. Frontend Display of AI Results:**
+   - After the API call returns successfully, display the results in a clean "results card" within the UI.
+   - The card must clearly show the "Permit Name", "Issuing Authority", a clickable link for the "Form URL", and any "Notes".
+   - The card should also have an "+ Add to Project" button. When clicked, this button should pre-populate the existing "Add Permit" form with the data received from the AI, allowing the PM to confirm and save it to the project's permit ledger.

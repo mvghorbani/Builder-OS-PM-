@@ -303,6 +303,11 @@ export const loginSchema = z.object({
   password: z.string().min(1),
 });
 
+export const permitLookupSchema = z.object({
+  projectAddress: z.string().min(1, "Project address is required"),
+  scopeOfWork: z.string().min(1, "Scope of work is required"),
+});
+
 export const insertPropertySchema = createInsertSchema(properties).omit({
   id: true,
   createdAt: true,
