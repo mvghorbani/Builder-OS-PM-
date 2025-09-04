@@ -88,6 +88,7 @@ export function PermitsCompliance({ selectedProject }: PermitsComplianceProps) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           projectAddress: selectedProject.address,
           scopeOfWork: data.scopeOfWork,
@@ -148,6 +149,7 @@ export function PermitsCompliance({ selectedProject }: PermitsComplianceProps) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(updates),
       });
       
