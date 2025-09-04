@@ -20,6 +20,25 @@ import {
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
+// JWT authentication middleware
+const authenticateJWT = (req: any, res: any, next: any) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  const token = authHeader.substring(7);
+  const jwtSecret = process.env.JWT_SECRET || 'your-secret-key';
+
+  try {
+    const decoded = jwt.verify(token, jwtSecret) as any;
+    req.user = decoded;
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+};
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Health check endpoint
   app.get('/health', (req, res) => {
@@ -75,6 +94,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (error instanceof Error && error.name === 'ZodError') {
         return res.status(400).json({ message: "Invalid request data" });
       }
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Create project endpoint
+  app.post('/api/v1/projects', authenticateJWT, async (req: any, res) => {
+    try {
+      const { address, project_type } = req.body;
+
+      if (!address || !project_type) {
+        return res.status(400).json({ 
+          message: "Missing required fields: address and project_type" 
+        });
+      }
+
+      const projectData = {
+        address,
+        type: project_type,
+        pmId: req.user.id,
+        totalBudget: '0',
+        spentBudget: '0',
+        committedBudget: '0',
+        status: 'planning' as const,
+        progress: 0,
+        scheduleAdherence: 100,
+        budgetVariance: '0',
+        safetyIncidents: 0,
+        permitSLA: 0,
+      };
+
+      const project = await storage.createProperty(projectData);
+
+      // Create activity log
+      await storage.createActivity({
+        userId: req.user.id,
+        propertyId: project.id,
+        action: 'created',
+        description: `Created project ${project.address}`,
+        entityType: 'property',
+        entityId: project.id,
+      });
+
+      res.status(201).json(project);
+    } catch (error) {
+      console.error("Error creating project:", error);
       res.status(500).json({ message: "Internal server error" });
     }
   });
