@@ -725,7 +725,7 @@ export default function Home() {
             {activeView === 'permits' && (
               <div className="space-y-6">
                 <h3 className="text-xl font-semibold text-foreground">Permits & Compliance</h3>
-                <PermitCoPilot selectedProject={selectedProject} />
+                <PermitCoPilot selectedProject={selectedProperty} />
               </div>
             )}
 
