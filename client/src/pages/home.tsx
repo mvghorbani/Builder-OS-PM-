@@ -81,7 +81,7 @@ export default function Home() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ address, projectType }),
+        body: JSON.stringify({ address, project_type: projectType }),
       });
       if (!response.ok) {
         const errorData = await response.json();
