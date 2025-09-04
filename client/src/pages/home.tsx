@@ -50,6 +50,83 @@ interface DashboardStats {
   pendingPermits: number;
 }
 
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'active': return 'bg-green-100 text-green-800';
+    case 'completed': return 'bg-blue-100 text-blue-800';
+    case 'on-hold': return 'bg-yellow-100 text-yellow-800';
+    case 'cancelled': return 'bg-red-100 text-red-800';
+    default: return 'bg-gray-100 text-gray-800';
+  }
+};
+
+const StatusBadge = ({ status }: { status: string }) => (
+  <Badge className={getStatusColor(status)}>
+    {status.charAt(0).toUpperCase() + status.slice(1)}
+  </Badge>
+);
+
+const PropertyCard = ({ property, onSelect }: { property: Property; onSelect: (property: Property) => void }) => (
+  <Card
+    className="mb-3 cursor-pointer hover:shadow-md transition-shadow"
+    onClick={() => onSelect(property)}
+    data-testid={`card-property-${property.id}`}
+  >
+    <CardContent className="p-6">
+      <div className="flex justify-between items-start mb-4">
+        <div>
+          <h3 className="font-semibold text-foreground text-lg" data-testid={`text-address-${property.id}`}>
+            {property.address}
+          </h3>
+          <p className="text-sm text-muted-foreground">{property.project_type}</p>
+        </div>
+        <StatusBadge status={property.status} />
+      </div>
+      
+      <div className="mb-4">
+        <div className="flex justify-between text-sm text-muted-foreground mb-2">
+          <span>Progress</span>
+          <span data-testid={`text-progress-${property.id}`}>{property.progress || 0}%</span>
+        </div>
+        <Progress value={property.progress || 0} className="h-2" />
+      </div>
+
+      <div className="grid grid-cols-3 gap-4 mb-4 text-sm">
+        <div>
+          <span className="text-muted-foreground">Budget</span>
+          <p className="font-medium text-foreground" data-testid={`text-budget-${property.id}`}>
+            ${((property.spent_budget || 0) / 1000).toFixed(0)}k / ${((property.total_budget || 0) / 1000).toFixed(0)}k
+          </p>
+        </div>
+        <div>
+          <span className="text-muted-foreground">Schedule</span>
+          <p className={`font-medium ${(property.schedule_adherence || 0) < 85 ? 'text-red-600' : 'text-green-600'}`}>
+            {property.schedule_adherence || 0}%
+          </p>
+        </div>
+        <div>
+          <span className="text-muted-foreground">Next Due</span>
+          <p className="font-medium text-foreground">
+            {property.due_date ? new Date(property.due_date).toLocaleDateString() : 'TBD'}
+          </p>
+        </div>
+      </div>
+
+      <div className="bg-muted rounded-lg p-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <Clock className="w-4 h-4 text-primary mr-2" />
+            <span className="text-sm font-medium text-foreground">Next Milestone</span>
+          </div>
+          <span className="text-xs text-muted-foreground">
+            In Progress
+          </span>
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+);
+
 export default function Home() {
   const [activeView, setActiveView] = useState('projects');
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
@@ -84,7 +161,6 @@ export default function Home() {
       toast({
         title: "Project Created",
         description: "Your new project has been created successfully.",
-        variant: "success",
       });
       setIsNewProjectModalOpen(false);
       setNewProjectAddress('');
@@ -121,16 +197,6 @@ export default function Home() {
     return null;
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'planning': return 'bg-blue-100 text-blue-800';
-      case 'permits': return 'bg-amber-100 text-amber-800';
-      case 'assessment': return 'bg-orange-100 text-orange-800';
-      case 'active': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
   const PropertyCard = ({ property }: { property: Property }) => (
     <Card
       className="hover-lift cursor-pointer border border-border shadow-sm"
@@ -144,12 +210,10 @@ export default function Home() {
               {property.address}
             </h3>
             <p className="text-sm text-muted-foreground" data-testid={`text-type-${property.id}`}>
-              {property.type}
+              {property.project_type}
             </p>
           </div>
-          <Badge className={getStatusColor(property.status)} data-testid={`status-property-${property.id}`}>
-            {property.status}
-          </Badge>
+          <StatusBadge status={property.status} />
         </div>
 
         <div className="mb-6">
@@ -329,7 +393,11 @@ export default function Home() {
             </div>
 
             <div className="flex items-center space-x-4">
-              <Button variant="secondary" data-testid="button-filter">
+              <Button 
+                variant="secondary" 
+                data-testid="button-filter"
+                onClick={() => toast({ title: "Filter", description: "Filter functionality coming soon!" })}
+              >
                 <Filter className="w-4 h-4 mr-2" />
                 Filter
               </Button>
@@ -384,7 +452,12 @@ export default function Home() {
                 </DialogContent>
               </Dialog>
 
-              <Button variant="ghost" size="icon" data-testid="button-notifications">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                data-testid="button-notifications"
+                onClick={() => toast({ title: "Notifications", description: "You have no new notifications." })}
+              >
                 <Bell className="w-5 h-5" />
                 <span className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full"></span>
               </Button>
@@ -500,7 +573,7 @@ export default function Home() {
                 ))
               ) : (
                 properties.map(property => (
-                  <PropertyCard key={property.id} property={property} />
+                  <PropertyCard key={property.id} property={property} onSelect={setSelectedProperty} />
                 ))
               )}
             </div>
@@ -510,7 +583,12 @@ export default function Home() {
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold text-foreground mb-4">Quick Actions</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <Button variant="ghost" className="h-auto p-4 bg-primary/5 hover:bg-primary/10 justify-start" data-testid="button-create-rfq">
+                  <Button 
+                    variant="ghost" 
+                    className="h-auto p-4 bg-primary/5 hover:bg-primary/10 justify-start" 
+                    data-testid="button-create-rfq"
+                    onClick={() => toast({ title: "Create RFQ", description: "RFQ creation feature coming soon!" })}
+                  >
                     <div className="p-2 bg-primary rounded-lg mr-3">
                       <Plus className="text-primary-foreground text-sm" />
                     </div>
@@ -520,7 +598,12 @@ export default function Home() {
                     </div>
                   </Button>
 
-                  <Button variant="ghost" className="h-auto p-4 bg-green-500/5 hover:bg-green-500/10 justify-start" data-testid="button-upload-document">
+                  <Button 
+                    variant="ghost" 
+                    className="h-auto p-4 bg-green-500/5 hover:bg-green-500/10 justify-start" 
+                    data-testid="button-upload-document"
+                    onClick={() => toast({ title: "Upload Document", description: "Document upload feature coming soon!" })}
+                  >
                     <div className="p-2 bg-green-500 rounded-lg mr-3">
                       <Upload className="text-white text-sm" />
                     </div>
@@ -530,7 +613,12 @@ export default function Home() {
                     </div>
                   </Button>
 
-                  <Button variant="ghost" className="h-auto p-4 bg-amber-500/5 hover:bg-amber-500/10 justify-start" data-testid="button-daily-log">
+                  <Button 
+                    variant="ghost" 
+                    className="h-auto p-4 bg-amber-500/5 hover:bg-amber-500/10 justify-start" 
+                    data-testid="button-daily-log"
+                    onClick={() => toast({ title: "Daily Log", description: "Daily log feature coming soon!" })}
+                  >
                     <div className="p-2 bg-amber-500 rounded-lg mr-3">
                       <ClipboardCheck className="text-white text-sm" />
                     </div>
@@ -540,7 +628,12 @@ export default function Home() {
                     </div>
                   </Button>
 
-                  <Button variant="ghost" className="h-auto p-4 bg-purple-500/5 hover:bg-purple-500/10 justify-start" data-testid="button-submit-rfi">
+                  <Button 
+                    variant="ghost" 
+                    className="h-auto p-4 bg-purple-500/5 hover:bg-purple-500/10 justify-start" 
+                    data-testid="button-submit-rfi"
+                    onClick={() => toast({ title: "Submit RFI", description: "RFI submission feature coming soon!" })}
+                  >
                     <div className="p-2 bg-purple-500 rounded-lg mr-3">
                       <HelpCircle className="text-white text-sm" />
                     </div>
@@ -575,7 +668,12 @@ export default function Home() {
                   ))}
                 </div>
 
-                <Button variant="ghost" className="w-full mt-4" data-testid="button-view-all-activity">
+                <Button 
+                  variant="ghost" 
+                  className="w-full mt-4" 
+                  data-testid="button-view-all-activity"
+                  onClick={() => toast({ title: "View All Activity", description: "Full activity view coming soon!" })}
+                >
                   View All Activity
                 </Button>
               </CardContent>
