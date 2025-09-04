@@ -159,6 +159,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update milestone endpoint
+  app.put('/api/v1/milestones/:milestoneId', authenticateJWT, async (req: any, res) => {
+    try {
+      const { status, actual_end } = req.body;
+      const milestoneId = req.params.milestoneId;
+
+      // Get the milestone to check ownership
+      const existingMilestone = await storage.getMilestone(milestoneId);
+      if (!existingMilestone) {
+        return res.status(404).json({ message: "Milestone not found" });
+      }
+
+      // Verify the user has access to the project
+      const project = await storage.getProperty(existingMilestone.propertyId);
+      if (!project || project.pmId !== req.user.id) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      // Prepare update data
+      const updateData: any = {};
+      if (status !== undefined) {
+        updateData.status = status;
+      }
+      if (actual_end !== undefined) {
+        updateData.actualDate = new Date(actual_end);
+      }
+
+      // Update the milestone
+      const updatedMilestone = await storage.updateMilestone(milestoneId, updateData);
+
+      if (!updatedMilestone) {
+        return res.status(500).json({ message: "Failed to update milestone" });
+      }
+
+      // Create activity log for status changes
+      if (status && status !== existingMilestone.status) {
+        let activityDescription = `Updated milestone ${updatedMilestone.name} status to ${status}`;
+        if (status === 'complete') {
+          activityDescription = `Completed milestone ${updatedMilestone.name}`;
+        }
+        
+        await storage.createActivity({
+          userId: req.user.id,
+          propertyId: existingMilestone.propertyId,
+          action: status === 'complete' ? 'milestone_completed' : 'milestone_updated',
+          description: activityDescription,
+          entityType: 'milestone',
+          entityId: milestoneId,
+        });
+      }
+
+      res.status(200).json(updatedMilestone);
+    } catch (error) {
+      console.error("Error updating milestone:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   // Create project endpoint
   app.post('/api/v1/projects', authenticateJWT, async (req: any, res) => {
     try {
