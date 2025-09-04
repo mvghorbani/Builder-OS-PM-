@@ -29,7 +29,26 @@ const ConstructionPMApp = () => {
   const { user } = useAuth();
 
   const { data: properties = [] } = useQuery<Property[]>({
-    queryKey: ['/api/properties'],
+    queryKey: ['/api/v1/projects'],
+    queryFn: async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+      
+      const response = await fetch('/api/v1/projects', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch projects');
+      }
+      
+      return response.json();
+    },
   });
 
   const { data: milestones = [] } = useQuery<Milestone[]>({
