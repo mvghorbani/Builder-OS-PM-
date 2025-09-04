@@ -109,6 +109,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create milestone endpoint
+  app.post('/api/v1/projects/:projectId/milestones', authenticateJWT, async (req: any, res) => {
+    try {
+      const { name, milestone_type, planned_end } = req.body;
+      const projectId = req.params.projectId;
+
+      if (!name || !milestone_type || !planned_end) {
+        return res.status(400).json({ 
+          message: "Missing required fields: name, milestone_type, and planned_end" 
+        });
+      }
+
+      // Verify the project exists and user has access
+      const project = await storage.getProperty(projectId);
+      if (!project) {
+        return res.status(404).json({ message: "Project not found" });
+      }
+
+      if (project.pmId !== req.user.id) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const milestoneData = {
+        propertyId: projectId,
+        name,
+        description: milestone_type,
+        status: 'pending' as const,
+        targetDate: new Date(planned_end),
+        order: 0,
+      };
+
+      const milestone = await storage.createMilestone(milestoneData);
+
+      // Create activity log
+      await storage.createActivity({
+        userId: req.user.id,
+        propertyId: projectId,
+        action: 'milestone_created',
+        description: `Created milestone ${milestone.name}`,
+        entityType: 'milestone',
+        entityId: milestone.id,
+      });
+
+      res.status(201).json(milestone);
+    } catch (error) {
+      console.error("Error creating milestone:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   // Create project endpoint
   app.post('/api/v1/projects', authenticateJWT, async (req: any, res) => {
     try {
