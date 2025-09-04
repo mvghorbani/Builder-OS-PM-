@@ -44,6 +44,7 @@ export interface IStorage {
   // User operations (required for Replit Auth)
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
+  updateUserRole(id: string, role: string): Promise<User | undefined>;
   findUserByEmail(email: string): Promise<User | null>; // Added for clarity
   createUser(user: { email: string; firstName: string; lastName: string; profileImageUrl: string; role: string }): Promise<string>; // Added for Replit Auth
 
@@ -184,6 +185,16 @@ export class DatabaseStorage implements IStorage {
       .limit(1);
 
     return result[0] || null;
+  }
+
+  async updateUserRole(id: string, role: string): Promise<User | undefined> {
+    const result = await db
+      .update(users)
+      .set({ role, updatedAt: new Date() })
+      .where(eq(users.id, id))
+      .returning();
+
+    return result[0];
   }
 
   async createUser(user: { email: string; firstName: string; lastName: string; profileImageUrl: string; role: string }): Promise<string> {

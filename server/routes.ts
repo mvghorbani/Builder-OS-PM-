@@ -73,6 +73,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Simple admin login for testing
+  app.post('/api/admin/login', async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      // Find or create user
+      let user = await storage.findUserByEmail(email);
+      
+      if (!user) {
+        // Create new admin user
+        user = await storage.upsertUser({
+          id: `admin-${Date.now()}`,
+          email,
+          firstName: "Admin",
+          lastName: "User"
+        });
+        // Update role separately
+        await storage.updateUserRole(user.id, "admin");
+        user = await storage.getUser(user.id);
+      } else {
+        // Update existing user to admin role
+        user = await storage.updateUserRole(user.id, "admin");
+      }
+
+      if (!user) {
+        return res.status(500).json({ message: "Failed to create/update user" });
+      }
+
+      // Generate JWT token
+      const jwtSecret = process.env.JWT_SECRET || 'your-secret-key';
+      const token = jwt.sign(
+        { 
+          id: user.id, 
+          role: user.role,
+          email: user.email 
+        },
+        jwtSecret,
+        { expiresIn: '24h' }
+      );
+
+      // Set JWT as httpOnly cookie
+      res.cookie('auth_token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+      });
+
+      res.json({ 
+        message: "Admin login successful",
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role,
+        }
+      });
+    } catch (error) {
+      console.error("Admin login error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   // Google OAuth callback route
   app.post("/api/v1/auth/google/callback", async (req, res) => {
     try {
