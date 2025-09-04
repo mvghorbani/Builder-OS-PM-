@@ -1,0 +1,162 @@
+Hello. We are going to build the backend API for a construction management app called BuilderOS.
+
+The Tech Stack: Please use Node.js with the Express framework. We will be connecting to a PostgreSQL database.
+
+The Master Plan: Here is the complete database schema and the full OpenAPI specification for the entire application. Please use this as a reference guide for structure, naming conventions, and data types. Do not build everything in this plan yet. Just understand the overall structure and be prepared to use it as a reference.
+
+--- DATABASE SCHEMA START ---
+-- ================================
+-- CORE ENTITIES
+-- ================================
+-- Users and Authentication
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    phone VARCHAR(20),
+    role VARCHAR(50) NOT NULL CHECK (role IN ('admin', 'pm', 'owner', 'vendor', 'viewer')),
+    company_id UUID REFERENCES companies(id),
+    is_active BOOLEAN DEFAULT true,
+    last_login_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE companies (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(255) NOT NULL,
+    type VARCHAR(50) CHECK (type IN ('general_contractor', 'owner', 'vendor', 'consultant')),
+    address JSONB,
+    phone VARCHAR(20),
+    email VARCHAR(255),
+    license_number VARCHAR(100),
+    insurance_info JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+-- Properties/Projects
+CREATE TABLE properties (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    address TEXT NOT NULL,
+    property_type VARCHAR(100) NOT NULL,
+    project_type VARCHAR(100) NOT NULL,
+    status VARCHAR(50) NOT NULL DEFAULT 'planning',
+    owner_id UUID REFERENCES companies(id),
+    pm_id UUID REFERENCES users(id),
+    budget_total DECIMAL(12,2),
+    budget_contingency DECIMAL(12,2),
+    start_date DATE,
+    target_completion DATE,
+    actual_completion DATE,
+    square_footage INTEGER,
+    lot_size DECIMAL(10,2),
+    coordinates POINT,
+    permits_required JSONB,
+    metadata JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+-- ================================
+-- SCHEDULE & MILESTONES
+-- ================================
+CREATE TABLE milestones (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    milestone_type VARCHAR(50) NOT NULL,
+    status VARCHAR(50) DEFAULT 'pending' CHECK (status IN ('pending', 'active', 'blocked', 'complete', 'cancelled')),
+    planned_start DATE,
+    planned_end DATE,
+    actual_start DATE,
+    actual_end DATE,
+    dependencies JSONB,
+    blockers JSONB,
+    completion_percentage INTEGER DEFAULT 0 CHECK (completion_percentage >= 0 AND completion_percentage <= 100),
+    assigned_to UUID REFERENCES users(id),
+    created_by UUID REFERENCES users(id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+-- ================================
+-- FINANCIAL MANAGEMENT
+-- ================================
+CREATE TABLE budget_lines (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    category VARCHAR(100) NOT NULL,
+    scope_description TEXT NOT NULL,
+    budgeted_amount DECIMAL(12,2) NOT NULL,
+    committed_amount DECIMAL(12,2) DEFAULT 0,
+    spent_amount DECIMAL(12,2) DEFAULT 0,
+    vendor_id UUID REFERENCES companies(id),
+    contract_number VARCHAR(100),
+    milestone_id UUID REFERENCES milestones(id),
+    requires_bids BOOLEAN DEFAULT true,
+    minimum_bids INTEGER DEFAULT 3,
+    status VARCHAR(50) DEFAULT 'budgeted',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+-- ================================
+-- DOCUMENTS & FILES
+-- ================================
+CREATE TABLE documents (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    property_id UUID REFERENCES properties(id) ON DELETE CASCADE,
+    vendor_id UUID REFERENCES companies(id),
+    milestone_id UUID REFERENCES milestones(id),
+    rfi_id UUID REFERENCES rfis(id),
+    punch_item_id UUID REFERENCES punch_list_items(id),
+    change_order_id UUID REFERENCES change_orders(id),
+    document_type VARCHAR(100) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    file_path VARCHAR(500) NOT NULL,
+    file_name VARCHAR(255) NOT NULL,
+    file_size BIGINT,
+    mime_type VARCHAR(100),
+    version INTEGER DEFAULT 1,
+    is_current BOOLEAN DEFAULT true,
+    uploaded_by UUID REFERENCES users(id),
+    tags TEXT[],
+    metadata JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+-- ================================
+-- FUNCTIONS & TRIGGERS
+-- ================================
+-- Update timestamp trigger
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+CREATE TRIGGER update_properties_updated_at BEFORE UPDATE ON properties FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_milestones_updated_at BEFORE UPDATE ON milestones FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_budget_lines_updated_at BEFORE UPDATE ON budget_lines FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_invoices_updated_at BEFORE UPDATE ON invoices FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+--- DATABASE SCHEMA END ---
+
+--- API SPECIFICATION START ---
+openapi: 3.0.3
+info:
+  title: BuilderOS PM API
+  version: 1.0.0
+servers:
+  - url: /api/v1
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - BearerAuth: []
+--- API SPECIFICATION END ---
+
+Our First Task: Please set up the basic Express server structure. Create a single health-check endpoint at GET /health that returns a 200 OK status with the JSON message {"status": "ok", "timestamp": "ISO_DATE_STRING"}.
