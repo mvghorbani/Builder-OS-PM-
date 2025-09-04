@@ -42,7 +42,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { apiService } from "@/lib/apiService";
 import AnalyticsDashboard from "@/components/AnalyticsDashboard";
-import { PermitCoPilot } from "@/components/PermitCoPilot";
+import { PermitsCompliance } from "@/components/PermitsCompliance";
 
 interface DashboardStats {
   activeProjects: number;
@@ -725,7 +725,7 @@ export default function Home() {
             {activeView === 'permits' && (
               <div className="space-y-6">
                 <h3 className="text-xl font-semibold text-foreground">Permits & Compliance</h3>
-                <PermitCoPilot selectedProject={selectedProperty} />
+                <PermitsCompliance selectedProject={selectedProperty} />
               </div>
             )}
 

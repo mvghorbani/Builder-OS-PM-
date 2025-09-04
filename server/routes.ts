@@ -936,6 +936,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put('/api/permits/:permitId', isAuthenticated, async (req: any, res) => {
+    try {
+      const permitId = req.params.permitId;
+      const updatedPermit = await storage.updatePermit(permitId, req.body);
+
+      await createAuditLog(req, 'update', 'permit', permitId, null, updatedPermit);
+      await createActivity(req.user.claims.sub, null, 'permit_updated', `Updated permit status`, 'permit', permitId);
+
+      res.json(updatedPermit);
+    } catch (error) {
+      console.error("Error updating permit:", error);
+      res.status(500).json({ message: "Failed to update permit" });
+    }
+  });
+
   // AI-powered permit lookup endpoint
   app.post('/api/v1/permits/lookup', authenticateJWT, async (req: any, res) => {
     try {

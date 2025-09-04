@@ -1,0 +1,114 @@
+You are right to demand this level of detail. "Stupid and slow" is exactly what happens when an AI is given a vague task without a logical, architectural blueprint. It wastes your time and your money because it doesn't understand the business logic behind the feature.
+To fix this, we will not give it a simple task. We will give it a complete, professional-grade Software Design Document for the Permits & Compliance module. This document will be so detailed and logical that it removes all ambiguity, forcing the AI to build the feature correctly and efficiently.
+Here is the complete outline.
+Software Design Document: BuilderOS Permits & Compliance Module
+1. Vision & Business Value
+The Permits & Compliance module is the digital compliance officer for the entire portfolio. Its purpose is twofold:
+ * Proactive Discovery: To eliminate the costly, error-prone manual research required to find the correct, hyper-local permit requirements for a specific scope of work.
+ * Active Management: To provide a single source of truth for the status of all filed permits, preventing project delays, stop-work orders, and fines caused by missed deadlines or expired permits.
+This module directly protects capital by mitigating compliance-related financial risks.
+2. Core Architecture: The Two-Fold System
+The module consists of two tightly integrated components, as you specified:
+ * Module 1: The Permit Discovery Engine (The "Pulling" System)
+   * Function: An AI-powered research tool to identify the correct permit for a job.
+   * Technology: Leverages the Gemini API with Google Search grounding.
+ * Module 2: The Permit Tracking Ledger (The "Ensuring" System)
+   * Function: A database-driven system to manage the lifecycle of all permits.
+   * Technology: Standard CRUD (Create, Read, Update, Delete) operations against our PostgreSQL database.
+Module 1: The Permit Discovery Engine - Detailed Breakdown
+This module answers the question: "For this specific job at this specific address, what permit do I actually need?"
+ * User Story:
+   * The PM navigates to the "Permits" section of the "717 Palmway" project.
+   * They click the primary button: "🔎 Find Permit Requirements."
+   * A modal appears, asking for a "Description of Work." The PM types: "Replace all windows on the second floor."
+   * Upon submission, a loading indicator appears.
+   * After a few seconds, a "Results Card" is displayed with structured, AI-generated information.
+   * The PM reviews the information and clicks "+ Add to Project," which automatically populates the permit filing form.
+ * UI/UX Design:
+   * Primary Button: A prominent button labeled "🔎 Find Permit Requirements."
+   * Input Modal: A simple modal with a single textarea for the scope of work and a "Submit" button.
+   * Results Card: A clean, formatted card that displays four key pieces of data:
+     * Permit Name: (e.g., "Residential Window Replacement Permit")
+     * Issuing Authority: (e.g., "City of Lake Worth Beach - Building Division")
+     * Form/Portal Link: (A clickable <a> tag)
+     * Key Notes: (e.g., "Requires submission of product specifications.")
+   * Action Button: A button on the Results Card labeled "+ Add to Project."
+ * Backend API Endpoint:
+   * Endpoint: POST /api/v1/permits/lookup
+   * Request Body (JSON):
+     {
+  "projectAddress": "717 S Palmway, Lake Worth, FL",
+  "scopeOfWork": "Replace all windows on the second floor."
+}
+
+   * Response Body (JSON):
+     {
+  "permitName": "Residential Window Replacement Permit",
+  "issuingAuthority": "City of Lake Worth Beach - Building Division",
+  "formUrl": "https://lakeworthbeachfl.gov/...",
+  "notes": "Requires submission of product specifications and contractor license."
+}
+
+ * AI Integration:
+   * The lookup endpoint makes a server-side call to the Gemini API (gemini-2.5-flash-preview-05-20) using the GEMINI_API_KEY from Replit Secrets.
+   * The call must have Google Search grounding enabled.
+   * The System Prompt for the Gemini API must be precise: "You are an expert compliance assistant for construction projects in South Florida. Given a property address and a scope of work, you MUST use Google Search to find the official municipal government permit requirements for that specific city. You must return a single, minified JSON object with the following schema, and nothing else: { "permitName": string, "issuingAuthority": string, "formUrl": string, "notes": string }."
+Module 2: The Permit Tracking Ledger - Detailed Breakdown
+This module answers the question: "What is the status of all the permits we have filed?"
+ * User Story:
+   * The PM navigates to the "Permits" section.
+   * They see a list of all permits for that project, immediately noticing that the "Electrical Permit" is highlighted in yellow because it expires in 2 weeks.
+   * They click the "+ Add Permit" button to manually add a permit they already know about.
+   * They fill out the form and save it. The new permit appears in the list.
+   * Later, when the "Electrical Permit" is approved, they click on it, change its status to "Issued," and save the update. The badge color changes to green.
+ * UI/UX Design:
+   * Main View (The "Ledger"): A clean table of all permits for the project.
+   * Table Columns: Permit Type, Permit Number, Status, Applied Date, Issued Date, Expiry Date.
+   * Visual Alerts:
+     * The Status column uses color-coded badges (e.g., Blue for 'Applied', Green for 'Issued', Red for 'Expired').
+     * The entire table row for any permit expiring within 30 days has a distinct yellow background.
+   * Action Buttons:
+     * + Add Permit: Opens a modal for manual entry.
+     * Edit: Allows updating an existing permit's status or dates.
+ * Backend API Endpoints:
+   * GET /api/v1/projects/{projectId}/permits: Fetches all permits for a project to populate the ledger.
+   * POST /api/v1/projects/{projectId}/permits: Creates a new permit record in the database. This is used by both the manual form and the "+ Add to Project" button from Module 1.
+   * PUT /api/v1/permits/{permitId}: Updates an existing permit record.
+   * GET /api/v1/permits/expiring: A special endpoint for the main dashboard to get a count of all permits expiring soon across the entire portfolio.
+ * Database Schema Interaction:
+   * All endpoints in this module perform direct CRUD (Create, Read, Update, Delete) operations on the permits table in your database.
+The Verbatim Prompt for Replit
+Now, here is the complete, logical, and detailed prompt to give the assistant. It combines both modules into a single, comprehensive build order.
+We are building the complete "Permits & Compliance" module for BuilderOS. This is a two-part feature. Please follow this detailed plan exactly.
+
+**Part 1: Build the AI-Powered Permit Discovery Engine**
+
+* **Backend Task:**
+    1.  Create a new, authenticated endpoint: `POST /api/v1/permits/lookup`.
+    2.  It must accept a JSON body with `projectAddress` and `scopeOfWork`.
+    3.  It must make a server-side call to the Gemini API (`gemini-2.5-flash-preview-05-20`) with Google Search grounding enabled, using the `GEMINI_API_KEY` secret.
+    4.  The system prompt for the Gemini call must be: "You are an expert compliance assistant for construction projects in South Florida. Given a property address and a scope of work, you MUST use Google Search to find the official municipal government permit requirements for that specific city. You must return a single, minified JSON object with the following schema, and nothing else: { \"permitName\": string, \"issuingAuthority\": string, \"formUrl\": string, \"notes\": string }."
+    5.  The endpoint must return the JSON object from the Gemini API directly to the client.
+
+* **Frontend Task:**
+    1.  Create the main "Permits & Compliance" component. Its primary UI element is a button: "🔎 Find Permit Requirements."
+    2.  Clicking this button opens a modal with a `textarea` for the "Description of Work."
+    3.  Submitting the modal form calls the `POST /api/v1/permits/lookup` endpoint.
+    4.  Display the results in a "Results Card" showing the Permit Name, Issuing Authority, a clickable link for the Form URL, and any Key Notes.
+    5.  This card must have an "+ Add to Project" button.
+
+**Part 2: Build the Permit Tracking Ledger**
+
+* **Backend Task:**
+    1.  Implement the following API endpoints as defined in our master plan: `GET /api/v1/projects/{projectId}/permits`, `POST /api/v1/projects/{projectId}/permits`, and `PUT /api/v1/permits/{permitId}`. These will perform CRUD operations on the `permits` table.
+
+* **Frontend Task:**
+    1.  Below the "Find Permit Requirements" feature, create the "Permit Ledger."
+    2.  When the component loads, it will call `GET /api/v1/projects/{projectId}/permits` to populate a table.
+    3.  The table columns must be: Permit Type, Number, Status, Applied Date, Issued Date, Expiry Date.
+    4.  The Status column MUST use color-coded badges.
+    5.  Any table row for a permit expiring within 30 days MUST have a distinct yellow background.
+    6.  Create a manual "+ Add Permit" button that opens a form to create a new permit via the `POST` endpoint.
+    7.  The "+ Add to Project" button from Part 1 should also open this same form, but pre-populate it with the data from the AI.
+    8.  Implement functionality to edit a permit's status, which will call the `PUT` endpoint.
+
