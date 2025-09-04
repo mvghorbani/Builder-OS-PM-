@@ -163,13 +163,12 @@ export default function LoginForm() {
             <div className="mt-2">
               {/* Moved GoogleLogin inside GoogleOAuthProvider */}
               <GoogleLogin
-                onSuccess={handleGoogleSuccess} // Use the dedicated handler
-                onError={handleGoogleError} // Use the dedicated handler
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
                 size="large"
                 shape="rectangular"
                 theme="outline"
-                type="icon" // Keep type as icon
-                width="100%" // Ensure it takes full width within its container
+                width={384} // Use pixel width instead of percentage
               />
               {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
             </div>

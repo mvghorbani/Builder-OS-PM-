@@ -128,6 +128,11 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
   async upsertUser(user: UpsertUser): Promise<User> {
     // Try to find existing user by email first
     const existingUser = await this.findUserByEmail(user.email || "");
