@@ -19,6 +19,15 @@ import {
 } from "@shared/schema";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import multer from "multer";
+
+// Configure multer for file uploads
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+});
 
 // JWT authentication middleware
 const authenticateJWT = (req: any, res: any, next: any) => {
@@ -301,6 +310,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(budgetLine);
     } catch (error) {
       console.error("Error creating budget line:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Document upload endpoint
+  app.post('/api/v1/milestones/:milestoneId/documents', authenticateJWT, upload.single('file'), async (req: any, res) => {
+    try {
+      const milestoneId = req.params.milestoneId;
+      const file = req.file;
+
+      if (!file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      // Get the milestone to verify it exists and get property info
+      const milestone = await storage.getMilestone(milestoneId);
+      if (!milestone) {
+        return res.status(404).json({ message: "Milestone not found" });
+      }
+
+      // Verify user has access to the project
+      const project = await storage.getProperty(milestone.propertyId);
+      if (!project || project.pmId !== req.user.id) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      // Create document record
+      const documentData = {
+        name: file.originalname,
+        type: file.mimetype.split('/')[0] as 'image' | 'document' | 'video' | 'other', // Extract main type
+        fileSize: file.size,
+        mimeType: file.mimetype,
+        filePath: `/uploads/milestone_${milestoneId}/${file.originalname}`, // Placeholder path
+        uploadedBy: req.user.id,
+        propertyId: milestone.propertyId,
+        milestoneId: milestoneId,
+      };
+
+      const document = await storage.createDocument(documentData);
+
+      // Create activity log
+      await storage.createActivity({
+        userId: req.user.id,
+        propertyId: milestone.propertyId,
+        action: 'document_uploaded',
+        description: `Uploaded document ${document.name} to milestone ${milestone.name}`,
+        entityType: 'document',
+        entityId: document.id,
+      });
+
+      res.status(201).json(document);
+    } catch (error) {
+      console.error("Error uploading document:", error);
       res.status(500).json({ message: "Internal server error" });
     }
   });
