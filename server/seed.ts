@@ -2,7 +2,7 @@
 import bcrypt from 'bcrypt';
 import { Pool, neonConfig } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-serverless';
-import { users } from '../shared/schema.js';
+import { users } from '../shared/schema';
 import ws from 'ws';
 
 // Configure neon for serverless
