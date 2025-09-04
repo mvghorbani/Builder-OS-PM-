@@ -1,0 +1,787 @@
+import React, { useState } from 'react';
+import { 
+  CheckCircle, 
+  Clock, 
+  DollarSign, 
+  FileText, 
+  Camera, 
+  Calendar, 
+  AlertTriangle, 
+  Upload, 
+  Lock, 
+  Shield, 
+  XCircle,
+  AlertCircle
+} from 'lucide-react';
+
+const ConstructionPMApp = () => {
+  const [activeView, setActiveView] = useState('projects');
+  const [selectedProperty, setSelectedProperty] = useState(null);
+  const [activeScreen, setActiveScreen] = useState('dashboard');
+  const [selectedMilestone, setSelectedMilestone] = useState(null);
+  const [showRFQModal, setShowRFQModal] = useState(false);
+  const [selectedScope, setSelectedScope] = useState(null);
+
+  const properties = [
+    {
+      id: 1,
+      address: '284 Lytton',
+      type: 'Demo & Rebuild',
+      status: 'Permits',
+      progress: 25,
+      budget: { total: 850000, spent: 50000, committed: 125000 },
+      nextMilestone: 'Submit Building Permits',
+      alerts: ['Historic approvals complete ✓', 'Demo permit ready', 'Need 3 bids for demo work'],
+      dueDate: '2025-09-15',
+      kpis: { scheduleAdherence: 85, budgetVariance: -2.1, safetyIncidents: 0, permitSLA: 14 },
+      risks: [
+        { id: 'R001', type: 'risk', description: 'Neighbor notification timeline', impact: 'Medium', owner: 'PM', due: '2025-09-10', status: 'open' }
+      ]
+    },
+    {
+      id: 2,
+      address: '128 18th Ave N',
+      type: 'New Construction + ADU',
+      status: 'Planning',
+      progress: 15,
+      budget: { total: 650000, spent: 25000, committed: 85000 },
+      nextMilestone: 'FAR Verification Complete',
+      alerts: ['Tree mitigation required', 'FAR review overdue ⚠️', 'MEP 75% complete'],
+      dueDate: '2025-09-20',
+      kpis: { scheduleAdherence: 92, budgetVariance: 1.8, safetyIncidents: 0, permitSLA: 21 },
+      risks: [
+        { id: 'R002', type: 'issue', description: 'FAR compliance verification needed', impact: 'High', owner: 'Architect', due: '2025-09-18', status: 'overdue' }
+      ]
+    },
+    {
+      id: 3,
+      address: '717 Palmway',
+      type: 'Remodel to Lease',
+      status: 'Assessment',
+      progress: 10,
+      budget: { total: 180000, spent: 8000, committed: 15000 },
+      nextMilestone: 'Mold/Asbestos Results',
+      alerts: ['Insurance claim pending', 'Assessment due 9/12 ⚠️', 'Retro permits needed'],
+      dueDate: '2025-09-12',
+      kpis: { scheduleAdherence: 78, budgetVariance: 0.5, safetyIncidents: 0, permitSLA: 28 },
+      risks: [
+        { id: 'R004', type: 'risk', description: 'Asbestos remediation scope unknown', impact: 'High', owner: 'Environmental', due: '2025-09-15', status: 'open' }
+      ]
+    }
+  ];
+
+  const milestones = {
+    1: [
+      { 
+        id: 'M001', 
+        name: 'Historic Approvals', 
+        status: 'complete', 
+        date: '2025-08-15', 
+        actual: '2025-08-12'
+      },
+      { 
+        id: 'M002', 
+        name: 'Demo Permit', 
+        status: 'active', 
+        date: '2025-09-15', 
+        blockers: []
+      },
+      { 
+        id: 'M003', 
+        name: 'Building Permits', 
+        status: 'blocked', 
+        date: '2025-10-01', 
+        blockers: ['Demo permit pending']
+      }
+    ],
+    2: [
+      { 
+        id: 'M007', 
+        name: 'Plans Finalized', 
+        status: 'blocked', 
+        date: '2025-09-20', 
+        blockers: ['FAR verification pending', 'MEP coordination 75%', 'Tree mitigation plan missing']
+      },
+      { 
+        id: 'M008', 
+        name: 'Building Permits Submitted', 
+        status: 'blocked', 
+        date: '2025-10-15', 
+        blockers: ['Plans not finalized']
+      }
+    ],
+    3: [
+      { 
+        id: 'M013', 
+        name: 'Assessment Complete', 
+        status: 'active', 
+        date: '2025-09-12', 
+        blockers: ['Asbestos results pending']
+      },
+      { 
+        id: 'M014', 
+        name: 'Retro Permits', 
+        status: 'blocked', 
+        date: '2025-10-01', 
+        blockers: ['Assessment not complete']
+      }
+    ]
+  };
+
+  const budgetData = {
+    1: [
+      { scope: 'Historic Approvals', vendor: 'Heritage Consultants', contract: 15000, complete: 100, bids: 1, coiValid: true },
+      { scope: 'Demo Work', vendor: 'TBD', contract: 45000, complete: 0, bids: 2, coiValid: false, paymentBlocked: true },
+      { scope: 'Foundation', vendor: 'TBD', contract: 125000, complete: 0, bids: 0, coiValid: false, paymentBlocked: true }
+    ],
+    2: [
+      { scope: 'Plans & Design', vendor: 'Modern Arch', contract: 35000, complete: 75, bids: 1, coiValid: true },
+      { scope: 'Tree Mitigation', vendor: 'TBD', contract: 15000, complete: 0, bids: 1, coiValid: false, paymentBlocked: true }
+    ],
+    3: [
+      { scope: 'Assessment', vendor: 'EnviroTest', contract: 8000, complete: 90, bids: 3, coiValid: true },
+      { scope: 'Remediation', vendor: 'TBD', contract: 25000, complete: 0, bids: 0, coiValid: false, paymentBlocked: true }
+    ]
+  };
+
+  const bids = {
+    demoWork: [
+      { bidder: 'Demo Pro LLC', baseBid: 42000, coiValid: true, score: 85 },
+      { bidder: 'Teardown Experts', baseBid: 38000, coiValid: false, score: 72 },
+      { bidder: 'City Demo Co', baseBid: 45000, coiValid: true, score: 92 }
+    ]
+  };
+
+  const StatusBadge = ({ status, type = 'status' }) => {
+    const colors = {
+      status: {
+        'Planning': 'bg-blue-100 text-blue-800',
+        'Permits': 'bg-yellow-100 text-yellow-800', 
+        'Assessment': 'bg-orange-100 text-orange-800',
+        'Active': 'bg-green-100 text-green-800'
+      },
+      milestone: {
+        'complete': 'bg-green-100 text-green-800',
+        'active': 'bg-blue-100 text-blue-800',
+        'pending': 'bg-gray-100 text-gray-600',
+        'blocked': 'bg-red-100 text-red-800'
+      }
+    };
+    
+    const colorSet = colors[type] || colors.status;
+    return (
+      <span className={`px-2 py-1 rounded-full text-xs font-medium ${colorSet[status] || 'bg-gray-100 text-gray-800'}`}>
+        {status}
+      </span>
+    );
+  };
+
+  const PropertyCard = ({ property }) => (
+    <div 
+      className="bg-white rounded-xl p-4 mb-3 shadow-sm border border-gray-100 cursor-pointer"
+      onClick={() => setSelectedProperty(property)}
+    >
+      <div className="flex justify-between items-start mb-2">
+        <div>
+          <h3 className="font-semibold text-gray-900">{property.address}</h3>
+          <p className="text-sm text-gray-600">{property.type}</p>
+        </div>
+        <StatusBadge status={property.status} />
+      </div>
+      
+      <div className="mb-3">
+        <div className="flex justify-between text-sm text-gray-600 mb-1">
+          <span>Progress</span>
+          <span>{property.progress}%</span>
+        </div>
+        <div className="w-full bg-gray-200 rounded-full h-2">
+          <div 
+            className="bg-blue-500 h-2 rounded-full" 
+            style={{ width: `${property.progress}%` }}
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2 mb-3 text-xs">
+        <div>
+          <span className="text-gray-600">Budget</span>
+          <p className="font-medium">${(property.budget.spent / 1000).toFixed(0)}k / ${(property.budget.total / 1000).toFixed(0)}k</p>
+        </div>
+        <div>
+          <span className="text-gray-600">Schedule</span>
+          <p className={`font-medium ${property.kpis.scheduleAdherence < 85 ? 'text-red-600' : 'text-green-600'}`}>
+            {property.kpis.scheduleAdherence}%
+          </p>
+        </div>
+        <div>
+          <span className="text-gray-600">Permit SLA</span>
+          <p className={`font-medium ${property.kpis.permitSLA > 21 ? 'text-red-600' : 'text-blue-600'}`}>
+            {property.kpis.permitSLA}d
+          </p>
+        </div>
+      </div>
+
+      <div className="bg-gray-50 rounded-lg p-3 mb-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <Clock className="w-4 h-4 text-blue-500 mr-2" />
+            <span className="text-sm font-medium text-gray-900">{property.nextMilestone}</span>
+          </div>
+          <span className="text-xs text-gray-600">{property.dueDate}</span>
+        </div>
+      </div>
+
+      {property.alerts && property.alerts.length > 0 && (
+        <div className="space-y-1">
+          {property.alerts.slice(0, 2).map((alert, idx) => (
+            <div key={idx} className="flex items-center">
+              {alert.includes('✓') ? (
+                <CheckCircle className="w-3 h-3 text-green-500 mr-2" />
+              ) : alert.includes('⚠️') ? (
+                <AlertTriangle className="w-3 h-3 text-red-500 mr-2" />
+              ) : (
+                <AlertCircle className="w-3 h-3 text-amber-500 mr-2" />
+              )}
+              <span className={`text-xs ${alert.includes('⚠️') ? 'text-red-700' : alert.includes('✓') ? 'text-green-700' : 'text-amber-700'}`}>
+                {alert}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
+  const PropertyDetail = ({ property }) => {
+    const propertyMilestones = milestones[property.id] || [];
+    const propertyBudget = budgetData[property.id] || [];
+
+    const MilestoneScreen = () => (
+      <div className="bg-white p-4">
+        <h3 className="font-semibold text-gray-900 mb-4">Schedule & Gates</h3>
+        <div className="space-y-3">
+          {propertyMilestones.map((milestone) => (
+            <div 
+              key={milestone.id} 
+              className="border border-gray-100 rounded-lg p-3 cursor-pointer"
+              onClick={() => setSelectedMilestone(milestone)}
+            >
+              <div className="flex justify-between items-start mb-2">
+                <div className="flex items-center">
+                  {milestone.status === 'complete' ? (
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
+                  ) : milestone.status === 'active' ? (
+                    <div className="w-5 h-5 rounded-full bg-blue-500 mr-3" />
+                  ) : milestone.status === 'blocked' ? (
+                    <Lock className="w-5 h-5 text-red-500 mr-3" />
+                  ) : (
+                    <div className="w-5 h-5 rounded-full bg-gray-200 mr-3" />
+                  )}
+                  <div>
+                    <span className="font-medium text-gray-900">{milestone.name}</span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <StatusBadge status={milestone.status} type="milestone" />
+                  {milestone.blockers && milestone.blockers.length > 0 && (
+                    <div className="flex items-center mt-1">
+                      <Lock className="w-3 h-3 text-red-500 mr-1" />
+                      <span className="text-xs text-red-600">Gated</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <div className="flex justify-between text-sm text-gray-600 mb-2">
+                <span>Target: {milestone.date}</span>
+                {milestone.actual && (
+                  <span className="text-green-600">✓ {milestone.actual}</span>
+                )}
+              </div>
+
+              {milestone.blockers && milestone.blockers.length > 0 && (
+                <div className="bg-red-50 rounded p-2">
+                  <p className="text-xs text-red-800 font-medium">Blocked by:</p>
+                  {milestone.blockers.map((blocker, i) => (
+                    <p key={i} className="text-xs text-red-700">• {blocker}</p>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+
+    const BudgetScreen = () => (
+      <div className="bg-white p-4">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="font-semibold text-gray-900">Budget Control</h3>
+          <button className="text-blue-500 text-sm">+ Add Line</button>
+        </div>
+        
+        <div className="space-y-3">
+          {propertyBudget.map((line, idx) => (
+            <div key={idx} className="border border-gray-100 rounded-lg p-3">
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                  <h4 className="font-medium text-gray-900">{line.scope}</h4>
+                  <p className="text-sm text-gray-600">{line.vendor}</p>
+                  <div className="flex items-center mt-1">
+                    {line.bids < 3 && line.vendor === 'TBD' && (
+                      <div className="flex items-center mr-3">
+                        <AlertTriangle className="w-3 h-3 text-red-500 mr-1" />
+                        <span className="text-xs text-red-600">{line.bids}/3 bids</span>
+                      </div>
+                    )}
+                    {!line.coiValid && line.vendor !== 'TBD' && (
+                      <div className="flex items-center mr-3">
+                        <Shield className="w-3 h-3 text-red-500 mr-1" />
+                        <span className="text-xs text-red-600">COI expired</span>
+                      </div>
+                    )}
+                    {line.paymentBlocked && (
+                      <div className="flex items-center">
+                        <Lock className="w-3 h-3 text-red-500 mr-1" />
+                        <span className="text-xs text-red-600">Payment blocked</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="font-medium">${line.contract.toLocaleString()}</p>
+                </div>
+              </div>
+              
+              <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+                <div 
+                  className="bg-green-500 h-2 rounded-full" 
+                  style={{ width: `${line.complete}%` }}
+                />
+              </div>
+
+              {line.paymentBlocked && (
+                <button 
+                  disabled 
+                  className="w-full bg-gray-300 text-gray-500 rounded-lg py-2 text-sm cursor-not-allowed"
+                >
+                  Payment Blocked - {line.bids < 3 ? 'Need 3 bids' : 'COI required'}
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+
+    const ProcurementScreen = () => (
+      <div className="bg-white p-4">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="font-semibold text-gray-900">Procurement Status</h3>
+          <button className="text-blue-500 text-sm">+ Request Bids</button>
+        </div>
+        
+        <div className="space-y-4">
+          {/* Demo Work - 284 Lytton */}
+          <div className="border border-gray-100 rounded-lg p-3">
+            <div className="flex justify-between items-start mb-3">
+              <h4 className="font-medium text-gray-900">Demo Work - 284 Lytton</h4>
+              <div className="text-right">
+                <StatusBadge status="Ready to Bid" />
+                <p className="text-xs text-gray-600 mt-1">0/3 bids received</p>
+              </div>
+            </div>
+            
+            <div className="bg-gray-50 rounded p-3 text-center">
+              <p className="text-sm text-gray-600 mb-2">No bids received yet</p>
+              <button className="bg-blue-500 text-white px-4 py-2 rounded text-sm">
+                Send RFQ to Vendors
+              </button>
+            </div>
+
+            <div className="mt-3 pt-3 border-t">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-500">Award Status</span>
+                <button 
+                  disabled 
+                  className="bg-gray-300 text-gray-500 px-4 py-2 rounded-lg text-sm cursor-not-allowed"
+                >
+                  Need 3 Bids to Award
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Tree Work - 128 18th Ave */}
+          <div className="border border-gray-100 rounded-lg p-3">
+            <div className="flex justify-between items-start mb-3">
+              <h4 className="font-medium text-gray-900">Tree Assessment - 128 18th Ave</h4>
+              <div className="text-right">
+                <StatusBadge status="Blocked" />
+                <p className="text-xs text-red-600 mt-1">Scope undefined</p>
+              </div>
+            </div>
+            
+            <div className="bg-red-50 rounded p-3">
+              <div className="flex items-center mb-2">
+                <Lock className="w-4 h-4 text-red-500 mr-2" />
+                <span className="text-sm text-red-800 font-medium">Cannot request bids yet</span>
+              </div>
+              <p className="text-xs text-red-700">Waiting for: FAR verification and MEP completion to determine tree impact</p>
+            </div>
+          </div>
+
+          {/* Remediation - 717 Palmway */}
+          <div className="border border-gray-100 rounded-lg p-3">
+            <div className="flex justify-between items-start mb-3">
+              <h4 className="font-medium text-gray-900">Remediation - 717 Palmway</h4>
+              <div className="text-right">
+                <StatusBadge status="Blocked" />
+                <p className="text-xs text-red-600 mt-1">Assessment pending</p>
+              </div>
+            </div>
+            
+            <div className="bg-red-50 rounded p-3">
+              <div className="flex items-center mb-2">
+                <Lock className="w-4 h-4 text-red-500 mr-2" />
+                <span className="text-sm text-red-800 font-medium">Cannot request bids yet</span>
+              </div>
+              <p className="text-xs text-red-700">Waiting for: Asbestos test results to determine remediation scope</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+
+    if (selectedMilestone) {
+      const canComplete = !selectedMilestone.blockers || selectedMilestone.blockers.length === 0;
+
+      return (
+        <div className="bg-white min-h-screen">
+          <div className="bg-blue-500 text-white px-4 py-4">
+            <button 
+              onClick={() => setSelectedMilestone(null)}
+              className="mb-2 text-blue-100 hover:text-white"
+            >
+              ← Back to Schedule
+            </button>
+            <h1 className="text-xl font-bold">{selectedMilestone.name}</h1>
+            <p className="text-blue-100">{property.address}</p>
+          </div>
+          
+          <div className="p-4 space-y-4">
+            <div className="bg-white border rounded-lg p-4">
+              <h3 className="font-semibold mb-3">Milestone Status</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Status</span>
+                  <StatusBadge status={selectedMilestone.status} type="milestone" />
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Target Date</span>
+                  <span>{selectedMilestone.date}</span>
+                </div>
+              </div>
+            </div>
+
+            {selectedMilestone.blockers && selectedMilestone.blockers.length > 0 && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <h3 className="font-semibold text-red-800 mb-3">
+                  <Lock className="w-4 h-4 inline mr-1" />
+                  Current Blockers
+                </h3>
+                {selectedMilestone.blockers.map((blocker, idx) => (
+                  <div key={idx} className="flex items-center text-sm text-red-700 mb-1">
+                    <XCircle className="w-4 h-4 mr-2" />
+                    {blocker}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <button 
+                disabled={!canComplete}
+                className={`w-full rounded-lg py-3 font-medium ${
+                  canComplete
+                    ? 'bg-blue-500 text-white' 
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                {canComplete ? 'Mark Complete' : 'Complete Blocked'}
+              </button>
+              
+              <button className="w-full bg-gray-100 text-gray-800 rounded-lg py-3 font-medium">
+                <Upload className="w-4 h-4 inline mr-2" />
+                Upload Documentation
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="bg-white min-h-screen">
+        <div className="bg-blue-500 text-white px-4 py-6 rounded-b-3xl">
+          <button 
+            onClick={() => setSelectedProperty(null)}
+            className="mb-4 text-blue-100 hover:text-white"
+          >
+            ← Back
+          </button>
+          <h1 className="text-2xl font-bold">{property.address}</h1>
+          <p className="text-blue-100">{property.type}</p>
+        </div>
+
+        <div className="p-4 space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-green-50 rounded-xl p-3">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-xs text-green-600">Schedule</p>
+                {property.kpis.scheduleAdherence < 85 && <AlertTriangle className="w-3 h-3 text-red-500" />}
+              </div>
+              <p className={`text-lg font-bold ${property.kpis.scheduleAdherence < 85 ? 'text-red-600' : 'text-green-800'}`}>
+                {property.kpis.scheduleAdherence}%
+              </p>
+            </div>
+            <div className="bg-blue-50 rounded-xl p-3">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-xs text-blue-600">Budget Var</p>
+                {Math.abs(property.kpis.budgetVariance) > 5 && <AlertTriangle className="w-3 h-3 text-red-500" />}
+              </div>
+              <p className={`text-lg font-bold ${Math.abs(property.kpis.budgetVariance) > 5 ? 'text-red-600' : 'text-blue-800'}`}>
+                {property.kpis.budgetVariance}%
+              </p>
+            </div>
+            <div className="bg-gray-50 rounded-xl p-3">
+              <p className="text-xs text-gray-600 mb-1">Safety</p>
+              <p className="text-lg font-bold text-gray-800">{property.kpis.safetyIncidents}</p>
+            </div>
+            <div className="bg-yellow-50 rounded-xl p-3">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-xs text-yellow-600">Permit SLA</p>
+                {property.kpis.permitSLA > 21 && <AlertTriangle className="w-3 h-3 text-red-500" />}
+              </div>
+              <p className={`text-lg font-bold ${property.kpis.permitSLA > 21 ? 'text-red-600' : 'text-yellow-800'}`}>
+                {property.kpis.permitSLA}d
+              </p>
+            </div>
+          </div>
+
+          <div className="flex bg-gray-100 rounded-lg p-1">
+            {[
+              { id: 'schedule', label: 'Schedule' },
+              { id: 'budget', label: 'Budget' },
+              { id: 'procurement', label: 'Bids' }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveScreen(tab.id)}
+                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium ${
+                  activeScreen === tab.id ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {activeScreen === 'schedule' && <MilestoneScreen />}
+          {activeScreen === 'budget' && <BudgetScreen />}
+          {activeScreen === 'procurement' && <ProcurementScreen />}
+        </div>
+      </div>
+    );
+  };
+
+  const ProjectsView = () => {
+    const totalBudget = properties.reduce((sum, p) => sum + p.budget.total, 0);
+    const criticalAlerts = properties.reduce((alerts, p) => 
+      alerts + (p.alerts ? p.alerts.filter(a => a.includes('⚠️')).length : 0), 0
+    );
+
+    return (
+      <div className="bg-gray-50 min-h-screen">
+        <div className="bg-white px-4 py-6 rounded-b-3xl shadow-sm">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Projects</h1>
+              <p className="text-gray-600 mt-1">3 active properties</p>
+            </div>
+            <div className="text-right">
+              <p className="text-sm text-gray-600">Total Budget</p>
+              <p className="text-xl font-bold text-gray-900">
+                ${(totalBudget / 1000000).toFixed(2)}M
+              </p>
+            </div>
+          </div>
+          
+          {criticalAlerts > 0 && (
+            <div className="mt-4 bg-red-50 rounded-lg p-3">
+              <div className="flex items-center mb-2">
+                <AlertTriangle className="w-4 h-4 text-red-500 mr-2" />
+                <span className="font-medium text-red-800">
+                  {criticalAlerts} Critical Alert{criticalAlerts > 1 ? 's' : ''}
+                </span>
+              </div>
+              <div className="space-y-1">
+                {properties.map(p => 
+                  p.alerts ? p.alerts.filter(a => a.includes('⚠️')).map((alert, idx) => (
+                    <p key={`${p.id}-${idx}`} className="text-sm text-red-700">
+                      • {p.address}: {alert}
+                    </p>
+                  )) : null
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+        
+        <div className="p-4">
+          {properties.map(property => (
+            <PropertyCard key={property.id} property={property} />
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const TabBar = () => (
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200">
+      <div className="flex justify-around py-2">
+        {[
+          { id: 'projects', icon: FileText, label: 'Projects' },
+          { id: 'schedule', icon: Calendar, label: 'Schedule' },
+          { id: 'budget', icon: DollarSign, label: 'Budget' },
+          { id: 'reports', icon: Camera, label: 'Reports' }
+        ].map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveView(tab.id)}
+            className={`flex flex-col items-center py-2 px-4 ${
+              activeView === tab.id ? 'text-blue-500' : 'text-gray-600'
+            }`}
+          >
+            <tab.icon className="w-5 h-5 mb-1" />
+            <span className="text-xs font-medium">{tab.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* RFQ Modal */}
+      {showRFQModal && (
+        <RFQModal 
+          scope={selectedScope || 'Demo Work'} 
+          onClose={() => {
+            setShowRFQModal(false);
+            setSelectedScope(null);
+          }} 
+        />
+      )}
+    </div>
+  );
+
+  if (selectedProperty) {
+    return <PropertyDetail property={selectedProperty} />;
+  }
+
+  return (
+    <div className="max-w-md mx-auto bg-gray-50 min-h-screen">
+      {activeView === 'projects' && <ProjectsView />}
+      
+      {activeView === 'schedule' && (
+        <div className="bg-gray-50 min-h-screen">
+          <div className="bg-white px-4 py-6 rounded-b-3xl shadow-sm">
+            <h1 className="text-3xl font-bold text-gray-900">Master Schedule</h1>
+            <p className="text-gray-600 mt-1">Critical path & gates</p>
+          </div>
+          <div className="p-4 space-y-3">
+            {properties.map(property => {
+              const pendingMilestones = milestones[property.id] ? milestones[property.id].filter(m => m.status === 'pending' && m.blockers && m.blockers.length > 0).length : 0;
+              return (
+                <div key={property.id} className="bg-white rounded-xl p-4 border border-gray-100">
+                  <div className="flex justify-between items-center mb-3">
+                    <h3 className="font-semibold">{property.address}</h3>
+                    <div className="text-right">
+                      <span className={`text-sm ${property.kpis.scheduleAdherence < 85 ? 'text-red-600' : 'text-blue-600'}`}>
+                        {property.kpis.scheduleAdherence}% on-time
+                      </span>
+                      {pendingMilestones > 0 && (
+                        <div className="flex items-center mt-1">
+                          <Clock className="w-3 h-3 text-yellow-500 mr-1" />
+                          <span className="text-xs text-yellow-600">{pendingMilestones} waiting on dependencies</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="bg-yellow-50 rounded p-2">
+                    <p className="text-sm font-medium text-yellow-800">{property.nextMilestone}</p>
+                    <p className="text-xs text-yellow-700">Due: {property.dueDate}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {activeView === 'budget' && (
+        <div className="bg-gray-50 min-h-screen">
+          <div className="bg-white px-4 py-6 rounded-b-3xl shadow-sm">
+            <h1 className="text-3xl font-bold text-gray-900">Budget Control</h1>
+            <p className="text-gray-600 mt-1">CTC & variance tracking</p>
+          </div>
+          <div className="p-4 space-y-3">
+            {properties.map(property => (
+              <div key={property.id} className="bg-white rounded-xl p-4 border border-gray-100">
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="font-semibold text-gray-900">{property.address}</h3>
+                  <span className={`text-sm ${Math.abs(property.kpis.budgetVariance) > 5 ? 'text-red-600' : 'text-green-600'}`}>
+                    {property.kpis.budgetVariance > 0 ? '+' : ''}{property.kpis.budgetVariance}%
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                  <div 
+                    className="bg-blue-500 h-2 rounded-full" 
+                    style={{ width: `${(property.budget.spent / property.budget.total) * 100}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {activeView === 'reports' && (
+        <div className="bg-gray-50 min-h-screen">
+          <div className="bg-white px-4 py-6 rounded-b-3xl shadow-sm">
+            <h1 className="text-3xl font-bold text-gray-900">Reports</h1>
+            <p className="text-gray-600 mt-1">Weekly & monthly packets</p>
+          </div>
+          <div className="p-4 space-y-3">
+            <div className="bg-white rounded-xl p-4 border border-gray-100">
+              <h3 className="font-semibold text-gray-900">Weekly Status Report</h3>
+              <p className="text-sm text-gray-600">Week ending Sep 1, 2025</p>
+              <div className="grid grid-cols-2 gap-3 text-sm mt-3">
+                <div>
+                  <p className="text-gray-600">Site visits</p>
+                  <p className="font-bold text-green-600">3/3 ✓</p>
+                </div>
+                <div>
+                  <p className="text-gray-600">Gate holds</p>
+                  <p className="font-bold text-red-600">4</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="pb-16"></div>
+      <TabBar />
+    </div>
+  );
+};
+
+export default ConstructionPMApp;

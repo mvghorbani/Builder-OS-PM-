@@ -1,0 +1,1706 @@
+## Database Schema
+
+```sql
+-- ================================
+-- CORE ENTITIES
+-- ================================
+
+-- Users and Authentication
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    phone VARCHAR(20),
+    role VARCHAR(50) NOT NULL CHECK (role IN ('admin', 'pm', 'owner', 'vendor', 'viewer')),
+    company_id UUID REFERENCES companies(id),
+    is_active BOOLEAN DEFAULT true,
+    last_login_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE companies (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(255) NOT NULL,
+    type VARCHAR(50) CHECK (type IN ('general_contractor', 'owner', 'vendor', 'consultant')),
+    address JSONB,
+    phone VARCHAR(20),
+    email VARCHAR(255),
+    license_number VARCHAR(100),
+    insurance_info JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Properties/Projects
+CREATE TABLE properties (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    address TEXT NOT NULL,
+    property_type VARCHAR(100) NOT NULL,
+    project_type VARCHAR(100) NOT NULL,
+    status VARCHAR(50) NOT NULL DEFAULT 'planning',
+    owner_id UUID REFERENCES companies(id),
+    pm_id UUID REFERENCES users(id),
+    budget_total DECIMAL(12,2),
+    budget_contingency DECIMAL(12,2),
+    start_date DATE,
+    target_completion DATE,
+    actual_completion DATE,
+    square_footage INTEGER,
+    lot_size DECIMAL(10,2),
+    coordinates POINT,
+    permits_required JSONB,
+    metadata JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ================================
+-- SCHEDULE & MILESTONES
+-- ================================
+
+CREATE TABLE milestones (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    milestone_type VARCHAR(50) NOT NULL,
+    status VARCHAR(50) DEFAULT 'pending' CHECK (status IN ('pending', 'active', 'blocked', 'complete', 'cancelled')),
+    planned_start DATE,
+    planned_end DATE,
+    actual_start DATE,
+    actual_end DATE,
+    dependencies JSONB, -- Array of milestone IDs
+    blockers JSONB, -- Array of blocking conditions
+    completion_percentage INTEGER DEFAULT 0 CHECK (completion_percentage >= 0 AND completion_percentage <= 100),
+    assigned_to UUID REFERENCES users(id),
+    created_by UUID REFERENCES users(id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ================================
+-- FINANCIAL MANAGEMENT
+-- ================================
+
+CREATE TABLE budget_lines (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    category VARCHAR(100) NOT NULL,
+    scope_description TEXT NOT NULL,
+    budgeted_amount DECIMAL(12,2) NOT NULL,
+    committed_amount DECIMAL(12,2) DEFAULT 0,
+    spent_amount DECIMAL(12,2) DEFAULT 0,
+    vendor_id UUID REFERENCES companies(id),
+    contract_number VARCHAR(100),
+    milestone_id UUID REFERENCES milestones(id),
+    requires_bids BOOLEAN DEFAULT true,
+    minimum_bids INTEGER DEFAULT 3,
+    status VARCHAR(50) DEFAULT 'budgeted',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE change_orders (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    change_order_number VARCHAR(50) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    reason VARCHAR(500),
+    cost_impact DECIMAL(12,2) NOT NULL,
+    schedule_impact_days INTEGER DEFAULT 0,
+    status VARCHAR(50) DEFAULT 'draft' CHECK (status IN ('draft', 'submitted', 'approved', 'rejected', 'executed')),
+    requested_by UUID REFERENCES users(id),
+    approved_by UUID REFERENCES users(id),
+    vendor_id UUID REFERENCES companies(id),
+    budget_line_id UUID REFERENCES budget_lines(id),
+    approved_at TIMESTAMP,
+    executed_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE invoices (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    vendor_id UUID NOT NULL REFERENCES companies(id),
+    invoice_number VARCHAR(100) NOT NULL,
+    budget_line_id UUID REFERENCES budget_lines(id),
+    invoice_amount DECIMAL(12,2) NOT NULL,
+    retention_percentage DECIMAL(5,2) DEFAULT 5.00,
+    retention_amount DECIMAL(12,2),
+    net_amount DECIMAL(12,2),
+    work_period_start DATE,
+    work_period_end DATE,
+    status VARCHAR(50) DEFAULT 'submitted' CHECK (status IN ('submitted', 'approved', 'paid', 'rejected', 'on_hold')),
+    submitted_at TIMESTAMP,
+    approved_at TIMESTAMP,
+    paid_at TIMESTAMP,
+    approved_by UUID REFERENCES users(id),
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ================================
+-- PROCUREMENT & BIDDING
+-- ================================
+
+CREATE TABLE rfqs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    budget_line_id UUID REFERENCES budget_lines(id),
+    rfq_number VARCHAR(50) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    scope_description TEXT,
+    bid_due_date TIMESTAMP,
+    walkthrough_date TIMESTAMP,
+    status VARCHAR(50) DEFAULT 'draft' CHECK (status IN ('draft', 'sent', 'closed', 'awarded', 'cancelled')),
+    created_by UUID REFERENCES users(id),
+    awarded_to UUID REFERENCES companies(id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE rfq_invitations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    rfq_id UUID NOT NULL REFERENCES rfqs(id) ON DELETE CASCADE,
+    vendor_id UUID NOT NULL REFERENCES companies(id),
+    invited_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    viewed_at TIMESTAMP,
+    responded_at TIMESTAMP,
+    UNIQUE(rfq_id, vendor_id)
+);
+
+CREATE TABLE bids (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    rfq_id UUID NOT NULL REFERENCES rfqs(id) ON DELETE CASCADE,
+    vendor_id UUID NOT NULL REFERENCES companies(id),
+    base_bid_amount DECIMAL(12,2) NOT NULL,
+    alternates JSONB,
+    unit_prices JSONB,
+    timeline_days INTEGER,
+    warranty_terms TEXT,
+    exclusions TEXT,
+    notes TEXT,
+    status VARCHAR(50) DEFAULT 'submitted' CHECK (status IN ('draft', 'submitted', 'awarded', 'rejected')),
+    submitted_at TIMESTAMP,
+    expires_at TIMESTAMP,
+    UNIQUE(rfq_id, vendor_id)
+);
+
+-- ================================
+-- VENDOR MANAGEMENT
+-- ================================
+
+CREATE TABLE vendor_qualifications (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    vendor_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+    license_number VARCHAR(100),
+    license_expiry DATE,
+    bond_amount DECIMAL(12,2),
+    bond_expiry DATE,
+    insurance_general_liability DECIMAL(12,2),
+    insurance_workers_comp BOOLEAN DEFAULT false,
+    insurance_expiry DATE,
+    emod_rate DECIMAL(5,2),
+    safety_rating VARCHAR(20),
+    prequalified BOOLEAN DEFAULT false,
+    prequalified_until DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE vendor_performance (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    vendor_id UUID NOT NULL REFERENCES companies(id),
+    property_id UUID NOT NULL REFERENCES properties(id),
+    category VARCHAR(100), -- 'schedule', 'quality', 'safety', 'communication'
+    rating INTEGER CHECK (rating >= 1 AND rating <= 5),
+    comments TEXT,
+    scored_by UUID REFERENCES users(id),
+    scored_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ================================
+-- PERMITS & COMPLIANCE
+-- ================================
+
+CREATE TABLE permits (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    permit_type VARCHAR(100) NOT NULL,
+    permit_number VARCHAR(100),
+    description TEXT,
+    status VARCHAR(50) DEFAULT 'required' CHECK (status IN ('required', 'applied', 'under_review', 'approved', 'issued', 'expired', 'rejected')),
+    applied_date DATE,
+    approved_date DATE,
+    issued_date DATE,
+    expiry_date DATE,
+    fee_amount DECIMAL(10,2),
+    issuing_authority VARCHAR(255),
+    conditions TEXT,
+    milestone_id UUID REFERENCES milestones(id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE safety_incidents (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    incident_date TIMESTAMP NOT NULL,
+    incident_type VARCHAR(100) NOT NULL,
+    severity VARCHAR(50) CHECK (severity IN ('minor', 'major', 'serious', 'fatal')),
+    description TEXT NOT NULL,
+    injured_party VARCHAR(255),
+    vendor_id UUID REFERENCES companies(id),
+    actions_taken TEXT,
+    root_cause TEXT,
+    preventive_measures TEXT,
+    reported_by UUID REFERENCES users(id),
+    osha_reportable BOOLEAN DEFAULT false,
+    workers_comp_claim BOOLEAN DEFAULT false,
+    status VARCHAR(50) DEFAULT 'open' CHECK (status IN ('open', 'investigating', 'closed')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ================================
+-- COMMUNICATION & RFIs
+-- ================================
+
+CREATE TABLE rfis (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    rfi_number VARCHAR(50) NOT NULL,
+    subject VARCHAR(255) NOT NULL,
+    question TEXT NOT NULL,
+    priority VARCHAR(50) DEFAULT 'normal' CHECK (priority IN ('low', 'normal', 'high', 'urgent')),
+    status VARCHAR(50) DEFAULT 'open' CHECK (status IN ('open', 'answered', 'closed')),
+    submitted_by UUID REFERENCES users(id),
+    assigned_to UUID REFERENCES users(id),
+    vendor_id UUID REFERENCES companies(id),
+    milestone_id UUID REFERENCES milestones(id),
+    due_date DATE,
+    answered_at TIMESTAMP,
+    answer TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE daily_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    log_date DATE NOT NULL,
+    weather_am VARCHAR(100),
+    weather_pm VARCHAR(100),
+    temperature_high INTEGER,
+    temperature_low INTEGER,
+    work_performed TEXT,
+    delays TEXT,
+    safety_notes TEXT,
+    quality_notes TEXT,
+    visitors TEXT,
+    deliveries TEXT,
+    equipment_on_site TEXT,
+    manpower JSONB, -- {trade: count} mapping
+    logged_by UUID REFERENCES users(id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(property_id, log_date)
+);
+
+CREATE TABLE punch_list_items (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    item_number VARCHAR(50),
+    location VARCHAR(255) NOT NULL,
+    trade VARCHAR(100),
+    description TEXT NOT NULL,
+    priority VARCHAR(50) DEFAULT 'normal' CHECK (priority IN ('low', 'normal', 'high')),
+    status VARCHAR(50) DEFAULT 'open' CHECK (status IN ('open', 'in_progress', 'completed', 'verified', 'rejected')),
+    assigned_to UUID REFERENCES companies(id),
+    due_date DATE,
+    identified_by UUID REFERENCES users(id),
+    completed_at TIMESTAMP,
+    verified_by UUID REFERENCES users(id),
+    verified_at TIMESTAMP,
+    cost_estimate DECIMAL(10,2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ================================
+-- DOCUMENTS & FILES
+-- ================================
+
+CREATE TABLE documents (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    property_id UUID REFERENCES properties(id) ON DELETE CASCADE,
+    vendor_id UUID REFERENCES companies(id),
+    milestone_id UUID REFERENCES milestones(id),
+    rfi_id UUID REFERENCES rfis(id),
+    punch_item_id UUID REFERENCES punch_list_items(id),
+    change_order_id UUID REFERENCES change_orders(id),
+    document_type VARCHAR(100) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    file_path VARCHAR(500) NOT NULL,
+    file_name VARCHAR(255) NOT NULL,
+    file_size BIGINT,
+    mime_type VARCHAR(100),
+    version INTEGER DEFAULT 1,
+    is_current BOOLEAN DEFAULT true,
+    uploaded_by UUID REFERENCES users(id),
+    tags TEXT[],
+    metadata JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ================================
+-- COMMUNICATION
+-- ================================
+
+CREATE TABLE messages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    property_id UUID REFERENCES properties(id),
+    thread_id UUID, -- For grouping related messages
+    sender_id UUID NOT NULL REFERENCES users(id),
+    recipients UUID[] NOT NULL,
+    subject VARCHAR(255),
+    message_text TEXT NOT NULL,
+    message_type VARCHAR(50) DEFAULT 'general' CHECK (message_type IN ('general', 'alert', 'status_update', 'escalation')),
+    priority VARCHAR(50) DEFAULT 'normal',
+    read_by JSONB DEFAULT '{}', -- {user_id: timestamp} mapping
+    attachments UUID[], -- document IDs
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE meetings (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    property_id UUID REFERENCES properties(id),
+    meeting_type VARCHAR(100) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    agenda TEXT,
+    meeting_date TIMESTAMP NOT NULL,
+    duration_minutes INTEGER,
+    location VARCHAR(255),
+    organizer_id UUID REFERENCES users(id),
+    attendees UUID[] NOT NULL,
+    minutes TEXT,
+    action_items JSONB,
+    next_meeting TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ================================
+-- REPORTING & ANALYTICS
+-- ================================
+
+CREATE TABLE kpi_snapshots (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    snapshot_date DATE NOT NULL,
+    schedule_adherence DECIMAL(5,2),
+    budget_variance DECIMAL(5,2),
+    safety_incidents INTEGER DEFAULT 0,
+    permit_sla_days INTEGER,
+    vendor_performance_avg DECIMAL(3,2),
+    change_order_count INTEGER DEFAULT 0,
+    change_order_value DECIMAL(12,2) DEFAULT 0,
+    rfi_count INTEGER DEFAULT 0,
+    rfi_avg_response_days DECIMAL(5,2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(property_id, snapshot_date)
+);
+
+-- ================================
+-- INDEXES FOR PERFORMANCE
+-- ================================
+
+CREATE INDEX idx_properties_owner ON properties(owner_id);
+CREATE INDEX idx_properties_pm ON properties(pm_id);
+CREATE INDEX idx_properties_status ON properties(status);
+CREATE INDEX idx_milestones_property ON milestones(property_id);
+CREATE INDEX idx_milestones_status ON milestones(status);
+CREATE INDEX idx_budget_lines_property ON budget_lines(property_id);
+CREATE INDEX idx_invoices_property ON invoices(property_id);
+CREATE INDEX idx_invoices_vendor ON invoices(vendor_id);
+CREATE INDEX idx_invoices_status ON invoices(status);
+CREATE INDEX idx_permits_property ON permits(property_id);
+CREATE INDEX idx_permits_expiry ON permits(expiry_date) WHERE expiry_date IS NOT NULL;
+CREATE INDEX idx_documents_property ON documents(property_id);
+CREATE INDEX idx_documents_type ON documents(document_type);
+CREATE INDEX idx_messages_property ON messages(property_id);
+CREATE INDEX idx_messages_sender ON messages(sender_id);
+CREATE INDEX idx_daily_logs_property_date ON daily_logs(property_id, log_date);
+CREATE INDEX idx_punch_list_property ON punch_list_items(property_id);
+CREATE INDEX idx_punch_list_status ON punch_list_items(status);
+CREATE INDEX idx_kpi_snapshots_property_date ON kpi_snapshots(property_id, snapshot_date);
+
+-- ================================
+-- FUNCTIONS & TRIGGERS
+-- ================================
+
+-- Update timestamp trigger
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+-- Apply to relevant tables
+CREATE TRIGGER update_properties_updated_at BEFORE UPDATE ON properties FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_milestones_updated_at BEFORE UPDATE ON milestones FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_budget_lines_updated_at BEFORE UPDATE ON budget_lines FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_invoices_updated_at BEFORE UPDATE ON invoices FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+-- Add similar triggers for other tables...
+```
+
+## API Specification
+
+```yaml
+# api-spec.yaml
+openapi: 3.0.3
+info:
+  title: Construction PM API
+  version: 1.0.0
+  description: Comprehensive Construction Project Management API
+
+servers:
+  - url: https://api.constructionpm.com/v1
+  - url: https://staging-api.constructionpm.com/v1
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Property:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        address:
+          type: string
+        propertyType:
+          type: string
+        projectType:
+          type: string
+        status:
+          type: string
+          enum: [planning, permits, construction, closeout, complete]
+        ownerId:
+          type: string
+          format: uuid
+        pmId:
+          type: string
+          format: uuid
+        budgetTotal:
+          type: number
+        startDate:
+          type: string
+          format: date
+        targetCompletion:
+          type: string
+          format: date
+        kpis:
+          $ref: '#/components/schemas/PropertyKPIs'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    PropertyKPIs:
+      type: object
+      properties:
+        scheduleAdherence:
+          type: number
+        budgetVariance:
+          type: number
+        safetyIncidents:
+          type: integer
+        permitSLA:
+          type: integer
+
+    Milestone:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        propertyId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        status:
+          type: string
+          enum: [pending, active, blocked, complete, cancelled]
+        plannedStart:
+          type: string
+          format: date
+        plannedEnd:
+          type: string
+          format: date
+        dependencies:
+          type: array
+          items:
+            type: string
+            format: uuid
+        blockers:
+          type: array
+          items:
+            type: string
+
+    BudgetLine:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        propertyId:
+          type: string
+          format: uuid
+        category:
+          type: string
+        scopeDescription:
+          type: string
+        budgetedAmount:
+          type: number
+        committedAmount:
+          type: number
+        spentAmount:
+          type: number
+        vendorId:
+          type: string
+          format: uuid
+        requiresBids:
+          type: boolean
+        minimumBids:
+          type: integer
+
+    ChangeOrder:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        propertyId:
+          type: string
+          format: uuid
+        changeOrderNumber:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        costImpact:
+          type: number
+        scheduleImpactDays:
+          type: integer
+        status:
+          type: string
+          enum: [draft, submitted, approved, rejected, executed]
+
+    RFI:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        propertyId:
+          type: string
+          format: uuid
+        rfiNumber:
+          type: string
+        subject:
+          type: string
+        question:
+          type: string
+        priority:
+          type: string
+          enum: [low, normal, high, urgent]
+        status:
+          type: string
+          enum: [open, answered, closed]
+        dueDate:
+          type: string
+          format: date
+        answer:
+          type: string
+
+    Invoice:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        propertyId:
+          type: string
+          format: uuid
+        vendorId:
+          type: string
+          format: uuid
+        invoiceNumber:
+          type: string
+        invoiceAmount:
+          type: number
+        retentionPercentage:
+          type: number
+        retentionAmount:
+          type: number
+        netAmount:
+          type: number
+        status:
+          type: string
+          enum: [submitted, approved, paid, rejected, on_hold]
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        code:
+          type: string
+
+security:
+  - BearerAuth: []
+
+paths:
+  # ================================
+  # AUTHENTICATION
+  # ================================
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: User login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    type: object
+                  expires:
+                    type: string
+                    format: date-time
+
+  /auth/refresh:
+    post:
+      tags: [Authentication]
+      summary: Refresh token
+      responses:
+        '200':
+          description: Token refreshed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  expires:
+                    type: string
+                    format: date-time
+
+  # ================================
+  # PROPERTIES
+  # ================================
+  /properties:
+    get:
+      tags: [Properties]
+      summary: List properties
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: owner_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: pm_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Properties list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  properties:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Property'
+                  total:
+                    type: integer
+                  limit:
+                    type: integer
+                  offset:
+                    type: integer
+
+    post:
+      tags: [Properties]
+      summary: Create property
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Property'
+      responses:
+        '201':
+          description: Property created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Property'
+
+  /properties/{propertyId}:
+    get:
+      tags: [Properties]
+      summary: Get property by ID
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Property details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Property'
+
+    put:
+      tags: [Properties]
+      summary: Update property
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Property'
+      responses:
+        '200':
+          description: Property updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Property'
+
+    delete:
+      tags: [Properties]
+      summary: Delete property
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Property deleted
+
+  # ================================
+  # MILESTONES
+  # ================================
+  /properties/{propertyId}/milestones:
+    get:
+      tags: [Milestones]
+      summary: Get property milestones
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Milestones list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Milestone'
+
+    post:
+      tags: [Milestones]
+      summary: Create milestone
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Milestone'
+      responses:
+        '201':
+          description: Milestone created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Milestone'
+
+  /milestones/{milestoneId}:
+    put:
+      tags: [Milestones]
+      summary: Update milestone
+      parameters:
+        - name: milestoneId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Milestone'
+      responses:
+        '200':
+          description: Milestone updated
+
+    delete:
+      tags: [Milestones]
+      summary: Delete milestone
+      parameters:
+        - name: milestoneId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Milestone deleted
+
+  /milestones/{milestoneId}/complete:
+    post:
+      tags: [Milestones]
+      summary: Mark milestone as complete
+      parameters:
+        - name: milestoneId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                completionNotes:
+                  type: string
+                actualEndDate:
+                  type: string
+                  format: date
+      responses:
+        '200':
+          description: Milestone marked complete
+
+  # ================================
+  # BUDGET & FINANCIAL
+  # ================================
+  /properties/{propertyId}/budget:
+    get:
+      tags: [Budget]
+      summary: Get property budget
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Budget lines
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BudgetLine'
+
+    post:
+      tags: [Budget]
+      summary: Create budget line
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BudgetLine'
+      responses:
+        '201':
+          description: Budget line created
+
+  /properties/{propertyId}/change-orders:
+    get:
+      tags: [Change Orders]
+      summary: Get change orders
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Change orders list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChangeOrder'
+
+    post:
+      tags: [Change Orders]
+      summary: Create change order
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangeOrder'
+      responses:
+        '201':
+          description: Change order created
+
+  /change-orders/{changeOrderId}/approve:
+    post:
+      tags: [Change Orders]
+      summary: Approve change order
+      parameters:
+        - name: changeOrderId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Change order approved
+
+  /properties/{propertyId}/invoices:
+    get:
+      tags: [Invoices]
+      summary: Get property invoices
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Invoices list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Invoice'
+
+    post:
+      tags: [Invoices]
+      summary: Submit invoice
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Invoice'
+      responses:
+        '201':
+          description: Invoice submitted
+
+  /invoices/{invoiceId}/approve:
+    post:
+      tags: [Invoices]
+      summary: Approve invoice
+      parameters:
+        - name: invoiceId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Invoice approved
+
+  # ================================
+  # PROCUREMENT & BIDDING
+  # ================================
+  /properties/{propertyId}/rfqs:
+    get:
+      tags: [Procurement]
+      summary: Get RFQs
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: RFQs list
+
+    post:
+      tags: [Procurement]
+      summary: Create RFQ
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '201':
+          description: RFQ created
+
+  /rfqs/{rfqId}/send:
+    post:
+      tags: [Procurement]
+      summary: Send RFQ to vendors
+      parameters:
+        - name: rfqId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                vendorIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        '200':
+          description: RFQ sent
+
+  /rfqs/{rfqId}/bids:
+    get:
+      tags: [Procurement]
+      summary: Get RFQ bids
+      parameters:
+        - name: rfqId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Bids list
+
+    post:
+      tags: [Procurement]
+      summary: Submit bid (vendor endpoint)
+      parameters:
+        - name: rfqId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '201':
+          description: Bid submitted
+
+  # ================================
+  # RFI SYSTEM
+  # ================================
+  /properties/{propertyId}/rfis:
+    get:
+      tags: [RFIs]
+      summary: Get property RFIs
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: RFIs list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RFI'
+
+    post:
+      tags: [RFIs]
+      summary: Create RFI
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RFI'
+      responses:
+        '201':
+          description: RFI created
+
+  /rfis/{rfiId}/answer:
+    post:
+      tags: [RFIs]
+      summary: Answer RFI
+      parameters:
+        - name: rfiId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                answer:
+                  type: string
+      responses:
+        '200':
+          description: RFI answered
+
+  # ================================
+  # DAILY LOGS & SITE REPORTS
+  # ================================
+  /properties/{propertyId}/daily-logs:
+    get:
+      tags: [Daily Logs]
+      summary: Get daily logs
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Daily logs list
+
+    post:
+      tags: [Daily Logs]
+      summary: Create daily log
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '201':
+          description: Daily log created
+
+  # ================================
+  # PUNCH LISTS
+  # ================================
+  /properties/{propertyId}/punch-list:
+    get:
+      tags: [Punch List]
+      summary: Get punch list items
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Punch list items
+
+    post:
+      tags: [Punch List]
+      summary: Add punch list item
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '201':
+          description: Punch list item added
+
+  /punch-list/{itemId}/complete:
+    post:
+      tags: [Punch List]
+      summary: Mark punch item complete
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Punch item completed
+
+  # ================================
+  # PERMITS & COMPLIANCE
+  # ================================
+  /properties/{propertyId}/permits:
+    get:
+      tags: [Permits]
+      summary: Get property permits
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Permits list
+
+    post:
+      tags: [Permits]
+      summary: Add permit
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '201':
+          description: Permit added
+
+  /permits/expiring:
+    get:
+      tags: [Permits]
+      summary: Get expiring permits
+      parameters:
+        - name: days
+          in: query
+          schema:
+            type: integer
+            default: 30
+      responses:
+        '200':
+          description: Expiring permits list
+
+  /properties/{propertyId}/safety-incidents:
+    get:
+      tags: [Safety]
+      summary: Get safety incidents
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Safety incidents list
+
+    post:
+      tags: [Safety]
+      summary: Report safety incident
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '201':
+          description: Safety incident reported
+
+  # ================================
+  # DOCUMENT MANAGEMENT
+  # ================================
+  /documents/upload:
+    post:
+      tags: [Documents]
+      summary: Upload document
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                propertyId:
+                  type: string
+                  format: uuid
+                documentType:
+                  type: string
+                title:
+                  type: string
+      responses:
+        '201':
+          description: Document uploaded
+
+  /documents/{documentId}:
+    get:
+      tags: [Documents]
+      summary: Download document
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Document content
+
+    delete:
+      tags: [Documents]
+      summary: Delete document
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Document deleted
+
+  # ================================
+  # COMMUNICATION
+  # ================================
+  /properties/{propertyId}/messages:
+    get:
+      tags: [Communication]
+      summary: Get property messages
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Messages list
+
+    post:
+      tags: [Communication]
+      summary: Send message
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '201':
+          description: Message sent
+
+  # ================================
+  # ANALYTICS & REPORTING
+  # ================================
+  /properties/{propertyId}/kpis:
+    get:
+      tags: [Analytics]
+      summary: Get property KPIs
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [week, month, quarter, year]
+      responses:
+        '200':
+          description: KPI data
+
+  /dashboard/portfolio:
+    get:
+      tags: [Analytics]
+      summary: Get portfolio dashboard
+      responses:
+        '200':
+          description: Portfolio metrics
+
+  /reports/weekly/{propertyId}:
+    get:
+      tags: [Reports]
+      summary: Generate weekly report
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Weekly report PDF
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
+  /vendors/{vendorId}/performance:
+    get:
+      tags: [Analytics]
+      summary: Get vendor performance
+      parameters:
+        - name: vendorId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Vendor performance data
+```
+
+## Implementation Notes
+
+### Authentication Strategy
+```javascript
+// JWT-based authentication with refresh tokens
+// Role-based access control (RBAC)
+// API key authentication for vendor portal
+
+const authMiddleware = (requiredRole) => {
+  return async (req, res, next) => {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) return res.status(401).json({ error: 'No token provided' });
+    
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await User.findById(decoded.userId);
+      
+      if (!user.isActive) {
+        return res.status(401).json({ error: 'Account inactive' });
+      }
+      
+      if (requiredRole && !hasRole(user.role, requiredRole)) {
+        return res.status(403).json({ error: 'Insufficient permissions' });
+      }
+      
+      req.user = user;
+      next();
+    } catch (error) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+  };
+};
+```
+
+### File Storage Strategy
+```javascript
+// AWS S3 or Google Cloud Storage
+// Organized by property/document type
+// Versioning enabled
+// CDN for faster access
+
+const uploadStrategy = {
+  bucket: 'construction-pm-docs',
+  structure: '{property_id}/{document_type}/{year}/{month}/',
+  versioning: true,
+  encryption: 'AES256',
+  lifecycle: {
+    deleteOldVersions: '2 years',
+    archiveColdStorage: '1 year'
+  }
+};
+```
+
+### Email Service Integration
+```javascript
+// SendGrid or AWS SES
+// Template-based emails
+// Event tracking
+
+const emailTemplates = {
+  rfq_invitation: 'template_rfq_001',
+  permit_expiring: 'template_permit_001',
+  milestone_blocked: 'template_milestone_001',
+  invoice_approved: 'template_invoice_001',
+  safety_incident: 'template_safety_001'
+};
+```
+
+### Real-time Features
+```javascript
+// WebSocket connections for live updates
+// Push notifications for mobile
+// Status change broadcasting
+
+const wsEvents = [
+  'milestone_updated',
+  'budget_changed',
+  'new_message',
+  'document_uploaded',
+  'permit_approved',
+  'safety_incident_reported'
+];
+```
+
+This schema and API provide a comprehensive foundation for your construction PM system with proper indexing, relationships, and scalability considerations. The API follows RESTful principles with proper error handling and security measures.
