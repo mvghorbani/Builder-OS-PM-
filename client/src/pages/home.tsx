@@ -78,7 +78,7 @@ const PropertyCard = ({ property, onSelect }: { property: Property; onSelect: (p
           <h3 className="font-semibold text-foreground text-lg" data-testid={`text-address-${property.id}`}>
             {property.address}
           </h3>
-          <p className="text-sm text-muted-foreground">{property.project_type}</p>
+          <p className="text-sm text-muted-foreground">{property.type}</p>
         </div>
         <StatusBadge status={property.status} />
       </div>
@@ -95,19 +95,19 @@ const PropertyCard = ({ property, onSelect }: { property: Property; onSelect: (p
         <div>
           <span className="text-muted-foreground">Budget</span>
           <p className="font-medium text-foreground" data-testid={`text-budget-${property.id}`}>
-            ${((property.spent_budget || 0) / 1000).toFixed(0)}k / ${((property.total_budget || 0) / 1000).toFixed(0)}k
+            ${(parseFloat(property.spentBudget || '0') / 1000).toFixed(0)}k / ${(parseFloat(property.totalBudget || '0') / 1000).toFixed(0)}k
           </p>
         </div>
         <div>
           <span className="text-muted-foreground">Schedule</span>
-          <p className={`font-medium ${(property.schedule_adherence || 0) < 85 ? 'text-red-600' : 'text-green-600'}`}>
-            {property.schedule_adherence || 0}%
+          <p className={`font-medium ${(property.scheduleAdherence || 0) < 85 ? 'text-red-600' : 'text-green-600'}`}>
+            {property.scheduleAdherence || 0}%
           </p>
         </div>
         <div>
           <span className="text-muted-foreground">Next Due</span>
           <p className="font-medium text-foreground">
-            {property.due_date ? new Date(property.due_date).toLocaleDateString() : 'TBD'}
+            {property.dueDate ? new Date(property.dueDate).toLocaleDateString() : 'TBD'}
           </p>
         </div>
       </div>
@@ -210,7 +210,7 @@ export default function Home() {
               {property.address}
             </h3>
             <p className="text-sm text-muted-foreground" data-testid={`text-type-${property.id}`}>
-              {property.project_type}
+              {property.type}
             </p>
           </div>
           <StatusBadge status={property.status} />
@@ -467,9 +467,11 @@ export default function Home() {
 
         <div className="flex-1 overflow-y-auto">
           <div className="p-6">
-            {/* Stats Cards */}
-            {!statsLoading && stats && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {activeView === 'projects' && (
+              <>
+                {/* Stats Cards */}
+                {!statsLoading && stats && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <Card>
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
@@ -678,6 +680,74 @@ export default function Home() {
                 </Button>
               </CardContent>
             </Card>
+              </>
+            )}
+
+            {activeView === 'dashboard' && (
+              <div className="space-y-6">
+                <h3 className="text-xl font-semibold text-foreground">Dashboard Analytics</h3>
+                <Card>
+                  <CardContent className="p-6">
+                    <p className="text-muted-foreground">Dashboard view with charts and analytics coming soon!</p>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {activeView === 'schedule' && (
+              <div className="space-y-6">
+                <h3 className="text-xl font-semibold text-foreground">Project Schedule</h3>
+                <Card>
+                  <CardContent className="p-6">
+                    <p className="text-muted-foreground">Schedule management and timeline view coming soon!</p>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {activeView === 'budget' && (
+              <div className="space-y-6">
+                <h3 className="text-xl font-semibold text-foreground">Budget Management</h3>
+                <Card>
+                  <CardContent className="p-6">
+                    <p className="text-muted-foreground">Budget tracking and financial management coming soon!</p>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {activeView === 'vendors' && (
+              <div className="space-y-6">
+                <h3 className="text-xl font-semibold text-foreground">Vendor Management</h3>
+                <Card>
+                  <CardContent className="p-6">
+                    <p className="text-muted-foreground">Vendor directory and management tools coming soon!</p>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {activeView === 'permits' && (
+              <div className="space-y-6">
+                <h3 className="text-xl font-semibold text-foreground">Permits & Compliance</h3>
+                <Card>
+                  <CardContent className="p-6">
+                    <p className="text-muted-foreground">Permit tracking and compliance management coming soon!</p>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {activeView === 'documents' && (
+              <div className="space-y-6">
+                <h3 className="text-xl font-semibold text-foreground">Document Management</h3>
+                <Card>
+                  <CardContent className="p-6">
+                    <p className="text-muted-foreground">Document storage and sharing tools coming soon!</p>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
           </div>
         </div>
       </main>
