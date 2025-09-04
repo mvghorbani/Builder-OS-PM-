@@ -27,8 +27,15 @@ function Router() {
 }
 
 function App() {
+  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  
+  if (!clientId) {
+    console.error("VITE_GOOGLE_CLIENT_ID is not set");
+    return <div>Configuration error: Google Client ID not found</div>;
+  }
+
   return (
-    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ""}>
+    <GoogleOAuthProvider clientId={clientId}>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <Toaster />
