@@ -44,35 +44,35 @@ export interface IStorage {
   // User operations (required for Replit Auth)
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
-  
+
   // Property operations
   getProperties(): Promise<Property[]>;
   getProperty(id: string): Promise<Property | undefined>;
   createProperty(property: InsertProperty): Promise<Property>;
   updateProperty(id: string, updates: Partial<InsertProperty>): Promise<Property | undefined>;
   deleteProperty(id: string): Promise<boolean>;
-  
+
   // Milestone operations
   getMilestones(propertyId: string): Promise<Milestone[]>;
   getMilestone(id: string): Promise<Milestone | undefined>;
   createMilestone(milestone: InsertMilestone): Promise<Milestone>;
   updateMilestone(id: string, updates: Partial<InsertMilestone>): Promise<Milestone | undefined>;
   deleteMilestone(id: string): Promise<boolean>;
-  
+
   // Vendor operations
   getVendors(): Promise<Vendor[]>;
   getVendor(id: string): Promise<Vendor | undefined>;
   createVendor(vendor: InsertVendor): Promise<Vendor>;
   updateVendor(id: string, updates: Partial<InsertVendor>): Promise<Vendor | undefined>;
   deleteVendor(id: string): Promise<boolean>;
-  
+
   // Budget operations
   getBudgetLines(propertyId: string): Promise<BudgetLine[]>;
   getBudgetLine(id: string): Promise<BudgetLine | undefined>;
   createBudgetLine(budgetLine: InsertBudgetLine): Promise<BudgetLine>;
   updateBudgetLine(id: string, updates: Partial<InsertBudgetLine>): Promise<BudgetLine | undefined>;
   deleteBudgetLine(id: string): Promise<boolean>;
-  
+
   // RFQ operations
   getRFQs(propertyId?: string): Promise<RFQ[]>;
   getRFQ(id: string): Promise<RFQ | undefined>;
@@ -81,38 +81,38 @@ export interface IStorage {
   deleteRFQ(id: string): Promise<boolean>;
   addVendorToRFQ(rfqId: string, vendorId: string): Promise<boolean>;
   removeVendorFromRFQ(rfqId: string, vendorId: string): Promise<boolean>;
-  
+
   // Bid operations
   getBids(rfqId: string): Promise<Bid[]>;
   getBid(id: string): Promise<Bid | undefined>;
   createBid(bid: InsertBid): Promise<Bid>;
   updateBid(id: string, updates: Partial<InsertBid>): Promise<Bid | undefined>;
   awardBid(id: string): Promise<Bid | undefined>;
-  
+
   // Permit operations
   getPermits(propertyId: string): Promise<Permit[]>;
   getPermit(id: string): Promise<Permit | undefined>;
   createPermit(permit: InsertPermit): Promise<Permit>;
   updatePermit(id: string, updates: Partial<InsertPermit>): Promise<Permit | undefined>;
   deletePermit(id: string): Promise<boolean>;
-  
+
   // Risk operations
   getRisks(propertyId: string): Promise<Risk[]>;
   getRisk(id: string): Promise<Risk | undefined>;
   createRisk(risk: InsertRisk): Promise<Risk>;
   updateRisk(id: string, updates: Partial<InsertRisk>): Promise<Risk | undefined>;
   deleteRisk(id: string): Promise<boolean>;
-  
+
   // Document operations
   getDocuments(propertyId?: string, milestoneId?: string): Promise<Document[]>;
   getDocument(id: string): Promise<Document | undefined>;
   createDocument(document: InsertDocument): Promise<Document>;
   deleteDocument(id: string): Promise<boolean>;
-  
+
   // Activity operations
   getActivities(propertyId?: string, limit?: number): Promise<Activity[]>;
   createActivity(activity: InsertActivity): Promise<Activity>;
-  
+
   // Audit operations
   createAuditLog(auditLog: InsertAuditLog): Promise<AuditLog>;
   getAuditLogs(entityType?: string, entityId?: string, limit?: number): Promise<AuditLog[]>;
@@ -125,19 +125,37 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async upsertUser(userData: UpsertUser): Promise<User> {
-    const [user] = await db
+  async upsertUser(user: UpsertUser): Promise<User> {
+    const result = await db
       .insert(users)
-      .values(userData)
+      .values(user)
       .onConflictDoUpdate({
         target: users.id,
         set: {
-          ...userData,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          profileImageUrl: user.profileImageUrl,
           updatedAt: new Date(),
         },
       })
       .returning();
-    return user;
+
+    if (!result[0]) {
+      throw new Error("Failed to upsert user");
+    }
+
+    return result[0];
+  }
+
+  async findUserByEmail(email: string): Promise<User | null> {
+    const result = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
+
+    return result[0] || null;
   }
 
   // Property operations
@@ -384,7 +402,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Risk operations
-  async getRisks(propertyId: string): Promise<Risk[]> {
+  async getRisks(propertyId: string): Promise<Risk[]>{
     return await db
       .select()
       .from(risks)
@@ -419,7 +437,7 @@ export class DatabaseStorage implements IStorage {
   // Document operations
   async getDocuments(propertyId?: string, milestoneId?: string): Promise<Document[]> {
     let query = db.select().from(documents);
-    
+
     if (propertyId && milestoneId) {
       query = query.where(and(eq(documents.propertyId, propertyId), eq(documents.milestoneId, milestoneId)));
     } else if (propertyId) {
@@ -427,7 +445,7 @@ export class DatabaseStorage implements IStorage {
     } else if (milestoneId) {
       query = query.where(eq(documents.milestoneId, milestoneId));
     }
-    
+
     return await query.orderBy(desc(documents.createdAt));
   }
 
@@ -449,11 +467,11 @@ export class DatabaseStorage implements IStorage {
   // Activity operations
   async getActivities(propertyId?: string, limit: number = 50): Promise<Activity[]> {
     let query = db.select().from(activities);
-    
+
     if (propertyId) {
       query = query.where(eq(activities.propertyId, propertyId));
     }
-    
+
     return await query.orderBy(desc(activities.createdAt)).limit(limit);
   }
 
@@ -470,13 +488,13 @@ export class DatabaseStorage implements IStorage {
 
   async getAuditLogs(entityType?: string, entityId?: string, limit: number = 100): Promise<AuditLog[]> {
     let query = db.select().from(auditLogs);
-    
+
     if (entityType && entityId) {
       query = query.where(and(eq(auditLogs.entityType, entityType), eq(auditLogs.entityId, entityId)));
     } else if (entityType) {
       query = query.where(eq(auditLogs.entityType, entityType));
     }
-    
+
     return await query.orderBy(desc(auditLogs.createdAt)).limit(limit);
   }
 }

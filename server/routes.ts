@@ -15,7 +15,10 @@ import {
   insertRiskSchema,
   insertDocumentSchema,
   insertActivitySchema,
+  loginSchema,
 } from "@shared/schema";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Health check endpoint
@@ -24,6 +27,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
       status: "ok",
       timestamp: new Date().toISOString()
     });
+  });
+
+  // Traditional login endpoint
+  app.post('/api/v1/auth/login', async (req, res) => {
+    try {
+      const validatedData = loginSchema.parse(req.body);
+      const { email, password } = validatedData;
+
+      // Find user by email
+      const user = await storage.findUserByEmail(email);
+      if (!user || !user.passwordHash) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      // Compare password with hash
+      const isValidPassword = await bcrypt.compare(password, user.passwordHash);
+      if (!isValidPassword) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      // Generate JWT token
+      const jwtSecret = process.env.JWT_SECRET || 'your-secret-key';
+      const token = jwt.sign(
+        { 
+          id: user.id, 
+          role: user.role,
+          email: user.email 
+        },
+        jwtSecret,
+        { expiresIn: '24h' }
+      );
+
+      // Return success response
+      res.status(200).json({
+        token,
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role,
+        }
+      });
+    } catch (error) {
+      console.error("Login error:", error);
+      if (error instanceof Error && error.name === 'ZodError') {
+        return res.status(400).json({ message: "Invalid request data" });
+      }
+      res.status(500).json({ message: "Internal server error" });
+    }
   });
 
   // Auth middleware
