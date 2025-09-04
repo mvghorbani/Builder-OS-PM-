@@ -98,6 +98,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get projects endpoint
+  app.get('/api/v1/projects', authenticateJWT, async (req: any, res) => {
+    try {
+      const projects = await storage.getPropertiesByPmId(req.user.id);
+      res.status(200).json(projects);
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   // Create project endpoint
   app.post('/api/v1/projects', authenticateJWT, async (req: any, res) => {
     try {
