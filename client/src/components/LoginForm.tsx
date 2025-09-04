@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { GoogleLogin } from '@react-oauth/google';
-import { GoogleOAuthProvider } from '@react-oauth/google'; // Import GoogleOAuthProvider
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
@@ -106,12 +105,7 @@ export default function LoginForm() {
     }
   };
 
-  // Fetch client ID from environment variable or a config
-  const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "YOUR_GOOGLE_CLIENT_ID"; // Replace with your actual client ID or fetch it securely
-
-
   return (
-    <GoogleOAuthProvider clientId={clientId}> {/* Wrap with GoogleOAuthProvider */}
       <Card className="w-full max-w-md mx-4">
         <CardHeader>
           <CardTitle className="text-center">
@@ -186,6 +180,5 @@ export default function LoginForm() {
           </p>
         </CardContent>
       </Card>
-    </GoogleOAuthProvider> // Close the GoogleOAuthProvider
-  );
+    );
 }
