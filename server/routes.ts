@@ -244,6 +244,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create budget line endpoint
+  app.post('/api/v1/projects/:projectId/budget_lines', authenticateJWT, async (req: any, res) => {
+    try {
+      const { category, scope_description, budgeted_amount, vendor_id } = req.body;
+      const projectId = req.params.projectId;
+
+      if (!category || !scope_description || !budgeted_amount) {
+        return res.status(400).json({ 
+          message: "Missing required fields: category, scope_description, and budgeted_amount" 
+        });
+      }
+
+      // Verify the project exists and user has access
+      const project = await storage.getProperty(projectId);
+      if (!project) {
+        return res.status(404).json({ message: "Project not found" });
+      }
+
+      if (project.pmId !== req.user.id) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      // If vendor_id is provided, verify it exists
+      if (vendor_id) {
+        const vendor = await storage.getVendor(vendor_id);
+        if (!vendor) {
+          return res.status(400).json({ message: "Invalid vendor_id" });
+        }
+      }
+
+      const budgetLineData = {
+        propertyId: projectId,
+        scope: `${category}: ${scope_description}`,
+        vendorId: vendor_id || null,
+        contractAmount: budgeted_amount.toString(),
+        spentAmount: '0',
+        percentComplete: 0,
+        bidCount: 0,
+        coiValid: false,
+        paymentBlocked: false,
+      };
+
+      const budgetLine = await storage.createBudgetLine(budgetLineData);
+
+      // Create activity log
+      await storage.createActivity({
+        userId: req.user.id,
+        propertyId: projectId,
+        action: 'budget_line_created',
+        description: `Added budget line: ${budgetLine.scope}`,
+        entityType: 'budget_line',
+        entityId: budgetLine.id,
+      });
+
+      res.status(201).json(budgetLine);
+    } catch (error) {
+      console.error("Error creating budget line:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   // Create project endpoint
   app.post('/api/v1/projects', authenticateJWT, async (req: any, res) => {
     try {
