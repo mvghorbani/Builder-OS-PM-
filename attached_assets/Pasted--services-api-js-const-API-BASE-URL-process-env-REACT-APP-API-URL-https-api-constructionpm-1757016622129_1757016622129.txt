@@ -1,0 +1,300 @@
+// services/api.js
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://api.constructionpm.com/v1';
+
+class APIService {
+  constructor() {
+    this.token = localStorage.getItem('auth_token');
+  }
+
+  setToken(token) {
+    this.token = token;
+    localStorage.setItem('auth_token', token);
+  }
+
+  async request(endpoint, options = {}) {
+    const url = `${API_BASE_URL}${endpoint}`;
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(this.token && { Authorization: `Bearer ${this.token}` }),
+        ...options.headers,
+      },
+      ...options,
+    };
+
+    if (config.body && typeof config.body === 'object') {
+      config.body = JSON.stringify(config.body);
+    }
+
+    try {
+      const response = await fetch(url, config);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `HTTP ${response.status}`);
+      }
+
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        return await response.json();
+      }
+      return response;
+    } catch (error) {
+      console.error(`API Error (${endpoint}):`, error);
+      throw error;
+    }
+  }
+
+  // Authentication
+  async login(email, password) {
+    return this.request('/auth/login', {
+      method: 'POST',
+      body: { email, password },
+    });
+  }
+
+  async refreshToken() {
+    return this.request('/auth/refresh', { method: 'POST' });
+  }
+
+  // Properties
+  async getProperties(params = {}) {
+    const queryString = new URLSearchParams(params).toString();
+    return this.request(`/properties?${queryString}`);
+  }
+
+  async getProperty(propertyId) {
+    return this.request(`/properties/${propertyId}`);
+  }
+
+  async updateProperty(propertyId, data) {
+    return this.request(`/properties/${propertyId}`, {
+      method: 'PUT',
+      body: data,
+    });
+  }
+
+  async createProperty(data) {
+    return this.request('/properties', {
+      method: 'POST',
+      body: data,
+    });
+  }
+
+  // Milestones
+  async getMilestones(propertyId, params = {}) {
+    const queryString = new URLSearchParams(params).toString();
+    return this.request(`/properties/${propertyId}/milestones?${queryString}`);
+  }
+
+  async updateMilestone(milestoneId, data) {
+    return this.request(`/milestones/${milestoneId}`, {
+      method: 'PUT',
+      body: data,
+    });
+  }
+
+  async completeMilestone(milestoneId, data = {}) {
+    return this.request(`/milestones/${milestoneId}/complete`, {
+      method: 'POST',
+      body: data,
+    });
+  }
+
+  async createMilestone(propertyId, data) {
+    return this.request(`/properties/${propertyId}/milestones`, {
+      method: 'POST',
+      body: data,
+    });
+  }
+
+  // Budget
+  async getBudget(propertyId) {
+    return this.request(`/properties/${propertyId}/budget`);
+  }
+
+  async createBudgetLine(propertyId, data) {
+    return this.request(`/properties/${propertyId}/budget`, {
+      method: 'POST',
+      body: data,
+    });
+  }
+
+  // Change Orders
+  async getChangeOrders(propertyId) {
+    return this.request(`/properties/${propertyId}/change-orders`);
+  }
+
+  async createChangeOrder(propertyId, data) {
+    return this.request(`/properties/${propertyId}/change-orders`, {
+      method: 'POST',
+      body: data,
+    });
+  }
+
+  async approveChangeOrder(changeOrderId) {
+    return this.request(`/change-orders/${changeOrderId}/approve`, {
+      method: 'POST',
+    });
+  }
+
+  // RFQs and Procurement
+  async getRFQs(propertyId) {
+    return this.request(`/properties/${propertyId}/rfqs`);
+  }
+
+  async createRFQ(propertyId, data) {
+    return this.request(`/properties/${propertyId}/rfqs`, {
+      method: 'POST',
+      body: data,
+    });
+  }
+
+  async sendRFQ(rfqId, vendorIds) {
+    return this.request(`/rfqs/${rfqId}/send`, {
+      method: 'POST',
+      body: { vendorIds },
+    });
+  }
+
+  async getBids(rfqId) {
+    return this.request(`/rfqs/${rfqId}/bids`);
+  }
+
+  // Invoices
+  async getInvoices(propertyId, params = {}) {
+    const queryString = new URLSearchParams(params).toString();
+    return this.request(`/properties/${propertyId}/invoices?${queryString}`);
+  }
+
+  async approveInvoice(invoiceId) {
+    return this.request(`/invoices/${invoiceId}/approve`, {
+      method: 'POST',
+    });
+  }
+
+  // RFIs
+  async getRFIs(propertyId, params = {}) {
+    const queryString = new URLSearchParams(params).toString();
+    return this.request(`/properties/${propertyId}/rfis?${queryString}`);
+  }
+
+  async createRFI(propertyId, data) {
+    return this.request(`/properties/${propertyId}/rfis`, {
+      method: 'POST',
+      body: data,
+    });
+  }
+
+  async answerRFI(rfiId, answer) {
+    return this.request(`/rfis/${rfiId}/answer`, {
+      method: 'POST',
+      body: { answer },
+    });
+  }
+
+  // Daily Logs
+  async getDailyLogs(propertyId, params = {}) {
+    const queryString = new URLSearchParams(params).toString();
+    return this.request(`/properties/${propertyId}/daily-logs?${queryString}`);
+  }
+
+  async createDailyLog(propertyId, data) {
+    return this.request(`/properties/${propertyId}/daily-logs`, {
+      method: 'POST',
+      body: data,
+    });
+  }
+
+  // Punch List
+  async getPunchList(propertyId, params = {}) {
+    const queryString = new URLSearchParams(params).toString();
+    return this.request(`/properties/${propertyId}/punch-list?${queryString}`);
+  }
+
+  async createPunchItem(propertyId, data) {
+    return this.request(`/properties/${propertyId}/punch-list`, {
+      method: 'POST',
+      body: data,
+    });
+  }
+
+  async completePunchItem(itemId) {
+    return this.request(`/punch-list/${itemId}/complete`, {
+      method: 'POST',
+    });
+  }
+
+  // Permits
+  async getPermits(propertyId) {
+    return this.request(`/properties/${propertyId}/permits`);
+  }
+
+  async getExpiringPermits(days = 30) {
+    return this.request(`/permits/expiring?days=${days}`);
+  }
+
+  // Safety
+  async getSafetyIncidents(propertyId) {
+    return this.request(`/properties/${propertyId}/safety-incidents`);
+  }
+
+  async reportSafetyIncident(propertyId, data) {
+    return this.request(`/properties/${propertyId}/safety-incidents`, {
+      method: 'POST',
+      body: data,
+    });
+  }
+
+  // Documents
+  async uploadDocument(file, metadata) {
+    const formData = new FormData();
+    formData.append('file', file);
+    Object.keys(metadata).forEach(key => {
+      formData.append(key, metadata[key]);
+    });
+
+    return this.request('/documents/upload', {
+      method: 'POST',
+      headers: {}, // Remove Content-Type to let browser set it for FormData
+      body: formData,
+    });
+  }
+
+  async downloadDocument(documentId) {
+    return this.request(`/documents/${documentId}`);
+  }
+
+  // Communication
+  async getMessages(propertyId) {
+    return this.request(`/properties/${propertyId}/messages`);
+  }
+
+  async sendMessage(propertyId, data) {
+    return this.request(`/properties/${propertyId}/messages`, {
+      method: 'POST',
+      body: data,
+    });
+  }
+
+  // Analytics
+  async getKPIs(propertyId, period = 'month') {
+    return this.request(`/properties/${propertyId}/kpis?period=${period}`);
+  }
+
+  async getPortfolioDashboard() {
+    return this.request('/dashboard/portfolio');
+  }
+
+  async generateWeeklyReport(propertyId) {
+    return this.request(`/reports/weekly/${propertyId}`, {
+      headers: { Accept: 'application/pdf' },
+    });
+  }
+
+  async getVendorPerformance(vendorId) {
+    return this.request(`/vendors/${vendorId}/performance`);
+  }
+}
+
+export const apiService = new APIService();
