@@ -72,7 +72,12 @@ const PropertyCard = ({ property, onSelect }: { property: Property; onSelect: (p
       <div className="flex items-start justify-between mb-4">
         <div>
           <h3 className="font-semibold text-lg text-gray-900">{property.address}</h3>
-          <p className="text-sm text-gray-500 mt-1">{property.type}</p>
+          <p className="text-sm text-gray-500 mt-1">
+            {property.city && property.state ? 
+              `${property.city}, ${property.state}${property.zipCode ? ' ' + property.zipCode : ''}` : 
+              property.type
+            }
+          </p>
         </div>
         <StatusBadge status={property.status} />
       </div>
@@ -89,7 +94,9 @@ const PropertyCard = ({ property, onSelect }: { property: Property; onSelect: (p
         <div className="grid grid-cols-3 gap-4 text-sm">
           <div>
             <p className="text-gray-500">Budget</p>
-            <p className="font-medium text-gray-900">${property.totalBudget ? parseInt(property.totalBudget).toLocaleString() : '0'}</p>
+            <p className="font-medium text-gray-900">
+              {Number(property.totalBudget ?? 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+            </p>
           </div>
           <div>
             <p className="text-gray-500">Type</p>
@@ -110,10 +117,10 @@ const Dashboard = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
-  const [newProjectName, setNewProjectName] = useState("");
   const [newProjectAddress, setNewProjectAddress] = useState("");
   const [newProjectCity, setNewProjectCity] = useState("");
   const [newProjectState, setNewProjectState] = useState("");
+  const [newProjectZip, setNewProjectZip] = useState("");
 
   // Data fetching
   const { data: stats, isLoading: statsLoading } = useQuery({
@@ -133,20 +140,24 @@ const Dashboard = () => {
 
   const createProjectMutation = useMutation({
     mutationFn: async (data: any) => {
-      return await fetch('/api/properties', {
+      const response = await fetch('/api/properties', {
         method: 'POST',
         body: JSON.stringify(data),
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-      }).then(res => res.json());
+      });
+      if (!response.ok) {
+        throw new Error('Failed to create project');
+      }
+      return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
       queryClient.invalidateQueries({ queryKey: ['/api/dashboard/stats'] });
-      setNewProjectName("");
       setNewProjectAddress("");
       setNewProjectCity("");
       setNewProjectState("");
+      setNewProjectZip("");
       toast({ title: "Success", description: "Project created successfully!" });
     },
     onError: (error: any) => {
@@ -161,10 +172,10 @@ const Dashboard = () => {
   const handleCreateProject = (e: React.FormEvent) => {
     e.preventDefault();
     createProjectMutation.mutate({
-      name: newProjectName,
       address: newProjectAddress,
       city: newProjectCity,
       state: newProjectState,
+      zipCode: newProjectZip,
       status: 'active',
       progress: 0,
       type: 'residential',
@@ -199,16 +210,6 @@ const Dashboard = () => {
                   </DialogHeader>
                   <div className="grid gap-4 py-4">
                     <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="name" className="text-right">Name</Label>
-                      <Input
-                        id="name"
-                        value={newProjectName}
-                        onChange={(e) => setNewProjectName(e.target.value)}
-                        className="col-span-3"
-                        required
-                      />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
                       <Label htmlFor="address" className="text-right">Address</Label>
                       <Input
                         id="address"
@@ -234,6 +235,16 @@ const Dashboard = () => {
                         id="state"
                         value={newProjectState}
                         onChange={(e) => setNewProjectState(e.target.value)}
+                        className="col-span-3"
+                        required
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="zip" className="text-right">Zip Code</Label>
+                      <Input
+                        id="zip"
+                        value={newProjectZip}
+                        onChange={(e) => setNewProjectZip(e.target.value)}
                         className="col-span-3"
                         required
                       />

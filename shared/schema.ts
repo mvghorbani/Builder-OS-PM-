@@ -53,6 +53,9 @@ export const auditActionEnum = pgEnum('audit_action', ['create', 'update', 'dele
 export const properties = pgTable("properties", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   address: text("address").notNull(),
+  city: text("city"),
+  state: text("state"),
+  zipCode: text("zip_code"),
   type: text("type").notNull(),
   status: propertyStatusEnum("status").notNull().default('planning'),
   progress: integer("progress").notNull().default(0),
