@@ -41,7 +41,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { apiService } from "@/lib/apiService";
-import AnalyticsDashboard from "@/components/AnalyticsDashboard";
 import { PermitsCompliance } from "@/components/PermitsCompliance";
 
 interface DashboardStats {
@@ -130,7 +129,7 @@ const PropertyCard = ({ property, onSelect }: { property: Property; onSelect: (p
 );
 
 export default function Home() {
-  const [activeView, setActiveView] = useState('projects');
+  const [activeView, setActiveView] = useState('dashboard');
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
   const [newProjectAddress, setNewProjectAddress] = useState('');
@@ -291,10 +290,7 @@ export default function Home() {
             data-testid="button-nav-projects"
           >
             <Building className="w-5 h-5 mr-3" />
-            <span className="font-medium">Projects</span>
-            <Badge variant="secondary" className="ml-auto">
-              {properties.length}
-            </Badge>
+            <span className="font-medium">Analytics</span>
           </Button>
 
           <Button
@@ -470,10 +466,21 @@ export default function Home() {
         <div className="flex-1 overflow-y-auto">
           <div className="p-6">
             {activeView === 'projects' && (
+              <div className="space-y-6">
+                <h3 className="text-xl font-semibold text-foreground">Analytics & Reports</h3>
+                <Card>
+                  <CardContent className="p-6">
+                    <p className="text-muted-foreground">Advanced analytics and reporting features coming soon!</p>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {activeView === 'dashboard' && (
               <>
-                {/* Stats Cards */}
-                {!statsLoading && stats && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {/* Dashboard Stats Cards */}
+            {stats && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <Card>
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
@@ -488,9 +495,7 @@ export default function Home() {
                       </div>
                     </div>
                     <div className="flex items-center mt-4 text-sm">
-                      <ArrowUp className="text-green-500 text-xs mr-1" />
-                      <span className="text-green-600 font-medium">+12%</span>
-                      <span className="text-muted-foreground ml-2">from last month</span>
+                      <span className="text-green-600 font-medium">+2 this month</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -501,7 +506,7 @@ export default function Home() {
                       <div>
                         <p className="text-sm text-muted-foreground">Total Budget</p>
                         <p className="text-3xl font-bold text-foreground" data-testid="text-stat-budget">
-                          ${stats.totalBudget.toFixed(2)}M
+                          ${Math.round(stats.totalBudget / 1000)}k
                         </p>
                       </div>
                       <div className="p-3 bg-green-500/10 rounded-lg">
@@ -509,10 +514,7 @@ export default function Home() {
                       </div>
                     </div>
                     <div className="flex items-center mt-4 text-sm">
-                      <span className="text-muted-foreground">Spent: </span>
-                      <span className="text-foreground font-medium ml-1" data-testid="text-stat-spent">
-                        ${stats.spentBudget}K
-                      </span>
+                      <span className="text-green-600 font-medium">${Math.round(stats.spentBudget / 1000)}k spent</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -521,17 +523,17 @@ export default function Home() {
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-muted-foreground">Avg Schedule</p>
+                        <p className="text-sm text-muted-foreground">Schedule</p>
                         <p className="text-3xl font-bold text-foreground" data-testid="text-stat-schedule">
                           {stats.avgScheduleAdherence}%
                         </p>
                       </div>
-                      <div className="p-3 bg-amber-500/10 rounded-lg">
-                        <Clock className="text-amber-600 text-xl" />
+                      <div className="p-3 bg-blue-500/10 rounded-lg">
+                        <Calendar className="text-blue-600 text-xl" />
                       </div>
                     </div>
                     <div className="flex items-center mt-4 text-sm">
-                      <span className="text-muted-foreground">On track</span>
+                      <span className="text-blue-600 font-medium">On track</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -683,10 +685,6 @@ export default function Home() {
               </CardContent>
             </Card>
               </>
-            )}
-
-            {activeView === 'dashboard' && (
-              <AnalyticsDashboard />
             )}
 
             {activeView === 'schedule' && (
