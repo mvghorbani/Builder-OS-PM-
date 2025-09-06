@@ -20,8 +20,141 @@ import {
   Zap
 } from "lucide-react";
 
+// Analytics Data Interfaces
+interface ProjectAnalytics {
+  id: string;
+  name: string;
+  status: 'planning' | 'permits' | 'assessment' | 'active' | 'completed' | 'on_hold';
+  progress: number;
+  totalBudget: number;
+  spentBudget: number;
+  committedBudget: number;
+  budgetVariance: number;
+  scheduleAdherence: number;
+  scheduleVariance: number;
+  safetyIncidents: number;
+  riskLevel: 'low' | 'medium' | 'high' | 'critical';
+  startDate: string;
+  endDate: string;
+}
+
+interface AnalyticsSummary {
+  totalProjects: number;
+  activeProjects: number;
+  completedProjects: number;
+  totalBudget: number;
+  spentBudget: number;
+  averageProgress: number;
+  averageScheduleAdherence: number;
+  averageBudgetEfficiency: number;
+  totalRiskAlerts: number;
+  performanceScore: number;
+}
+
 export default function Analytics() {
   const { user, isLoading } = useAuth();
+  const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(null);
+
+  // Sample project data (to be replaced with API call)
+  const sampleProjects: ProjectAnalytics[] = [
+    {
+      id: '1',
+      name: '717 S Palmway Development',
+      status: 'active',
+      progress: 65,
+      totalBudget: 2400000,
+      spentBudget: 1560000,
+      committedBudget: 1800000,
+      budgetVariance: -2.5,
+      scheduleAdherence: 78,
+      scheduleVariance: 5,
+      safetyIncidents: 0,
+      riskLevel: 'medium',
+      startDate: '2024-01-15',
+      endDate: '2025-03-31',
+    },
+    {
+      id: '2',
+      name: '284 Lytton Commercial',
+      status: 'active',
+      progress: 85,
+      totalBudget: 3200000,
+      spentBudget: 2800000,
+      committedBudget: 3050000,
+      budgetVariance: 3.1,
+      scheduleAdherence: 92,
+      scheduleVariance: -2,
+      safetyIncidents: 1,
+      riskLevel: 'low',
+      startDate: '2023-11-20',
+      endDate: '2024-12-15',
+    },
+    {
+      id: '3',
+      name: '128 18th Ave Renovation',
+      status: 'completed',
+      progress: 100,
+      totalBudget: 1800000,
+      spentBudget: 1740000,
+      committedBudget: 1800000,
+      budgetVariance: -3.3,
+      scheduleAdherence: 96,
+      scheduleVariance: -4,
+      safetyIncidents: 0,
+      riskLevel: 'low',
+      startDate: '2023-08-10',
+      endDate: '2024-08-25',
+    }
+  ];
+
+  // Calculate analytics summary
+  const calculateAnalytics = (projects: ProjectAnalytics[]): AnalyticsSummary => {
+    const activeProjects = projects.filter(p => p.status === 'active').length;
+    const completedProjects = projects.filter(p => p.status === 'completed').length;
+    const totalBudget = projects.reduce((sum, p) => sum + p.totalBudget, 0);
+    const spentBudget = projects.reduce((sum, p) => sum + p.spentBudget, 0);
+    const averageProgress = projects.reduce((sum, p) => sum + p.progress, 0) / projects.length;
+    const averageScheduleAdherence = projects.reduce((sum, p) => sum + p.scheduleAdherence, 0) / projects.length;
+    const averageBudgetEfficiency = 100 - Math.abs(projects.reduce((sum, p) => sum + p.budgetVariance, 0) / projects.length);
+    const totalRiskAlerts = projects.filter(p => ['medium', 'high', 'critical'].includes(p.riskLevel)).length;
+    
+    // Performance score calculation (weighted average)
+    const performanceScore = Math.round(
+      (averageProgress * 0.3) +
+      (averageScheduleAdherence * 0.35) +
+      (averageBudgetEfficiency * 0.25) +
+      ((projects.length - totalRiskAlerts) / projects.length * 100 * 0.1)
+    );
+
+    return {
+      totalProjects: projects.length,
+      activeProjects,
+      completedProjects,
+      totalBudget,
+      spentBudget,
+      averageProgress: Math.round(averageProgress),
+      averageScheduleAdherence: Math.round(averageScheduleAdherence),
+      averageBudgetEfficiency: Math.round(averageBudgetEfficiency),
+      totalRiskAlerts,
+      performanceScore
+    };
+  };
+
+  // Initialize analytics on component mount
+  useEffect(() => {
+    const analyticsData = calculateAnalytics(sampleProjects);
+    setAnalytics(analyticsData);
+  }, []);
+
+  // Format currency
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
 
   useEffect(() => {
     if (!isLoading && !user) {
