@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Building2, Plus, Search, Filter, Calendar, DollarSign, Users, MapPin, ChevronDown, TrendingUp, Clock, Edit2, X, Check, GripVertical, Type, Palette } from "lucide-react";
+import { Building2, Plus, Search, Filter, Calendar, DollarSign, Users, MapPin, ChevronDown, TrendingUp, Clock, Edit2, X, Check, GripVertical, Type, Palette, Target, BarChart3, User } from "lucide-react";
 import { useLocation } from "wouter";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { MainLayout } from "../layouts/MainLayout";
@@ -512,11 +512,12 @@ export default function Projects() {
                 <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent rounded-t-3xl"></div>
                 <div className="absolute top-0 left-0 bottom-0 w-px bg-gradient-to-b from-white/60 via-transparent to-transparent rounded-l-3xl"></div>
 
-                <div className="relative z-10">
-                  <div className="flex items-start justify-between mb-4">
+                <div className="relative z-10 space-y-4">
+                  {/* Header Section */}
+                  <div className="flex items-start justify-between mb-6">
                     <div className="flex-1">
-                      {/* Editable Project Title */}
-                      <div className="relative mb-2">
+                      {/* Project Title */}
+                      <div className="mb-3">
                         {editingProject === project.id && editingField === 'name' ? (
                           <div className="flex items-center gap-2">
                             <input
@@ -535,320 +536,160 @@ export default function Projects() {
                             </button>
                           </div>
                         ) : (
-                          <div className="flex items-center gap-2 group/title">
-                            <h3 className="text-xl font-bold text-gray-900 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-blue-800 group-hover:bg-clip-text transition-all duration-300 cursor-pointer flex-1"
-                                onClick={() => startEditing(project.id, 'name', project.name)}
-                            >
-                              {project.name}
-                            </h3>
-                            <button 
+                          <h3 className="text-xl font-bold text-gray-900 cursor-pointer hover:text-blue-600 transition-colors duration-200"
                               onClick={() => startEditing(project.id, 'name', project.name)}
-                              className="opacity-0 group-hover/title:opacity-100 text-gray-400 hover:text-blue-600 transition-all duration-200"
-                            >
-                              <Edit2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Editable Address with Google Maps */}
-                      <div className="relative mb-3">
-                        {editingProject === project.id && editingField === 'address' ? (
-                          <div className="flex items-center gap-2">
-                            <div className="flex items-center flex-1">
-                              <MapPin className="w-4 h-4 mr-2 text-gray-500" />
-                              <input
-                                type="text"
-                                value={editValues.address || ''}
-                                onChange={(e) => setEditValues(prev => ({ ...prev, address: e.target.value }))}
-                                className="bg-white/90 border border-blue-300 rounded px-2 py-1 text-gray-600 text-sm flex-1"
-                                onKeyPress={(e) => e.key === 'Enter' && saveEdit(project.id, 'address')}
-                                autoFocus
-                              />
-                            </div>
-                            <button onClick={() => saveEdit(project.id, 'address')} className="text-green-600 hover:text-green-700">
-                              <Check className="w-3 h-3" />
-                            </button>
-                            <button onClick={cancelEdit} className="text-red-600 hover:text-red-700">
-                              <X className="w-3 h-3" />
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center text-gray-600 group/address">
-                            <MapPin className="w-4 h-4 mr-2 text-gray-500" />
-                            <a 
-                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(project.address)}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex-1 hover:text-blue-600 hover:underline transition-colors duration-200 cursor-pointer"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              {project.address}
-                            </a>
-                            <button 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                startEditing(project.id, 'address', project.address);
-                              }}
-                              className="opacity-0 group-hover/address:opacity-100 text-gray-400 hover:text-blue-600 transition-all duration-200 ml-2"
-                            >
-                              <Edit2 className="w-3 h-3" />
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Editable Status Badge */}
-                    <div className="relative">
-                      {editingProject === project.id && editingField === 'status' ? (
-                        <div className="flex items-center gap-2">
-                          <select
-                            value={editValues.status || ''}
-                            onChange={(e) => setEditValues(prev => ({ ...prev, status: e.target.value }))}
-                            className="text-xs font-semibold bg-white border border-blue-300 rounded-full px-3 py-1"
-                            onKeyPress={(e) => e.key === 'Enter' && saveEdit(project.id, 'status')}
-                            autoFocus
                           >
-                            <option value="active">Active</option>
-                            <option value="on-hold">On Hold</option>
-                            <option value="completed">Completed</option>
-                          </select>
-                          <button onClick={() => saveEdit(project.id, 'status')} className="text-green-600 hover:text-green-700">
-                            <Check className="w-3 h-3" />
-                          </button>
-                          <button onClick={cancelEdit} className="text-red-600 hover:text-red-700">
-                            <X className="w-3 h-3" />
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => startEditing(project.id, 'status', project.status)}
-                          className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(project.status)} shadow-lg hover:scale-105 transition-transform duration-200`}
+                            {project.name}
+                          </h3>
+                        )}
+                      </div>
+
+                      {/* Address */}
+                      <div className="flex items-center text-gray-500 text-sm mb-4">
+                        <MapPin className="w-4 h-4 mr-2 text-gray-400" />
+                        <a 
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(project.address)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:text-blue-600 hover:underline transition-colors duration-200"
+                          onClick={(e) => e.stopPropagation()}
                         >
-                          {project.status}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                  {/* Milestone Progress with Hover Info */}
-                  <div className="mb-6">
-                    <div className={`flex justify-between mb-2 ${getTypographyClasses()}`}>
-                      <span className="text-gray-600 font-bold">Milestone Completion</span>
-                      <span className="font-semibold text-gray-900">{calculateMilestoneProgress(project.milestones)}%</span>
-                    </div>
-                    <div className="relative">
-                      <div className="w-full bg-gray-200/60 rounded-full h-3 overflow-hidden backdrop-blur-sm shadow-inner border border-gray-300/50 cursor-pointer group/progress">
-                        <div 
-                          className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 h-full rounded-full transition-all duration-700 shadow-lg relative"
-                          style={{ width: `${calculateMilestoneProgress(project.milestones)}%` }}
-                        >
-                          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-300/60 via-blue-200/40 to-transparent rounded-full"></div>
-                        </div>
-
-                        {/* Professional Milestone Tooltip - Only on Progress Bar Hover */}
-                        <div 
-                          className="absolute top-5 bg-white/98 backdrop-blur-lg border border-gray-200/80 rounded-xl p-4 shadow-2xl z-20 opacity-0 group-hover/progress:opacity-100 transition-all duration-300 ease-out transform translate-y-1 group-hover/progress:translate-y-0 min-w-[200px]"
-                          style={{ left: `${Math.min(project.progress, 70)}%`, transform: 'translateX(-50%)' }}
-                        >
-                          {/* Arrow pointing to progress bar */}
-                          <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-white/98 border-l border-t border-gray-200/80 rotate-45"></div>
-
-                          {/* Professional Content */}
-                          <div className={`text-center ${getTypographyClasses()}`}>
-                            <div className="font-bold text-gray-900 mb-2">Current Phase</div>
-                            <div className="text-gray-600 leading-relaxed mb-3">
-                              {project.currentMilestone}
-                            </div>
-                            <div className="space-y-1 text-xs">
-                              {project.milestones.map((milestone, idx) => (
-                                <div key={idx} className="flex items-center gap-2">
-                                  <div className={`w-2 h-2 rounded-full ${milestone.completed ? 'bg-green-500' : milestone.current ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
-                                  <span className={milestone.completed ? 'text-green-700' : milestone.current ? 'text-blue-700' : 'text-gray-500'}>
-                                    {milestone.name}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                            <div className="mt-2 pt-2 border-t border-gray-100">
-                              <div className="text-blue-600 font-medium">{calculateMilestoneProgress(project.milestones)}% Complete</div>
-                            </div>
-                          </div>
-                        </div>
+                          {project.address}
+                        </a>
                       </div>
+                    </div>
+
+                    {/* Status Badge */}
+                    <div className="ml-4">
+                      <button
+                        onClick={() => startEditing(project.id, 'status', project.status)}
+                        className="px-3 py-1 bg-green-500 text-white rounded-full text-xs font-medium hover:bg-green-600 transition-colors duration-200"
+                      >
+                        active
+                      </button>
                     </div>
                   </div>
 
-                  {/* Budget Section */}
+                  {/* At a Glance Section */}
                   <div className="mb-6">
-                    <div className={`flex items-center text-gray-600 mb-3 ${getTypographyClasses()}`}>
-                      <DollarSign className="w-4 h-4 text-emerald-600 mr-2" />
-                      <span className="font-bold">{customLabels.budgetOverview}</span>
+                    <div className="flex items-center text-gray-700 mb-4">
+                      <Target className="w-4 h-4 mr-2 text-blue-500" />
+                      <span className="font-medium text-sm">At a Glance</span>
                     </div>
-                    <div className="bg-gray-50/80 rounded-xl p-4 border border-gray-200/50">
-                      <div className={`flex justify-between items-center mb-2 ${getTypographyClasses()}`}>
-                        <span className="text-gray-600">{customLabels.committed}</span>
-                        <span className="font-semibold text-emerald-600">{formatCurrency(project.spentBudget)}</span>
-                      </div>
-                      <div className={`flex justify-between items-center mb-3 ${getTypographyClasses()}`}>
-                        <span className="text-gray-600">{customLabels.totalAllocated}</span>
-                        <span className="font-semibold text-gray-900">{formatCurrency(project.totalBudget)}</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-gradient-to-r from-emerald-500 to-emerald-600 h-2 rounded-full transition-all duration-700"
-                          style={{ width: `${(project.spentBudget / project.totalBudget) * 100}%` }}
-                        ></div>
-                      </div>
-                      <div className="text-xs text-gray-500 mt-2 text-center">
-                        {Math.round((project.spentBudget / project.totalBudget) * 100)}% utilized
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Enhanced Timeline Display */}
-                  <div className="mb-6">
-                    <div className={`flex items-center text-gray-600 mb-3 ${getTypographyClasses()}`}>
-                      <Calendar className="w-4 h-4 text-blue-600 mr-2" />
-                      <span className="font-bold">{customLabels.projectTimeline}</span>
-                    </div>
-                    <div className="bg-gradient-to-r from-blue-50/80 to-indigo-50/80 rounded-xl p-4 border border-blue-100/60 backdrop-blur-sm">
-                      <div className="flex items-center justify-between">
-                        <div className={`text-center ${getTypographyClasses()}`}>
-                          <div className="text-blue-600 font-medium mb-1">{customLabels.startDate}</div>
-                          <div className="font-semibold text-gray-900">
-                            {new Date(project.startDate).toLocaleDateString('en-US', { 
-                              month: 'short', 
-                              day: 'numeric',
-                              year: 'numeric'
-                            })}
-                          </div>
-                        </div>
-
-                        <div className="flex-1 mx-4 relative">
-                          <div className="h-1 bg-gradient-to-r from-blue-300 via-blue-400 to-blue-500 rounded-full"></div>
-                          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                            <div className="w-3 h-3 bg-blue-500 rounded-full border-2 border-white shadow-lg"></div>
-                          </div>
-                        </div>
-
-                        <div className={`text-center ${getTypographyClasses()}`}>
-                          <div className="text-blue-600 font-medium mb-1">Target Completion</div>
-                          <div className="font-semibold text-gray-900">
-                            {new Date(project.endDate).toLocaleDateString('en-US', { 
-                              month: 'short', 
-                              day: 'numeric',
-                              year: 'numeric'
-                            })}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="mt-3 text-center">
-                        <span className="text-xs text-blue-600 bg-blue-100/60 px-2 py-1 rounded-full">
-                          {Math.ceil((new Date(project.endDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days remaining
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* At a Glance Status Section */}
-                  <div className="mb-6">
-                    <div className={`flex items-center text-gray-600 mb-3 ${getTypographyClasses()}`}>
-                      <TrendingUp className="w-4 h-4 text-emerald-600 mr-2" />
-                      <span className="font-bold">At a Glance</span>
-                    </div>
-                    <div className="bg-gradient-to-r from-gray-50/80 to-emerald-50/80 rounded-xl p-4 border border-gray-100/60 backdrop-blur-sm space-y-3">
+                    <div className="space-y-3">
                       {/* Schedule Status */}
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Schedule Status</span>
-                        <span className={`text-sm font-semibold ${getScheduleStatus(project.scheduleVariance).color}`}>
+                        <span className="text-sm text-gray-600">Schedule</span>
+                        <span className={`text-sm font-medium ${getScheduleStatus(project.scheduleVariance).color}`}>
                           {getScheduleStatus(project.scheduleVariance).text}
                         </span>
                       </div>
 
                       {/* Budget Status */}
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Budget Status</span>
-                        <span className={`text-sm font-semibold ${getBudgetStatus(project.budgetVariance).color}`}>
+                        <span className="text-sm text-gray-600">Budget</span>
+                        <span className={`text-sm font-medium ${getBudgetStatus(project.budgetVariance).color}`}>
                           {getBudgetStatus(project.budgetVariance).text}
                         </span>
                       </div>
 
                       {/* Projected ROI */}
-                      <div className="flex justify-between items-center pt-2 border-t border-gray-200/60">
-                        <span className="text-sm text-gray-600 font-medium">Projected ROI</span>
-                        <span className="text-lg font-bold text-emerald-600">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Projected ROI</span>
+                        <span className="text-sm font-bold text-gray-900">
                           {project.projectedROI}%
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Project Lead Section */}
+                  {/* Milestone Completion */}
                   <div className="mb-6">
-                    <div className={`flex items-center justify-between ${getTypographyClasses()}`}>
-                      <div className="flex items-center text-gray-600">
-                        <Users className="w-4 h-4 mr-2 text-purple-600" />
-                        <span className="font-bold">{customLabels.projectLead}</span>
-                      </div>
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-sm font-medium text-gray-700">Milestone Completion</span>
+                      <span className="text-sm font-bold text-gray-900">{calculateMilestoneProgress(project.milestones)}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-blue-500 h-2 rounded-full transition-all duration-700"
+                        style={{ width: `${calculateMilestoneProgress(project.milestones)}%` }}
+                      ></div>
+                    </div>
+                  </div>
 
-                      {/* Editable Project Lead */}
-                      <div className="relative">
-                        {editingProject === project.id && editingField === 'manager' ? (
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="text"
-                              value={editValues.manager || ''}
-                              onChange={(e) => setEditValues(prev => ({ ...prev, manager: e.target.value }))}
-                              className="bg-white/90 border border-blue-300 rounded px-2 py-1 text-gray-900 text-sm font-semibold"
-                              onKeyPress={(e) => e.key === 'Enter' && saveEdit(project.id, 'manager')}
-                              autoFocus
-                              placeholder="Enter project lead name"
-                            />
-                            <button onClick={() => saveEdit(project.id, 'manager')} className="text-green-600 hover:text-green-700">
-                              <Check className="w-3 h-3" />
-                            </button>
-                            <button onClick={cancelEdit} className="text-red-600 hover:text-red-700">
-                              <X className="w-3 h-3" />
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2 group/manager">
-                            <span 
-                              className="text-gray-900 font-semibold cursor-pointer"
-                              onClick={() => startEditing(project.id, 'manager', project.manager)}
-                            >
-                              {project.manager}
-                            </span>
-                            <button 
-                              onClick={() => startEditing(project.id, 'manager', project.manager)}
-                              className="opacity-0 group-hover/manager:opacity-100 text-gray-400 hover:text-blue-600 transition-all duration-200"
-                            >
-                              <Edit2 className="w-3 h-3" />
-                            </button>
-                          </div>
-                        )}
+                  {/* Financials Section */}
+                  <div className="mb-6">
+                    <div className="flex items-center text-gray-700 mb-4">
+                      <DollarSign className="w-4 h-4 mr-2 text-green-500" />
+                      <span className="font-medium text-sm">Financials</span>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Funds Deployed</span>
+                        <span className="text-sm font-semibold text-gray-900">{formatCurrency(project.spentBudget)}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Total Budget</span>
+                        <span className="text-sm font-semibold text-gray-900">{formatCurrency(project.totalBudget)}</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Glass Action Buttons */}
-                  <div className="flex space-x-3 mt-6">
+                  {/* Timeline Section */}
+                  <div className="mb-6">
+                    <div className="flex items-center text-gray-700 mb-4">
+                      <Calendar className="w-4 h-4 mr-2 text-blue-500" />
+                      <span className="font-medium text-sm">Timeline</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <div className="text-center">
+                        <div className="text-xs text-gray-500 mb-1">Start Date</div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {new Date(project.startDate).toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric',
+                            year: 'numeric'
+                          })}
+                        </div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-xs text-gray-500 mb-1">Target Completion</div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {new Date(project.endDate).toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric',
+                            year: 'numeric'
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Project Lead Section */}
+                  <div className="mb-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center text-gray-700">
+                        <User className="w-4 h-4 mr-2 text-purple-500" />
+                        <span className="font-medium text-sm">Project Lead</span>
+                      </div>
+                      <span className="text-sm font-medium text-gray-900">{project.manager}</span>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex space-x-3 pt-4">
                     <button 
                       onClick={() => alert(`Opening details for ${project.name}`)}
-                      className="flex-1 px-4 py-2.5 bg-white/80 backdrop-blur-md border border-gray-300/60 rounded-xl text-gray-700 hover:bg-white/90 hover:text-gray-900 transition-all duration-300 text-sm font-medium shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 relative overflow-hidden"
+                      className="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200 text-sm font-medium"
                       data-testid={`button-view-details-${project.id}`}
                     >
-                      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent"></div>
                       View Details
                     </button>
                     <button 
                       onClick={() => alert(`Opening management for ${project.name}`)}
-                      className="flex-1 px-4 py-2.5 bg-gradient-to-b from-blue-500 via-blue-600 to-blue-700 hover:from-blue-400 hover:via-blue-500 hover:to-blue-600 text-white rounded-xl transition-all duration-300 text-sm font-semibold shadow-xl shadow-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/40 hover:scale-105 active:scale-95 border border-blue-400/30 relative overflow-hidden"
+                      className="flex-1 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200 text-sm font-medium"
                       data-testid={`button-manage-${project.id}`}
                     >
-                      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-200/60 to-transparent"></div>
                       Manage
                     </button>
                   </div>
