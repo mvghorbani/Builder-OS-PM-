@@ -62,10 +62,9 @@ const StatusBadge = ({ status }: { status: string }) => (
   </Badge>
 );
 
-const PropertyCard = ({ property, onSelect }: { property: Property; onSelect: (property: Property) => void }) => (
+const PropertyCard = ({ property }: { property: Property }) => (
   <Card
-    className="cursor-pointer hover:shadow-lg transition-all duration-200 rounded-xl border-0 shadow-sm hover:shadow-xl"
-    onClick={() => onSelect?.(property)}
+    className="rounded-xl border-0 shadow-sm"
     data-testid={`card-property-${property.id}`}
   >
     <CardContent className="p-6">
@@ -125,7 +124,7 @@ const Dashboard = () => {
     if (typeof n === 'number' && Number.isFinite(n)) return `$${Math.round(n / 1000)}k`;
     return '—';
   };
-  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+  
   const [newProjectName, setNewProjectName] = useState("");
   const [newProjectAddress, setNewProjectAddress] = useState("");
   const [newProjectCity, setNewProjectCity] = useState("");
@@ -303,7 +302,6 @@ const Dashboard = () => {
               onClick={() => toast({ title: "Notifications", description: "You have no new notifications." })}
             >
               <Bell className="w-5 h-5" />
-              <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
             </Button>
           </div>
         </div>
@@ -427,7 +425,7 @@ const Dashboard = () => {
             ) : (
               <>
                 {Array.isArray(properties) && properties.map((property: any) => (
-                  <PropertyCard key={property.id} property={property} onSelect={setSelectedProperty} />
+                  <PropertyCard key={property.id} property={property} />
                 ))}
                 {!propertiesLoading && Array.isArray(properties) && properties.length === 0 && (
                   <Card className="rounded-xl border-0 shadow-sm">
@@ -526,7 +524,11 @@ const Dashboard = () => {
               </div>
             )}
             <div className="space-y-4">
-              {Array.isArray(activities) && activities.slice(0, 4).map((activity: any) => (
+              {Array.isArray(activities) && activities
+                .slice() // copy
+                .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                .slice(0, 4)
+                .map((activity: any) => (
                 <div key={activity.id} className="flex items-start space-x-4" data-testid={`activity-${activity.id}`}>
                   <div className="p-2 bg-green-100 rounded-full">
                     <Check className="text-green-600 text-sm" />
