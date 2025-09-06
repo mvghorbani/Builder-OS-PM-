@@ -75,6 +75,79 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // AI-Powered Permit Discovery Endpoint
+  app.post('/api/v1/permits/lookup', isAuthenticated, async (req: any, res) => {
+    try {
+      const { projectAddress, scopeOfWork } = req.body;
+      
+      if (!projectAddress || !scopeOfWork) {
+        return res.status(400).json({ 
+          message: "Both projectAddress and scopeOfWork are required" 
+        });
+      }
+
+      const prompt = `You are an expert compliance assistant for construction projects in South Florida. Given a property address and a scope of work, you MUST use Google Search to find the official municipal government permit requirements for that specific city. You must return a single, minified JSON object with the following schema, and nothing else: { "permitName": string, "issuingAuthority": string, "formUrl": string, "notes": string }.
+
+Property Address: ${projectAddress}
+Scope of Work: ${scopeOfWork}`;
+
+      const result = await geminiService.lookupPermitRequirements(prompt);
+      res.json(result);
+    } catch (error) {
+      console.error("Error in permit lookup:", error);
+      res.status(500).json({ message: "Failed to lookup permit requirements" });
+    }
+  });
+
+  // Permit CRUD Endpoints for Tracking Ledger
+  app.get('/api/v1/projects/:projectId/permits', isAuthenticated, async (req, res) => {
+    try {
+      const permits = await storage.getPermits(req.params.projectId);
+      res.json(permits);
+    } catch (error) {
+      console.error("Error fetching permits:", error);
+      res.status(500).json({ message: "Failed to fetch permits" });
+    }
+  });
+
+  app.post('/api/v1/projects/:projectId/permits', isAuthenticated, async (req: any, res) => {
+    try {
+      const validatedData = insertPermitSchema.parse({
+        ...req.body,
+        propertyId: req.params.projectId
+      });
+      const permit = await storage.createPermit(validatedData);
+
+      await createAuditLog(req, 'create', 'permit', permit.id, null, permit);
+      await createActivity(req.user.claims.sub, req.params.projectId, 'created', `Created permit ${permit.type}`, 'permit', permit.id);
+
+      res.status(201).json(permit);
+    } catch (error) {
+      console.error("Error creating permit:", error);
+      res.status(500).json({ message: "Failed to create permit" });
+    }
+  });
+
+  app.put('/api/v1/permits/:permitId', isAuthenticated, async (req: any, res) => {
+    try {
+      const oldPermit = await storage.getPermit(req.params.permitId);
+      if (!oldPermit) {
+        return res.status(404).json({ message: "Permit not found" });
+      }
+
+      const validatedData = insertPermitSchema.partial().parse(req.body);
+      const permit = await storage.updatePermit(req.params.permitId, validatedData);
+
+      await createAuditLog(req, 'update', 'permit', req.params.permitId, oldPermit, permit);
+      await createActivity(req.user.claims.sub, oldPermit.propertyId, 'updated', `Updated permit ${permit?.type}`, 'permit', req.params.permitId);
+
+      res.json(permit);
+    } catch (error) {
+      console.error("Error updating permit:", error);
+      res.status(500).json({ message: "Failed to update permit" });
+    }
+  });
+
   // Simple admin login for testing
   app.post('/api/admin/login', async (req, res) => {
     try {

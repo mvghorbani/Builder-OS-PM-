@@ -29,7 +29,7 @@ const permitLookupSchema = z.object({
 const permitFormSchema = z.object({
   type: z.string().min(1, "Permit type is required"),
   permitNumber: z.string().optional(),
-  status: z.enum(['not_started', 'submitted', 'under_review', 'approved', 'issued', 'expired']).default('not_started'),
+  status: z.enum(['not_started', 'applied', 'under_review', 'approved', 'rejected', 'expired']).default('not_started'),
   submittedDate: z.string().optional(),
   approvedDate: z.string().optional(),
   expiryDate: z.string().optional(),
@@ -73,10 +73,13 @@ export function PermitsCompliance({ selectedProject }: PermitsComplianceProps) {
     },
   });
 
-  // Fetch permits for the project
+  // Get project ID - using the first project if selectedProject is null
+  const projectId = selectedProject?.id || 'demo-project';
+
+  // Fetch permits for the project using the v1 API endpoint
   const { data: permits = [], isLoading: permitsLoading } = useQuery({
-    queryKey: [`/api/properties/${selectedProject?.id}/permits`],
-    enabled: !!selectedProject?.id,
+    queryKey: [`/api/v1/projects/${projectId}/permits`],
+    enabled: !!projectId,
     select: (data: any) => Array.isArray(data) ? data : [],
   });
 
@@ -117,13 +120,22 @@ export function PermitsCompliance({ selectedProject }: PermitsComplianceProps) {
     },
   });
 
-  // Create permit mutation
+  // Create permit mutation using the v1 API endpoint
   const createPermitMutation = useMutation({
     mutationFn: async (permitData: PermitFormData) => {
-      return apiService.createPermit(selectedProject.id, permitData);
+      const response = await fetch(`/api/v1/projects/${projectId}/permits`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(permitData),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to create permit');
+      }
+      return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/properties/${selectedProject?.id}/permits`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/v1/projects/${projectId}/permits`] });
       toast({
         title: "Permit Added",
         description: "Permit has been successfully added to your project.",
@@ -141,10 +153,10 @@ export function PermitsCompliance({ selectedProject }: PermitsComplianceProps) {
     },
   });
 
-  // Update permit mutation
+  // Update permit mutation using the v1 API endpoint
   const updatePermitMutation = useMutation({
     mutationFn: async ({ permitId, updates }: { permitId: string; updates: Partial<PermitFormData> }) => {
-      const response = await fetch(`/api/permits/${permitId}`, {
+      const response = await fetch(`/api/v1/permits/${permitId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -160,7 +172,7 @@ export function PermitsCompliance({ selectedProject }: PermitsComplianceProps) {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/properties/${selectedProject?.id}/permits`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/v1/projects/${projectId}/permits`] });
       toast({
         title: "Permit Updated",
         description: "Permit has been successfully updated.",
@@ -239,10 +251,10 @@ export function PermitsCompliance({ selectedProject }: PermitsComplianceProps) {
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
       case 'not_started': return 'bg-gray-100 text-gray-800';
-      case 'submitted': return 'bg-blue-100 text-blue-800';
+      case 'applied': return 'bg-blue-100 text-blue-800';
       case 'under_review': return 'bg-yellow-100 text-yellow-800';
       case 'approved': return 'bg-green-100 text-green-800';
-      case 'issued': return 'bg-green-100 text-green-800';
+      case 'rejected': return 'bg-red-100 text-red-800';
       case 'expired': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
@@ -591,10 +603,10 @@ export function PermitsCompliance({ selectedProject }: PermitsComplianceProps) {
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="not_started">Not Started</SelectItem>
-                          <SelectItem value="submitted">Submitted</SelectItem>
+                          <SelectItem value="applied">Applied</SelectItem>
                           <SelectItem value="under_review">Under Review</SelectItem>
                           <SelectItem value="approved">Approved</SelectItem>
-                          <SelectItem value="issued">Issued</SelectItem>
+                          <SelectItem value="rejected">Rejected</SelectItem>
                           <SelectItem value="expired">Expired</SelectItem>
                         </SelectContent>
                       </Select>
