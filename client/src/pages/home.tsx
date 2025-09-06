@@ -373,7 +373,7 @@ const Dashboard = () => {
           <button className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 hover:translate-y-1 hover:scale-[0.98] active:translate-y-2 active:scale-[0.96] group text-center">
             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-lg transition-all duration-300 relative overflow-hidden group-hover:scale-110">
               <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <Building2 className="h-6 w-6 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" /></div>
+              <Building2 className="h-6 w-6 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Active Projects</h3>
             <p className="text-3xl font-bold text-gray-900 group-hover:text-blue-700 transition-colors duration-300" data-testid="text-stat-projects">
