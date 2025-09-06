@@ -413,14 +413,14 @@ export default function Projects() {
                       )}
                     </div>
                   </div>
-                  {/* Progress with Milestone Floating Recap */}
+                  {/* Progress with Hover Budget Info */}
                   <div className="mb-6">
                     <div className="flex justify-between text-sm mb-2">
                       <span className="text-gray-600">Progress</span>
                       <span className="font-semibold text-gray-900">{project.progress}%</span>
                     </div>
-                    <div className="relative">
-                      <div className="w-full bg-gray-200/60 rounded-full h-3 overflow-hidden backdrop-blur-sm shadow-inner border border-gray-300/50">
+                    <div className="relative group">
+                      <div className="w-full bg-gray-200/60 rounded-full h-3 overflow-hidden backdrop-blur-sm shadow-inner border border-gray-300/50 cursor-pointer">
                         <div 
                           className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 h-full rounded-full transition-all duration-700 shadow-lg relative"
                           style={{ width: `${project.progress}%` }}
@@ -428,6 +428,7 @@ export default function Projects() {
                           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-300/60 via-blue-200/40 to-transparent rounded-full"></div>
                         </div>
                       </div>
+                      
                       {/* Floating Milestone Indicator */}
                       <div 
                         className="absolute top-4 bg-white/95 backdrop-blur-sm border border-gray-200 rounded-lg px-3 py-1 shadow-lg text-xs text-gray-700 font-medium z-10"
@@ -436,44 +437,82 @@ export default function Projects() {
                         <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white/95 border-l border-t border-gray-200 rotate-45"></div>
                         {project.currentMilestone}
                       </div>
+
+                      {/* Budget Info on Hover */}
+                      <div className="absolute top-8 left-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 mt-2">
+                        <div className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl p-4 shadow-xl">
+                          <div className="flex items-center text-sm text-gray-600 mb-3">
+                            <div className="w-2 h-2 bg-emerald-500 rounded-full mr-2"></div>
+                            Budget Overview
+                          </div>
+                          <div className="space-y-2">
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm text-gray-600">Spent</span>
+                              <span className="text-sm font-semibold text-emerald-600">{formatCurrency(project.spentBudget)}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm text-gray-600">Total Budget</span>
+                              <span className="text-sm font-semibold text-gray-900">{formatCurrency(project.totalBudget)}</span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                              <div 
+                                className="bg-gradient-to-r from-emerald-500 to-emerald-600 h-2 rounded-full transition-all duration-700"
+                                style={{ width: `${(project.spentBudget / project.totalBudget) * 100}%` }}
+                              ></div>
+                            </div>
+                            <div className="text-xs text-gray-500 text-center mt-1">
+                              {Math.round((project.spentBudget / project.totalBudget) * 100)}% utilized
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Professional Budget Display */}
+
+                  {/* Enhanced Timeline Display */}
                   <div className="mb-6">
                     <div className="flex items-center text-sm text-gray-600 mb-3">
-                      <div className="w-2 h-2 bg-emerald-500 rounded-full mr-2"></div>
-                      Budget Overview
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                      Project Timeline
                     </div>
-                    <div className="bg-gray-50/80 rounded-xl p-4 border border-gray-200/50">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-gray-600">Spent</span>
-                        <span className="text-sm font-semibold text-emerald-600">{formatCurrency(project.spentBudget)}</span>
+                    <div className="bg-gradient-to-r from-blue-50/80 to-indigo-50/80 rounded-xl p-4 border border-blue-100/60 backdrop-blur-sm">
+                      <div className="flex items-center justify-between">
+                        <div className="text-center">
+                          <div className="text-xs text-blue-600 font-medium mb-1">Start Date</div>
+                          <div className="text-sm font-semibold text-gray-900">
+                            {new Date(project.startDate).toLocaleDateString('en-US', { 
+                              month: 'short', 
+                              day: 'numeric',
+                              year: 'numeric'
+                            })}
+                          </div>
+                        </div>
+                        
+                        <div className="flex-1 mx-4 relative">
+                          <div className="h-1 bg-gradient-to-r from-blue-300 via-blue-400 to-blue-500 rounded-full"></div>
+                          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                            <div className="w-3 h-3 bg-blue-500 rounded-full border-2 border-white shadow-lg"></div>
+                          </div>
+                        </div>
+                        
+                        <div className="text-center">
+                          <div className="text-xs text-blue-600 font-medium mb-1">End Date</div>
+                          <div className="text-sm font-semibold text-gray-900">
+                            {new Date(project.endDate).toLocaleDateString('en-US', { 
+                              month: 'short', 
+                              day: 'numeric',
+                              year: 'numeric'
+                            })}
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex justify-between items-center mb-3">
-                        <span className="text-sm text-gray-600">Total Budget</span>
-                        <span className="text-sm font-semibold text-gray-900">{formatCurrency(project.totalBudget)}</span>
+                      
+                      <div className="mt-3 text-center">
+                        <span className="text-xs text-blue-600 bg-blue-100/60 px-2 py-1 rounded-full">
+                          {Math.ceil((new Date(project.endDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days remaining
+                        </span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-gradient-to-r from-emerald-500 to-emerald-600 h-2 rounded-full transition-all duration-700"
-                          style={{ width: `${(project.spentBudget / project.totalBudget) * 100}%` }}
-                        ></div>
-                      </div>
-                      <div className="text-xs text-gray-500 mt-2 text-center">
-                        {Math.round((project.spentBudget / project.totalBudget) * 100)}% utilized
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Timeline with Glass Design */}
-                  <div className="mb-6">
-                    <div className="flex items-center text-sm text-gray-600 mb-2">
-                      <Calendar className="w-4 h-4 mr-2 text-blue-600" />
-                      Timeline
-                    </div>
-                    <div className="text-sm text-gray-700">
-                      {new Date(project.startDate).toLocaleDateString()} - {new Date(project.endDate).toLocaleDateString()}
                     </div>
                   </div>
 
