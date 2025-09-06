@@ -16,8 +16,6 @@ import {
   Plus,
   Bell,
   Check,
-  Clock,
-  ArrowUp,
   Upload,
   ClipboardCheck,
   HelpCircle,
@@ -34,7 +32,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { apiService } from "@/lib/apiService";
 import { MainLayout } from "@/layouts/MainLayout";
 import { PermitsCompliance } from "@/components/PermitsCompliance";
 
@@ -62,6 +59,11 @@ const StatusBadge = ({ status }: { status: string }) => (
   </Badge>
 );
 
+const getWhen = (a: Activity) => {
+  const raw = (a as any).createdAt ?? (a as any).created_at ?? null;
+  return raw ? new Date(raw).toLocaleString() : '—';
+};
+
 const PropertyCard = ({ property }: { property: Property }) => (
   <Card
     className="rounded-xl border-0 shadow-sm"
@@ -78,7 +80,7 @@ const PropertyCard = ({ property }: { property: Property }) => (
             }
           </p>
         </div>
-        <StatusBadge status={property.status} />
+        <StatusBadge status={property.status || 'active'} />
       </div>
       
       <div className="space-y-3">
@@ -96,8 +98,8 @@ const PropertyCard = ({ property }: { property: Property }) => (
           <div>
             <p className="text-gray-500">Budget</p>
             <p className="font-medium text-gray-900">
-              {typeof property.totalBudget === 'number'
-                ? property.totalBudget.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+              {property.totalBudget 
+                ? parseFloat(property.totalBudget.toString()).toLocaleString('en-US', { style: 'currency', currency: 'USD' })
                 : '—'}
             </p>
           </div>
@@ -139,21 +141,21 @@ const Dashboard = () => {
   };
 
   // Data fetching
-  const { data: stats, isLoading: statsLoading, isError: statsError } = useQuery({
+  const { data: stats, isLoading: statsLoading, isError: statsError } = useQuery<DashboardStats>({
     queryKey: ['/api/dashboard/stats'],
     queryFn: () => fetchJSON('/api/dashboard/stats'),
     retry: (failureCount, error) => !isUnauthorizedError(error) && failureCount < 2,
     staleTime: 60_000,
   });
 
-  const { data: properties = [], isLoading: propertiesLoading, isError: propertiesError } = useQuery({
+  const { data: properties = [], isLoading: propertiesLoading, isError: propertiesError } = useQuery<Property[]>({
     queryKey: ['/api/properties'],
     queryFn: () => fetchJSON('/api/properties'),
     retry: (failureCount, error) => !isUnauthorizedError(error) && failureCount < 2,
     staleTime: 30_000,
   });
 
-  const { data: activities = [], isLoading: activitiesLoading, isError: activitiesError } = useQuery({
+  const { data: activities = [], isLoading: activitiesLoading, isError: activitiesError } = useQuery<Activity[]>({
     queryKey: ['/api/activities'],
     queryFn: () => fetchJSON('/api/activities'),
     retry: (failureCount, error) => !isUnauthorizedError(error) && failureCount < 2,
@@ -197,11 +199,11 @@ const Dashboard = () => {
   const handleCreateProject = (e: React.FormEvent) => {
     e.preventDefault();
     createProjectMutation.mutate({
-      name: newProjectName,
-      address: newProjectAddress,
-      city: newProjectCity,
-      state: newProjectState,
-      zipCode: newProjectZip,
+      name: newProjectName.trim(),
+      address: newProjectAddress.trim(),
+      city: newProjectCity.trim(),
+      state: newProjectState.trim(),
+      zipCode: newProjectZip.trim(),
       status: 'active',
       progress: 0,
       type: 'residential',
@@ -320,7 +322,19 @@ const Dashboard = () => {
         )}
 
         {/* Stats Cards */}
-        {stats && typeof stats === 'object' && 'activeProjects' in stats && (
+        {statsLoading && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {Array.from({length: 4}).map((_, i) => (
+              <Card key={i} className="rounded-xl border-0 shadow-sm">
+                <CardContent className="p-6">
+                  <div className="h-6 w-24 bg-gray-200 rounded mb-4"></div>
+                  <div className="h-8 w-32 bg-gray-200 rounded"></div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+        {stats && typeof stats === 'object' && 'activeProjects' in stats && !statsLoading && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card className="rounded-xl border-0 shadow-sm">
               <CardContent className="p-6">
@@ -328,7 +342,7 @@ const Dashboard = () => {
                   <div>
                     <p className="text-sm text-gray-600">Active Projects</p>
                     <p className="text-3xl font-bold text-gray-900" data-testid="text-stat-projects">
-                      {fmtInt((stats as any)?.activeProjects)}
+                      {fmtInt(stats?.activeProjects)}
                     </p>
                   </div>
                   <div className="p-3 bg-blue-50 rounded-lg">
@@ -344,16 +358,16 @@ const Dashboard = () => {
                   <div>
                     <p className="text-sm text-gray-600">Total Budget</p>
                     <p className="text-3xl font-bold text-gray-900" data-testid="text-stat-budget">
-                      {fmtUSDk((stats as any)?.totalBudget)}
+                      {fmtUSDk(stats?.totalBudget)}
                     </p>
                   </div>
                   <div className="p-3 bg-green-50 rounded-lg">
                     <DollarSign className="text-green-600 text-xl" />
                   </div>
                 </div>
-                {typeof (stats as any)?.spentBudget === 'number' && (
+                {typeof stats?.spentBudget === 'number' && (
                   <div className="flex items-center mt-4 text-sm">
-                    <span className="text-gray-600">{fmtUSDk((stats as any).spentBudget)} spent</span>
+                    <span className="text-gray-600">{fmtUSDk(stats.spentBudget)} spent</span>
                   </div>
                 )}
               </CardContent>
@@ -365,8 +379,8 @@ const Dashboard = () => {
                   <div>
                     <p className="text-sm text-gray-600">Schedule</p>
                     <p className="text-3xl font-bold text-gray-900" data-testid="text-stat-schedule">
-                      {typeof (stats as any)?.avgScheduleAdherence === 'number'
-                        ? `${(stats as any).avgScheduleAdherence}%`
+                      {typeof stats?.avgScheduleAdherence === 'number'
+                        ? `${stats.avgScheduleAdherence}%`
                         : '—'}
                     </p>
                   </div>
@@ -383,7 +397,7 @@ const Dashboard = () => {
                   <div>
                     <p className="text-sm text-gray-600">Permits Pending</p>
                     <p className="text-3xl font-bold text-gray-900" data-testid="text-stat-permits">
-                      {fmtInt((stats as any)?.pendingPermits)}
+                      {fmtInt(stats?.pendingPermits)}
                     </p>
                   </div>
                   <div className="p-3 bg-red-50 rounded-lg">
@@ -526,7 +540,13 @@ const Dashboard = () => {
             <div className="space-y-4">
               {Array.isArray(activities) && activities
                 .slice() // copy
-                .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                .sort((a: Activity, b: Activity) => {
+                  const aDate = (a as any).createdAt ?? (a as any).created_at ?? null;
+                  const bDate = (b as any).createdAt ?? (b as any).created_at ?? null;
+                  const da = aDate ? Date.parse(aDate) : 0;
+                  const db = bDate ? Date.parse(bDate) : 0;
+                  return db - da;
+                })
                 .slice(0, 4)
                 .map((activity: any) => (
                 <div key={activity.id} className="flex items-start space-x-4" data-testid={`activity-${activity.id}`}>
@@ -537,9 +557,7 @@ const Dashboard = () => {
                     <p className="text-sm text-gray-900">
                       <span className="font-medium">{activity.description}</span>
                     </p>
-                    <p className="text-xs text-gray-500">
-                      {new Date(activity.createdAt!).toLocaleString()}
-                    </p>
+                    <p className="text-xs text-gray-500">{getWhen(activity)}</p>
                   </div>
                 </div>
               ))}

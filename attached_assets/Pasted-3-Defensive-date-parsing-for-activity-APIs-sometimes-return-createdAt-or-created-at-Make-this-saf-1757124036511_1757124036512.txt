@@ -1,0 +1,160 @@
+3) Defensive date parsing for activity
+
+APIs sometimes return createdAt or created_at. Make this safe:
+
+const getWhen = (a: Activity) => {
+  const raw = (a as any).createdAt ?? (a as any).created_at ?? null;
+  return raw ? new Date(raw).toLocaleString() : '—';
+};
+
+// ...
+
+<p className="text-xs text-gray-500">{getWhen(activity)}</p>
+
+4) Stats: render while loading (optional polish)
+
+Right now stats show nothing while loading. If you want a subtle skeleton, add:
+
+{statsLoading && (
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    {Array.from({length: 4}).map((_, i) => (
+      <Card key={i} className="rounded-xl border-0 shadow-sm">
+        <CardContent className="p-6">
+          <div className="h-6 w-24 bg-gray-200 rounded mb-4"></div>
+          <div className="h-8 w-32 bg-gray-200 rounded"></div>
+        </CardContent>
+      </Card>
+    ))}
+  </div>
+)}
+
+5) Creation payload: keep only real inputs
+
+You already removed the seed budget 👍. One more tiny guard: trim strings to avoid “blank with spaces”.
+
+createProjectMutation.mutate({
+  name: newProjectName.trim(),
+  address: newProjectAddress.trim(),
+  city: newProjectCity.trim(),
+  state: newProjectState.trim(),
+  zipCode: newProjectZip.trim(),
+  status: 'active',
+  progress: 0,
+  type: 'residential',
+});
+
+6) PropertyCard: handle unknown status safely
+
+If property.status is undefined, StatusBadge will render “Undefined” styling. Guard it:
+
+<StatusBadge status={property.status || 'active'} />
+
+
+(Or show nothing if you prefer.)
+
+7) Activities: explicit empty state outside the map
+
+You did this — great. Also ensure sort doesn’t blow up on missing dates (handled by getWhen + a comparator guard):
+
+.sort((a, b) => {
+  const da = Date.parse((a as any).createdAt ?? (a as any).created_at ?? '') || 0;
+  const db = Date.parse((b as any).createdAt ?? (b as any).created_at ?? '') || 0;
+  return db - da;
+})
+
+Micro-diffs (copy/paste)
+A) Remove unused imports
+-import {
+-  Building,
+-  DollarSign,
+-  Calendar,
+-  FileText,
+-  Plus,
+-  Bell,
+-  Check,
+-  Clock,
+-  ArrowUp,
+-  Upload,
+-  ClipboardCheck,
+-  HelpCircle,
+-} from "lucide-react";
++import {
++  Building,
++  DollarSign,
++  Calendar,
++  FileText,
++  Plus,
++  Bell,
++  Check,
++  Upload,
++  ClipboardCheck,
++  HelpCircle,
++} from "lucide-react";
+
+-import { apiService } from "@/lib/apiService";
+
+B) Type the queries and add getWhen
+-const { data: stats, isLoading: statsLoading, isError: statsError } = useQuery({
++const { data: stats, isLoading: statsLoading, isError: statsError } = useQuery<DashboardStats>({
+   queryKey: ['/api/dashboard/stats'],
+   queryFn: () => fetchJSON('/api/dashboard/stats'),
+   retry: (failureCount, error) => !isUnauthorizedError(error) && failureCount < 2,
+   staleTime: 60_000,
+ });
+
+-const { data: properties = [], isLoading: propertiesLoading, isError: propertiesError } = useQuery({
++const { data: properties = [], isLoading: propertiesLoading, isError: propertiesError } = useQuery<Property[]>({
+   queryKey: ['/api/properties'],
+   queryFn: () => fetchJSON('/api/properties'),
+   retry: (failureCount, error) => !isUnauthorizedError(error) && failureCount < 2,
+   staleTime: 30_000,
+ });
+
+-const { data: activities = [], isLoading: activitiesLoading, isError: activitiesError } = useQuery({
++const { data: activities = [], isLoading: activitiesLoading, isError: activitiesError } = useQuery<Activity[]>({
+   queryKey: ['/api/activities'],
+   queryFn: () => fetchJSON('/api/activities'),
+   retry: (failureCount, error) => !isUnauthorizedError(error) && failureCount < 2,
+   staleTime: 30_000,
+ });
+
+const getWhen = (a: Activity) => {
+  const raw = (a as any).createdAt ?? (a as any).created_at ?? null;
+  return raw ? new Date(raw).toLocaleString() : '—';
+};
+
+C) Use typed stats (no any)
+- {fmtInt((stats as any)?.activeProjects)}
++ {fmtInt(stats?.activeProjects)}
+
+- {fmtUSDk((stats as any)?.totalBudget)}
++ {fmtUSDk(stats?.totalBudget)}
+
+-{typeof (stats as any)?.spentBudget === 'number' && (
++{typeof stats?.spentBudget === 'number' && (
+   <div className="flex items-center mt-4 text-sm">
+-    <span className="text-gray-600">{fmtUSDk((stats as any).spentBudget)} spent</span>
++    <span className="text-gray-600">{fmtUSDk(stats.spentBudget)} spent</span>
+   </div>
+)}
+
+-{typeof (stats as any)?.avgScheduleAdherence === 'number'
+-  ? `${(stats as any).avgScheduleAdherence}%`
++{typeof stats?.avgScheduleAdherence === 'number'
++  ? `${stats.avgScheduleAdherence}%`
+   : '—'}
+
+- {fmtInt((stats as any)?.pendingPermits)}
++ {fmtInt(stats?.pendingPermits)}
+
+D) Activity sorting guard
+- .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
++ .sort((a: Activity, b: Activity) => {
++   const da = Date.parse((a as any).createdAt ?? (a as any).created_at ?? '') || 0;
++   const db = Date.parse((b as any).createdAt ?? (b as any).created_at ?? '') || 0;
++   return db - da;
++ })
+
+E) StatusBadge guard in PropertyCard
+- <StatusBadge status={property.status} />
++ <StatusBadge status={property.status || 'active'} />
