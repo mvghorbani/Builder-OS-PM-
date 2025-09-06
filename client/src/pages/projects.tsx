@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Building2, Plus, Search, Filter, Calendar, DollarSign, Users, MapPin } from "lucide-react";
+import { Building2, Plus, Search, Filter, Calendar, DollarSign, Users, MapPin, ChevronDown, TrendingUp, Clock } from "lucide-react";
 import { MainLayout } from "../layouts/MainLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
@@ -8,6 +8,10 @@ import { Input } from "../components/ui/input";
 import { Badge } from "../components/ui/badge";
 
 export default function Projects() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [locationFilter, setLocationFilter] = useState("all");
 
   // Real project data
   const projects = [
@@ -70,6 +74,40 @@ export default function Projects() {
     }).format(amount);
   };
 
+  // Filter projects based on search and filters
+  const filteredProjects = projects.filter(project => {
+    const matchesSearch = project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         project.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         project.manager.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = statusFilter === "all" || project.status === statusFilter;
+    const matchesLocation = locationFilter === "all" || project.address.includes(locationFilter);
+    
+    return matchesSearch && matchesStatus && matchesLocation;
+  });
+
+  // Get unique locations for filter dropdown
+  const uniqueLocations = Array.from(new Set(projects.map(p => p.address.split(' ')[0])));
+
+  // Calculate days remaining for projects (more relevant for small business)
+  const getDaysRemaining = (endDate: string) => {
+    const end = new Date(endDate);
+    const today = new Date();
+    const diffTime = end.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+  // Get project with nearest deadline
+  const projectsWithDaysLeft = projects.map(p => ({...p, daysLeft: getDaysRemaining(p.endDate)}));
+  const nearestDeadline = Math.min(...projectsWithDaysLeft.map(p => p.daysLeft));
+  
+  // Calculate profitability (spent vs budget efficiency)
+  const avgProfitability = projects.reduce((sum, p) => {
+    const efficiency = (p.progress / (p.spentBudget / p.totalBudget)) * 100;
+    return sum + (efficiency || 0);
+  }, 0) / projects.length;
+
   return (
     <MainLayout>
       <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-gray-50 via-blue-50 to-white">
@@ -93,11 +131,68 @@ export default function Projects() {
                 <p className="text-base sm:text-lg text-gray-600">Manage and track all construction projects</p>
               </div>
               <div className="flex items-center space-x-3">
-                <button className="px-6 py-2.5 bg-white/70 backdrop-blur-md border border-gray-200 rounded-full text-gray-700 hover:bg-white/90 hover:text-gray-900 transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95">
-                  <Filter className="w-4 h-4" />
-                  Filter
-                </button>
-                <button className="px-6 py-2.5 bg-gradient-to-b from-blue-500 via-blue-600 to-blue-700 hover:from-blue-400 hover:via-blue-500 hover:to-blue-600 text-white rounded-full transition-all duration-300 flex items-center gap-2 shadow-xl shadow-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/40 hover:scale-105 active:scale-95 border border-blue-400/30">
+                <div className="relative">
+                  <button 
+                    onClick={() => setFilterOpen(!filterOpen)}
+                    className="px-6 py-2.5 bg-white/70 backdrop-blur-md border border-gray-200 rounded-full text-gray-700 hover:bg-white/90 hover:text-gray-900 transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
+                    data-testid="button-filter"
+                  >
+                    <Filter className="w-4 h-4" />
+                    Filter
+                    <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${filterOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  
+                  {/* Filter Dropdown */}
+                  {filterOpen && (
+                    <div className="absolute top-full mt-2 right-0 bg-white/90 backdrop-blur-xl border border-gray-200 rounded-2xl p-4 shadow-2xl z-50 min-w-[280px]">
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                          <select 
+                            value={statusFilter} 
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                            className="w-full px-3 py-2 bg-white/80 border border-gray-200 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/60"
+                            data-testid="select-status-filter"
+                          >
+                            <option value="all">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="on-hold">On Hold</option>
+                            <option value="completed">Completed</option>
+                          </select>
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                          <select 
+                            value={locationFilter} 
+                            onChange={(e) => setLocationFilter(e.target.value)}
+                            className="w-full px-3 py-2 bg-white/80 border border-gray-200 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/60"
+                            data-testid="select-location-filter"
+                          >
+                            <option value="all">All Locations</option>
+                            {uniqueLocations.map(location => (
+                              <option key={location} value={location}>{location}</option>
+                            ))}
+                          </select>
+                        </div>
+                        
+                        <button 
+                          onClick={() => {
+                            setStatusFilter("all");
+                            setLocationFilter("all");
+                            setSearchTerm("");
+                          }}
+                          className="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-300"
+                          data-testid="button-clear-filters"
+                        >
+                          Clear All Filters
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                <button className="px-6 py-2.5 bg-gradient-to-b from-blue-500 via-blue-600 to-blue-700 hover:from-blue-400 hover:via-blue-500 hover:to-blue-600 text-white rounded-full transition-all duration-300 flex items-center gap-2 shadow-xl shadow-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/40 hover:scale-105 active:scale-95 border border-blue-400/30" data-testid="button-new-project">
                   <Plus className="w-4 h-4" />
                   New Project
                 </button>
@@ -112,20 +207,36 @@ export default function Projects() {
               <input
                 type="text"
                 placeholder="Search projects by name, address, or manager..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-12 pr-4 py-4 bg-white/70 backdrop-blur-md border border-gray-200 rounded-2xl text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-400/50 focus:bg-white/90 transition-all duration-300 shadow-lg hover:shadow-xl"
+                data-testid="input-search-projects"
               />
             </div>
           </div>
 
+          {/* Filter Results Indicator */}
+          {(searchTerm || statusFilter !== "all" || locationFilter !== "all") && (
+            <div className="mb-6 px-4 py-2 bg-blue-50/80 backdrop-blur-sm border border-blue-200/60 rounded-lg">
+              <span className="text-sm text-blue-700">
+                Showing {filteredProjects.length} of {projects.length} projects
+                {searchTerm && ` matching "${searchTerm}"`}
+                {statusFilter !== "all" && ` with status "${statusFilter}"`}
+                {locationFilter !== "all" && ` in "${locationFilter}"`}
+              </span>
+            </div>
+          )}
+
           {/* Glassmorphism Projects Grid */}
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {projects.map((project, index) => (
+            {filteredProjects.map((project, index) => (
               <div 
                 key={project.id} 
                 className="group relative bg-white/80 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-6 hover:bg-white/90 hover:border-gray-300/60 transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl shadow-xl hover:shadow-blue-500/10"
                 style={{
                   animationDelay: `${index * 150}ms`
                 }}
+                data-testid={`card-project-${project.id}`}
               >
                 {/* Enhanced Glossy Border Effect */}
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-100/40 via-blue-200/30 to-blue-300/40 rounded-3xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -202,11 +313,19 @@ export default function Projects() {
 
                   {/* Glass Action Buttons */}
                   <div className="flex space-x-3 mt-6">
-                    <button className="flex-1 px-4 py-2.5 bg-white/80 backdrop-blur-md border border-gray-300/60 rounded-xl text-gray-700 hover:bg-white/90 hover:text-gray-900 transition-all duration-300 text-sm font-medium shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 relative overflow-hidden">
+                    <button 
+                      onClick={() => alert(`Opening details for ${project.name}`)}
+                      className="flex-1 px-4 py-2.5 bg-white/80 backdrop-blur-md border border-gray-300/60 rounded-xl text-gray-700 hover:bg-white/90 hover:text-gray-900 transition-all duration-300 text-sm font-medium shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 relative overflow-hidden"
+                      data-testid={`button-view-details-${project.id}`}
+                    >
                       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent"></div>
                       View Details
                     </button>
-                    <button className="flex-1 px-4 py-2.5 bg-gradient-to-b from-blue-500 via-blue-600 to-blue-700 hover:from-blue-400 hover:via-blue-500 hover:to-blue-600 text-white rounded-xl transition-all duration-300 text-sm font-semibold shadow-xl shadow-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/40 hover:scale-105 active:scale-95 border border-blue-400/30 relative overflow-hidden">
+                    <button 
+                      onClick={() => alert(`Opening management for ${project.name}`)}
+                      className="flex-1 px-4 py-2.5 bg-gradient-to-b from-blue-500 via-blue-600 to-blue-700 hover:from-blue-400 hover:via-blue-500 hover:to-blue-600 text-white rounded-xl transition-all duration-300 text-sm font-semibold shadow-xl shadow-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/40 hover:scale-105 active:scale-95 border border-blue-400/30 relative overflow-hidden"
+                      data-testid={`button-manage-${project.id}`}
+                    >
                       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-200/60 to-transparent"></div>
                       Manage
                     </button>
@@ -216,23 +335,15 @@ export default function Projects() {
             ))}
           </div>
 
-          {/* iOS-Style Glossy Summary Stats */}
+          {/* iOS-Style Glossy Summary Stats - Tailored for Small Business */}
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="bg-white/80 backdrop-blur-xl border border-gray-200/60 rounded-2xl p-6 text-center shadow-xl hover:bg-white/90 hover:shadow-2xl transition-all duration-300 hover:scale-105 relative overflow-hidden">
+            <div className="bg-white/80 backdrop-blur-xl border border-gray-200/60 rounded-2xl p-6 text-center shadow-xl hover:bg-white/90 hover:shadow-2xl transition-all duration-300 hover:scale-105 relative overflow-hidden" data-testid="stat-total-projects">
               <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent"></div>
               <div className="text-3xl font-bold text-gray-900 mb-2">{projects.length}</div>
               <div className="text-sm text-gray-600">Total Projects</div>
             </div>
             
-            <div className="bg-white/80 backdrop-blur-xl border border-gray-200/60 rounded-2xl p-6 text-center shadow-xl hover:bg-white/90 hover:shadow-2xl transition-all duration-300 hover:scale-105 relative overflow-hidden">
-              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent"></div>
-              <div className="text-3xl font-bold bg-gradient-to-b from-emerald-600 via-emerald-700 to-emerald-800 bg-clip-text text-transparent mb-2">
-                {formatCurrency(projects.reduce((sum, p) => sum + p.totalBudget, 0))}
-              </div>
-              <div className="text-sm text-gray-600">Total Budget</div>
-            </div>
-
-            <div className="bg-white/80 backdrop-blur-xl border border-gray-200/60 rounded-2xl p-6 text-center shadow-xl hover:bg-white/90 hover:shadow-2xl transition-all duration-300 hover:scale-105 relative overflow-hidden">
+            <div className="bg-white/80 backdrop-blur-xl border border-gray-200/60 rounded-2xl p-6 text-center shadow-xl hover:bg-white/90 hover:shadow-2xl transition-all duration-300 hover:scale-105 relative overflow-hidden" data-testid="stat-avg-progress">
               <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent"></div>
               <div className="text-3xl font-bold bg-gradient-to-b from-blue-600 via-blue-700 to-blue-800 bg-clip-text text-transparent mb-2">
                 {Math.round(projects.reduce((sum, p) => sum + p.progress, 0) / projects.length)}%
@@ -240,12 +351,26 @@ export default function Projects() {
               <div className="text-sm text-gray-600">Average Progress</div>
             </div>
 
-            <div className="bg-white/80 backdrop-blur-xl border border-gray-200/60 rounded-2xl p-6 text-center shadow-xl hover:bg-white/90 hover:shadow-2xl transition-all duration-300 hover:scale-105 relative overflow-hidden">
+            <div className="bg-white/80 backdrop-blur-xl border border-gray-200/60 rounded-2xl p-6 text-center shadow-xl hover:bg-white/90 hover:shadow-2xl transition-all duration-300 hover:scale-105 relative overflow-hidden" data-testid="stat-nearest-deadline">
               <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent"></div>
-              <div className="text-3xl font-bold bg-gradient-to-b from-orange-600 via-orange-700 to-orange-800 bg-clip-text text-transparent mb-2">
-                {projects.reduce((sum, p) => sum + p.team, 0)}
+              <div className="flex items-center justify-center mb-2">
+                <Clock className="w-8 h-8 text-orange-600 mr-2" />
+                <div className="text-3xl font-bold bg-gradient-to-b from-orange-600 via-orange-700 to-orange-800 bg-clip-text text-transparent">
+                  {nearestDeadline}
+                </div>
               </div>
-              <div className="text-sm text-gray-600">Team Members</div>
+              <div className="text-sm text-gray-600">Days to Nearest Deadline</div>
+            </div>
+
+            <div className="bg-white/80 backdrop-blur-xl border border-gray-200/60 rounded-2xl p-6 text-center shadow-xl hover:bg-white/90 hover:shadow-2xl transition-all duration-300 hover:scale-105 relative overflow-hidden" data-testid="stat-efficiency">
+              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent"></div>
+              <div className="flex items-center justify-center mb-2">
+                <TrendingUp className="w-8 h-8 text-emerald-600 mr-2" />
+                <div className="text-3xl font-bold bg-gradient-to-b from-emerald-600 via-emerald-700 to-emerald-800 bg-clip-text text-transparent">
+                  {Math.round(avgProfitability)}%
+                </div>
+              </div>
+              <div className="text-sm text-gray-600">Project Efficiency</div>
             </div>
           </div>
         </div>
