@@ -445,55 +445,55 @@ const Dashboard = () => {
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6 sm:mb-8">Quick Actions</h2>
           <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
             <button 
-              className="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 rounded-2xl p-6 shadow-2xl border-0 hover:shadow-[0_25px_50px_-12px_rgba(59,130,246,0.5)] transition-all duration-500 hover:-translate-y-2 transform group text-center relative overflow-hidden" 
+              className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl hover:from-gray-50 hover:to-gray-100 transition-all duration-300 hover:-translate-y-1 group text-center" 
               data-testid="button-daily-log"
               onClick={() => toast({ title: "Daily Log", description: "Daily log feature coming soon!" })}
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className="w-12 h-12 bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center mx-auto mb-4 shadow-inner relative z-10">
-                <ClipboardCheck className="h-6 w-6 text-white drop-shadow-lg" />
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl hover:shadow-[0_15px_30px_-8px_rgba(59,130,246,0.5)] transition-all duration-500 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <ClipboardCheck className="h-6 w-6 text-white drop-shadow-lg relative z-10" />
               </div>
-              <h3 className="text-lg font-semibold text-white mb-2 drop-shadow-lg relative z-10">Daily Log</h3>
-              <p className="text-sm text-white/90 drop-shadow relative z-10">Record site activity</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Daily Log</h3>
+              <p className="text-sm text-gray-600">Record site activity</p>
             </button>
 
             <button 
-              className="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 rounded-2xl p-6 shadow-2xl border-0 hover:shadow-[0_25px_50px_-12px_rgba(59,130,246,0.5)] transition-all duration-500 hover:-translate-y-2 transform group text-center relative overflow-hidden" 
+              className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl hover:from-gray-50 hover:to-gray-100 transition-all duration-300 hover:-translate-y-1 group text-center" 
               data-testid="button-upload-document"
               onClick={() => toast({ title: "Upload Document", description: "Document upload feature coming soon!" })}
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className="w-12 h-12 bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center mx-auto mb-4 shadow-inner relative z-10">
-                <Upload className="h-6 w-6 text-white drop-shadow-lg" />
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl hover:shadow-[0_15px_30px_-8px_rgba(59,130,246,0.5)] transition-all duration-500 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <Upload className="h-6 w-6 text-white drop-shadow-lg relative z-10" />
               </div>
-              <h3 className="text-lg font-semibold text-white mb-2 drop-shadow-lg relative z-10">Upload Document</h3>
-              <p className="text-sm text-white/90 drop-shadow relative z-10">Add project files</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Upload Document</h3>
+              <p className="text-sm text-gray-600">Add project files</p>
             </button>
 
             <button 
-              className="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 rounded-2xl p-6 shadow-2xl border-0 hover:shadow-[0_25px_50px_-12px_rgba(59,130,246,0.5)] transition-all duration-500 hover:-translate-y-2 transform group text-center relative overflow-hidden" 
+              className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl hover:from-gray-50 hover:to-gray-100 transition-all duration-300 hover:-translate-y-1 group text-center" 
               data-testid="button-create-rfq"
               onClick={() => toast({ title: "Create RFQ", description: "RFQ creation feature coming soon!" })}
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className="w-12 h-12 bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center mx-auto mb-4 shadow-inner relative z-10">
-                <FilePlus className="h-6 w-6 text-white drop-shadow-lg" />
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl hover:shadow-[0_15px_30px_-8px_rgba(59,130,246,0.5)] transition-all duration-500 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <FilePlus className="h-6 w-6 text-white drop-shadow-lg relative z-10" />
               </div>
-              <h3 className="text-lg font-semibold text-white mb-2 drop-shadow-lg relative z-10">Create RFQ</h3>
-              <p className="text-sm text-white/90 drop-shadow relative z-10">Get bids for work</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Create RFQ</h3>
+              <p className="text-sm text-gray-600">Get bids for work</p>
             </button>
 
             <button 
-              className="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 rounded-2xl p-6 shadow-2xl border-0 hover:shadow-[0_25px_50px_-12px_rgba(59,130,246,0.5)] transition-all duration-500 hover:-translate-y-2 transform group text-center relative overflow-hidden" 
+              className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl hover:from-gray-50 hover:to-gray-100 transition-all duration-300 hover:-translate-y-1 group text-center" 
               data-testid="button-submit-rfi"
               onClick={() => toast({ title: "Submit RFI", description: "RFI submission feature coming soon!" })}
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className="w-12 h-12 bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center mx-auto mb-4 shadow-inner relative z-10">
-                <HelpCircle className="h-6 w-6 text-white drop-shadow-lg" />
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl hover:shadow-[0_15px_30px_-8px_rgba(59,130,246,0.5)] transition-all duration-500 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <HelpCircle className="h-6 w-6 text-white drop-shadow-lg relative z-10" />
               </div>
-              <h3 className="text-lg font-semibold text-white mb-2 drop-shadow-lg relative z-10">Submit RFI</h3>
-              <p className="text-sm text-white/90 drop-shadow relative z-10">Request information</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Submit RFI</h3>
+              <p className="text-sm text-gray-600">Request information</p>
             </button>
           </div>
         </section>
