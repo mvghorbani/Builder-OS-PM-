@@ -27,7 +27,7 @@ import {
   FileText,
   CheckCircle,
   Clock,
-  Activity,
+  Activity as ActivityIcon,
 } from "lucide-react";
 import type { Property, Activity } from "@shared/schema";
 import {
@@ -99,12 +99,12 @@ const getActivityIcon = (type: string) => {
     'permit_pending': Clock,
     'comment': MessageSquare,
     'task_completed': Check,
-    'milestone_reached': Activity,
+    'milestone_reached': ActivityIcon,
     'budget_updated': Wallet,
     'rfi_submitted': HelpCircle,
     'user_joined': User,
     'alert': AlertCircle,
-    'default': Activity
+    'default': ActivityIcon
   };
   
   return iconMap[type as keyof typeof iconMap] || iconMap.default;
@@ -674,7 +674,7 @@ const Dashboard = () => {
                   <div className="w-20 h-20 mx-auto mb-6 relative">
                     {/* Blueprint/Timeline Illustration */}
                     <div className="w-full h-full bg-blue-50 rounded-2xl flex items-center justify-center">
-                      <Activity className="w-10 h-10 text-blue-600" />
+                      <ActivityIcon className="w-10 h-10 text-blue-600" />
                     </div>
                     <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
                       <Clock className="w-4 h-4 text-gray-500" />
@@ -786,7 +786,7 @@ const Dashboard = () => {
               data-testid="button-view-all-activity"
               onClick={() => toast({ title: "View All Activity", description: "Full activity timeline coming soon!" })}
             >
-              <Activity className="w-4 h-4 mr-2" />
+              <ActivityIcon className="w-4 h-4 mr-2" />
               View All Activity
             </Button>
           </div>
