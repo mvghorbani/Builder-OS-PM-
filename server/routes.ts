@@ -32,27 +32,17 @@ const upload = multer({
   },
 });
 
-// Middleware to extract JWT from cookie and set in header
-const extractJWTFromCookie = (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const token = req.cookies?.auth_token;
-    if (token && !req.headers.authorization) {
-      req.headers.authorization = `Bearer ${token}`;
-    }
-  } catch (error) {
-    console.warn('Error extracting JWT from cookie:', error);
-  }
-  next();
-};
 
 // JWT authentication middleware
 const authenticateJWT = (req: any, res: Response, next: NextFunction) => {
+  // Try to get token from Authorization header first, then from cookie
   const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : req.cookies?.auth_token;
+  
+  if (!token) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  const token = authHeader.substring(7);
   const jwtSecret = process.env.JWT_SECRET || 'your-secret-key';
 
   try {
@@ -68,8 +58,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add cookie parser
   app.use(cookieParser());
 
-  // Apply JWT extraction middleware globally
-  app.use(extractJWTFromCookie);
 
   // Health check endpoint
   app.get('/health', (req, res) => {
@@ -1178,6 +1166,106 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error setting document ACL:", error);
       res.status(500).json({ error: "Internal server error" });
     }
+  });
+
+  // Analytics endpoints for dashboard
+  app.get("/api/v1/analytics/gantt", isAuthenticated, (_req, res) => {
+    res.json({
+      projects: [
+        {
+          id: '1',
+          name: 'Downtown Office Complex',
+          startDate: '2024-01-01',
+          endDate: '2024-12-31',
+          progress: 65,
+          status: 'on-track',
+          milestones: [
+            { id: '1-1', name: 'Foundation Complete', date: '2024-03-15', status: 'complete' },
+            { id: '1-2', name: 'Frame Construction', date: '2024-06-30', status: 'complete' },
+            { id: '1-3', name: 'Interior Finishing', date: '2024-09-15', status: 'pending' },
+            { id: '1-4', name: 'Final Inspection', date: '2024-11-30', status: 'pending' },
+          ]
+        },
+        {
+          id: '2',
+          name: 'Residential Tower A',
+          startDate: '2024-02-01',
+          endDate: '2025-01-31',
+          progress: 45,
+          status: 'at-risk',
+          milestones: [
+            { id: '2-1', name: 'Site Preparation', date: '2024-03-01', status: 'complete' },
+            { id: '2-2', name: 'Foundation Pour', date: '2024-05-15', status: 'overdue' },
+            { id: '2-3', name: 'Structural Work', date: '2024-08-30', status: 'pending' },
+          ]
+        },
+        {
+          id: '3',
+          name: 'Shopping Center Renovation',
+          startDate: '2024-03-01',
+          endDate: '2024-10-31',
+          progress: 80,
+          status: 'on-track',
+          milestones: [
+            { id: '3-1', name: 'Demolition', date: '2024-04-15', status: 'complete' },
+            { id: '3-2', name: 'New Construction', date: '2024-07-31', status: 'complete' },
+            { id: '3-3', name: 'Tenant Fit-out', date: '2024-09-30', status: 'pending' },
+          ]
+        }
+      ]
+    });
+  });
+
+  app.get("/api/v1/analytics/financials", isAuthenticated, (_req, res) => {
+    res.json({
+      budgetVariance: [
+        { category: 'Labor', planned: 500000, actual: 520000, variance: 20000 },
+        { category: 'Materials', planned: 800000, actual: 750000, variance: -50000 },
+        { category: 'Equipment', planned: 200000, actual: 230000, variance: 30000 },
+        { category: 'Permits', planned: 50000, actual: 45000, variance: -5000 },
+        { category: 'Overhead', planned: 100000, actual: 115000, variance: 15000 },
+      ],
+      cashFlow: [
+        { date: '2024-09-01', projected: 150000, actual: 145000 },
+        { date: '2024-09-15', projected: 220000, actual: 210000 },
+        { date: '2024-10-01', projected: 280000, actual: 0 },
+        { date: '2024-10-15', projected: 350000, actual: 0 },
+        { date: '2024-11-01', projected: 420000, actual: 0 },
+        { date: '2024-11-15', projected: 480000, actual: 0 },
+        { date: '2024-12-01', projected: 520000, actual: 0 },
+      ]
+    });
+  });
+
+  app.get("/api/v1/analytics/ai-insights", isAuthenticated, (_req, res) => {
+    res.json({
+      riskScores: [
+        {
+          projectId: '2',
+          projectName: 'Residential Tower A',
+          riskScore: 85,
+          riskFactors: ['Weather delays', 'Material shortages', 'Permit issues'],
+        },
+        {
+          projectId: '1',
+          projectName: 'Downtown Office Complex',
+          riskScore: 35,
+          riskFactors: ['Minor scheduling conflicts'],
+        },
+        {
+          projectId: '3',
+          projectName: 'Shopping Center Renovation',
+          riskScore: 20,
+          riskFactors: ['On track'],
+        },
+      ]
+    });
+  });
+
+  app.post("/api/v1/analytics/ai-recommendation", isAuthenticated, (_req, res) => {
+    res.json({
+      recommendation: "Based on the risk factors for this project, we recommend: 1) Implement weather contingency plans with indoor work alternatives, 2) Establish backup material suppliers to mitigate shortages, 3) Expedite permit processing through dedicated liaison, 4) Consider schedule buffer of 2-3 weeks for critical path activities."
+    });
   });
 
   // Statistics and dashboard data
