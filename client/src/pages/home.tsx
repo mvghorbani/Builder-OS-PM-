@@ -546,11 +546,8 @@ const Dashboard = () => {
                       </p>
                       <Dialog>
                         <DialogTrigger asChild>
-                          <Button size="lg" className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-3 text-lg font-semibold shadow-2xl hover:shadow-[0_15px_30px_-8px_rgba(59,130,246,0.5)] transition-all duration-500 hover:-translate-y-1 border-0 relative overflow-hidden group flex items-center">
-                            <div className="w-6 h-6 bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-lg flex items-center justify-center mr-3 shadow-lg group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95">
-                              <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                              <FilePlus className="w-4 h-4 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
-                            </div>
+                          <Button size="lg" className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-3 text-lg font-semibold shadow-2xl hover:shadow-[0_15px_30px_-8px_rgba(59,130,246,0.5)] transition-all duration-500 hover:-translate-y-1 border-0 relative overflow-hidden group">
+                            <FilePlus className="w-5 h-5 mr-2" />
                             Create Your First Project
                           </Button>
                         </DialogTrigger>
@@ -690,14 +687,11 @@ const Dashboard = () => {
                       </p>
                       <Button 
                         size="lg" 
-                        className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-3 text-lg font-semibold shadow-2xl hover:shadow-[0_15px_30px_-8px_rgba(59,130,246,0.5)] transition-all duration-500 hover:-translate-y-1 border-0 relative overflow-hidden group flex items-center"
+                        className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-3 text-lg font-semibold shadow-2xl hover:shadow-[0_15px_30px_-8px_rgba(59,130,246,0.5)] transition-all duration-500 hover:-translate-y-1 border-0 relative overflow-hidden group"
                         data-testid="button-view-all-activity"
                         onClick={() => toast({ title: "View All Activity", description: "Full activity timeline coming soon!" })}
                       >
-                        <div className="w-6 h-6 bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-lg flex items-center justify-center mr-3 shadow-lg group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95">
-                          <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                          <ActivityIcon className="w-4 h-4 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
-                        </div>
+                        <ActivityIcon className="w-5 h-5 mr-2" />
                         View All Activity
                       </Button>
                     </div>
