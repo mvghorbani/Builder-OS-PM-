@@ -17,7 +17,7 @@ import {
   CheckCircle,
   AlertTriangle,
   Building,
-  Tool,
+  Wrench,
   Truck
 } from "lucide-react";
 
@@ -241,7 +241,7 @@ export default function Vendors() {
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                        <Tool className="w-6 h-6 text-blue-600" />
+                        <Wrench className="w-6 h-6 text-blue-600" />
                       </div>
                       <div>
                         <h3 className="font-semibold text-gray-900">Elite Construction Co.</h3>
@@ -329,7 +329,7 @@ export default function Vendors() {
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                        <Tool className="w-6 h-6 text-purple-600" />
+                        <Wrench className="w-6 h-6 text-purple-600" />
                       </div>
                       <div>
                         <h3 className="font-semibold text-gray-900">Apex Electrical Services</h3>
