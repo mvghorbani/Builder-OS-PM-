@@ -10,6 +10,8 @@ import {
   permits,
   risks,
   documents,
+  documentComments,
+  documentShares,
   activities,
   auditLogs,
   type User,
@@ -32,13 +34,17 @@ import {
   type InsertRisk,
   type Document,
   type InsertDocument,
+  type DocumentComment,
+  type InsertDocumentComment,
+  type DocumentShare,
+  type InsertDocumentShare,
   type Activity,
   type InsertActivity,
   type AuditLog,
   type InsertAuditLog,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, desc, asc, sql } from "drizzle-orm";
+import { eq, and, desc, asc, sql, like, or, ilike, isNull, not } from "drizzle-orm";
 
 export interface IStorage {
   // User operations (required for Replit Auth)
@@ -110,9 +116,41 @@ export interface IStorage {
 
   // Document operations
   getDocuments(propertyId?: string, milestoneId?: string): Promise<Document[]>;
+  searchDocuments(query: string, filters?: {
+    propertyId?: string;
+    category?: string;
+    type?: string;
+    status?: string;
+    tags?: string[];
+    dateFrom?: Date;
+    dateTo?: Date;
+    uploadedBy?: string;
+  }): Promise<Document[]>;
   getDocument(id: string): Promise<Document | undefined>;
+  getDocumentVersions(parentDocumentId: string): Promise<Document[]>;
+  getLatestDocumentVersion(parentDocumentId: string): Promise<Document | undefined>;
   createDocument(document: InsertDocument): Promise<Document>;
+  updateDocument(id: string, updates: Partial<InsertDocument>): Promise<Document | undefined>;
+  createDocumentVersion(originalDocumentId: string, newDocument: InsertDocument): Promise<Document>;
+  approveDocument(id: string, approvedBy: string, comments?: string): Promise<Document | undefined>;
+  rejectDocument(id: string, reviewedBy: string, comments: string): Promise<Document | undefined>;
+  archiveDocument(id: string, reason: string): Promise<Document | undefined>;
   deleteDocument(id: string): Promise<boolean>;
+  
+  // Document comments
+  getDocumentComments(documentId: string): Promise<DocumentComment[]>;
+  createDocumentComment(comment: InsertDocumentComment): Promise<DocumentComment>;
+  resolveComment(commentId: string): Promise<DocumentComment | undefined>;
+  
+  // Document sharing
+  createDocumentShare(share: InsertDocumentShare): Promise<DocumentShare>;
+  getDocumentShare(shareToken: string): Promise<DocumentShare | undefined>;
+  updateShareAccess(shareId: string): Promise<DocumentShare | undefined>;
+  deactivateShare(shareId: string): Promise<boolean>;
+  
+  // Document exports and backup
+  getDocumentsByCategory(category: string, propertyId?: string): Promise<Document[]>;
+  getDocumentsForBackup(lastBackupDate?: Date): Promise<Document[]>;
 
   // Activity operations
   getActivities(propertyId?: string, limit?: number): Promise<Activity[]>;
@@ -513,31 +551,94 @@ export class DatabaseStorage implements IStorage {
 
   // Document operations
   async getDocuments(propertyId?: string, milestoneId?: string): Promise<Document[]> {
+    let query = db.select().from(documents).where(eq(documents.isArchived, false));
+    
     if (propertyId && milestoneId) {
-      return await db
-        .select()
-        .from(documents)
-        .where(and(eq(documents.propertyId, propertyId), eq(documents.milestoneId, milestoneId)))
-        .orderBy(desc(documents.createdAt));
+      query = query.where(and(
+        eq(documents.propertyId, propertyId), 
+        eq(documents.milestoneId, milestoneId),
+        eq(documents.isArchived, false)
+      ));
     } else if (propertyId) {
-      return await db
-        .select()
-        .from(documents)
-        .where(eq(documents.propertyId, propertyId))
-        .orderBy(desc(documents.createdAt));
+      query = query.where(and(
+        eq(documents.propertyId, propertyId),
+        eq(documents.isArchived, false)
+      ));
     } else if (milestoneId) {
-      return await db
-        .select()
-        .from(documents)
-        .where(eq(documents.milestoneId, milestoneId))
-        .orderBy(desc(documents.createdAt));
+      query = query.where(and(
+        eq(documents.milestoneId, milestoneId),
+        eq(documents.isArchived, false)
+      ));
     }
 
-    return await db.select().from(documents).orderBy(desc(documents.createdAt));
+    return await query.orderBy(desc(documents.createdAt));
+  }
+
+  async searchDocuments(query: string, filters?: {
+    propertyId?: string;
+    category?: string;
+    type?: string;
+    status?: string;
+    tags?: string[];
+    dateFrom?: Date;
+    dateTo?: Date;
+    uploadedBy?: string;
+  }): Promise<Document[]> {
+    let dbQuery = db.select().from(documents);
+    
+    const conditions = [eq(documents.isArchived, false)];
+    
+    // Text search in name, description, and tags
+    if (query) {
+      conditions.push(
+        or(
+          ilike(documents.name, `%${query}%`),
+          ilike(documents.description, `%${query}%`),
+          sql`${documents.tags} && ARRAY[${query}]::text[]`
+        )
+      );
+    }
+    
+    // Apply filters
+    if (filters) {
+      if (filters.propertyId) conditions.push(eq(documents.propertyId, filters.propertyId));
+      if (filters.category) conditions.push(eq(documents.category, filters.category));
+      if (filters.type) conditions.push(eq(documents.type, filters.type));
+      if (filters.status) conditions.push(eq(documents.status, filters.status));
+      if (filters.uploadedBy) conditions.push(eq(documents.uploadedBy, filters.uploadedBy));
+      if (filters.tags && filters.tags.length > 0) {
+        conditions.push(sql`${documents.tags} && ARRAY[${filters.tags.join(',')}]::text[]`);
+      }
+      if (filters.dateFrom) conditions.push(sql`${documents.createdAt} >= ${filters.dateFrom}`);
+      if (filters.dateTo) conditions.push(sql`${documents.createdAt} <= ${filters.dateTo}`);
+    }
+    
+    return await dbQuery
+      .where(and(...conditions))
+      .orderBy(desc(documents.createdAt));
   }
 
   async getDocument(id: string): Promise<Document | undefined> {
     const [document] = await db.select().from(documents).where(eq(documents.id, id));
+    return document;
+  }
+
+  async getDocumentVersions(parentDocumentId: string): Promise<Document[]> {
+    return await db
+      .select()
+      .from(documents)
+      .where(eq(documents.parentDocumentId, parentDocumentId))
+      .orderBy(desc(documents.version));
+  }
+
+  async getLatestDocumentVersion(parentDocumentId: string): Promise<Document | undefined> {
+    const [document] = await db
+      .select()
+      .from(documents)
+      .where(and(
+        eq(documents.parentDocumentId, parentDocumentId),
+        eq(documents.isLatestVersion, true)
+      ));
     return document;
   }
 
@@ -546,9 +647,182 @@ export class DatabaseStorage implements IStorage {
     return newDocument;
   }
 
+  async updateDocument(id: string, updates: Partial<InsertDocument>): Promise<Document | undefined> {
+    const [updatedDocument] = await db
+      .update(documents)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(documents.id, id))
+      .returning();
+    return updatedDocument;
+  }
+
+  async createDocumentVersion(originalDocumentId: string, newDocument: InsertDocument): Promise<Document> {
+    // Get the original document to inherit properties
+    const originalDoc = await this.getDocument(originalDocumentId);
+    if (!originalDoc) {
+      throw new Error('Original document not found');
+    }
+
+    // Mark all versions of the original as not latest
+    await db
+      .update(documents)
+      .set({ isLatestVersion: false })
+      .where(eq(documents.parentDocumentId, originalDocumentId));
+    
+    // Mark the original as not latest
+    await db
+      .update(documents)
+      .set({ isLatestVersion: false })
+      .where(eq(documents.id, originalDocumentId));
+
+    // Create new version
+    const newVersion = originalDoc.version + 1;
+    const [versionedDocument] = await db.insert(documents).values({
+      ...newDocument,
+      parentDocumentId: originalDocumentId,
+      version: newVersion,
+      isLatestVersion: true,
+    }).returning();
+    
+    return versionedDocument;
+  }
+
+  async approveDocument(id: string, approvedBy: string, comments?: string): Promise<Document | undefined> {
+    const [approvedDocument] = await db
+      .update(documents)
+      .set({ 
+        status: 'approved',
+        approvedBy,
+        approvedAt: new Date(),
+        reviewComments: comments,
+        updatedAt: new Date()
+      })
+      .where(eq(documents.id, id))
+      .returning();
+    return approvedDocument;
+  }
+
+  async rejectDocument(id: string, reviewedBy: string, comments: string): Promise<Document | undefined> {
+    const [rejectedDocument] = await db
+      .update(documents)
+      .set({ 
+        status: 'rejected',
+        reviewedBy,
+        reviewedAt: new Date(),
+        reviewComments: comments,
+        updatedAt: new Date()
+      })
+      .where(eq(documents.id, id))
+      .returning();
+    return rejectedDocument;
+  }
+
+  async archiveDocument(id: string, reason: string): Promise<Document | undefined> {
+    const [archivedDocument] = await db
+      .update(documents)
+      .set({ 
+        isArchived: true,
+        archiveReason: reason,
+        updatedAt: new Date()
+      })
+      .where(eq(documents.id, id))
+      .returning();
+    return archivedDocument;
+  }
+
   async deleteDocument(id: string): Promise<boolean> {
     const result = await db.delete(documents).where(eq(documents.id, id));
     return (result.rowCount ?? 0) > 0;
+  }
+
+  // Document comments
+  async getDocumentComments(documentId: string): Promise<DocumentComment[]> {
+    return await db
+      .select()
+      .from(documentComments)
+      .where(eq(documentComments.documentId, documentId))
+      .orderBy(asc(documentComments.createdAt));
+  }
+
+  async createDocumentComment(comment: InsertDocumentComment): Promise<DocumentComment> {
+    const [newComment] = await db.insert(documentComments).values(comment).returning();
+    return newComment;
+  }
+
+  async resolveComment(commentId: string): Promise<DocumentComment | undefined> {
+    const [resolvedComment] = await db
+      .update(documentComments)
+      .set({ isResolved: true })
+      .where(eq(documentComments.id, commentId))
+      .returning();
+    return resolvedComment;
+  }
+
+  // Document sharing
+  async createDocumentShare(share: InsertDocumentShare): Promise<DocumentShare> {
+    const [newShare] = await db.insert(documentShares).values(share).returning();
+    return newShare;
+  }
+
+  async getDocumentShare(shareToken: string): Promise<DocumentShare | undefined> {
+    const [share] = await db
+      .select()
+      .from(documentShares)
+      .where(and(
+        eq(documentShares.shareToken, shareToken),
+        eq(documentShares.isActive, true)
+      ));
+    return share;
+  }
+
+  async updateShareAccess(shareId: string): Promise<DocumentShare | undefined> {
+    const [updatedShare] = await db
+      .update(documentShares)
+      .set({ 
+        accessCount: sql`${documentShares.accessCount} + 1`
+      })
+      .where(eq(documentShares.id, shareId))
+      .returning();
+    return updatedShare;
+  }
+
+  async deactivateShare(shareId: string): Promise<boolean> {
+    const result = await db
+      .update(documentShares)
+      .set({ isActive: false })
+      .where(eq(documentShares.id, shareId));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  // Document exports and backup
+  async getDocumentsByCategory(category: string, propertyId?: string): Promise<Document[]> {
+    let query = db
+      .select()
+      .from(documents)
+      .where(and(
+        eq(documents.category, category),
+        eq(documents.isArchived, false)
+      ));
+      
+    if (propertyId) {
+      query = query.where(and(
+        eq(documents.category, category),
+        eq(documents.propertyId, propertyId),
+        eq(documents.isArchived, false)
+      ));
+    }
+    
+    return await query.orderBy(desc(documents.createdAt));
+  }
+
+  async getDocumentsForBackup(lastBackupDate?: Date): Promise<Document[]> {
+    let query = db.select().from(documents);
+    
+    if (lastBackupDate) {
+      query = query.where(sql`${documents.updatedAt} > ${lastBackupDate}`);
+    }
+    
+    return await query.orderBy(desc(documents.updatedAt));
   }
 
   // Activity operations
