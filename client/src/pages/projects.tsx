@@ -1,6 +1,7 @@
 
-import { useState } from "react";
-import { Building2, Plus, Search, Filter, Calendar, DollarSign, Users, MapPin, ChevronDown, TrendingUp, Clock } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Building2, Plus, Search, Filter, Calendar, DollarSign, Users, MapPin, ChevronDown, TrendingUp, Clock, Edit2, X, Check } from "lucide-react";
+import { useLocation } from "wouter";
 import { MainLayout } from "../layouts/MainLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
@@ -8,17 +9,40 @@ import { Input } from "../components/ui/input";
 import { Badge } from "../components/ui/badge";
 
 export default function Projects() {
+  const [, setLocation] = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
+  
+  // Editing states
+  const [editingProject, setEditingProject] = useState<string | null>(null);
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [editValues, setEditValues] = useState<{[key: string]: any}>({});
+  
+  // Refs for click outside detection
+  const filterRef = useRef<HTMLDivElement>(null);
 
-  // Real project data
-  const projects = [
+  // Close filter dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
+        setFilterOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Real project data with milestones
+  const [projects, setProjects] = useState([
     {
       id: '1',
       name: '717 S Palmway Development',
-      address: '717 S Palmway',
+      address: '717 S Palmway, Lake Worth, FL 33460',
       status: 'active',
       progress: 65,
       totalBudget: 2400000,
@@ -26,12 +50,13 @@ export default function Projects() {
       startDate: '2024-01-15',
       endDate: '2024-12-31',
       manager: 'MV Ghorbani',
-      team: 12
+      team: 12,
+      currentMilestone: 'Framing & Structural Work'
     },
     {
       id: '2',
       name: '284 Lytton Project',
-      address: '284 Lytton',
+      address: '284 Lytton Avenue, Palo Alto, CA 94301',
       status: 'active',
       progress: 45,
       totalBudget: 3200000,
@@ -39,12 +64,13 @@ export default function Projects() {
       startDate: '2024-02-01',
       endDate: '2025-01-31',
       manager: 'MV Ghorbani',
-      team: 18
+      team: 18,
+      currentMilestone: 'Foundation & Site Prep'
     },
     {
       id: '3',
       name: '128 18th Ave Construction',
-      address: '128 18th Ave',
+      address: '128 18th Avenue, San Francisco, CA 94121',
       status: 'active',
       progress: 80,
       totalBudget: 1800000,
@@ -52,9 +78,38 @@ export default function Projects() {
       startDate: '2024-03-01',
       endDate: '2024-10-31',
       manager: 'MV Ghorbani',
-      team: 8
+      team: 8,
+      currentMilestone: 'Interior Finishing'
     }
-  ];
+  ]);
+
+  // Update project function
+  const updateProject = (id: string, field: string, value: any) => {
+    setProjects(prev => prev.map(project => 
+      project.id === id ? { ...project, [field]: value } : project
+    ));
+  };
+
+  // Start editing function
+  const startEditing = (projectId: string, field: string, currentValue: any) => {
+    setEditingProject(projectId);
+    setEditingField(field);
+    setEditValues(prev => ({ ...prev, [field]: currentValue }));
+  };
+
+  // Save edit function
+  const saveEdit = (projectId: string, field: string) => {
+    updateProject(projectId, field, editValues[field]);
+    setEditingProject(null);
+    setEditingField(null);
+  };
+
+  // Cancel edit function
+  const cancelEdit = () => {
+    setEditingProject(null);
+    setEditingField(null);
+    setEditValues({});
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -131,7 +186,7 @@ export default function Projects() {
                 <p className="text-base sm:text-lg text-gray-600">Manage and track all construction projects</p>
               </div>
               <div className="flex items-center space-x-3">
-                <div className="relative">
+                <div className="relative" ref={filterRef}>
                   <button 
                     onClick={() => setFilterOpen(!filterOpen)}
                     className="px-6 py-2.5 bg-white/70 backdrop-blur-md border border-gray-200 rounded-full text-gray-700 hover:bg-white/90 hover:text-gray-900 transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
@@ -248,44 +303,166 @@ export default function Projects() {
                 <div className="relative z-10">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
-                      <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-blue-800 group-hover:bg-clip-text transition-all duration-300">
-                        {project.name}
-                      </h3>
-                      <div className="flex items-center text-gray-600 mb-3">
-                        <MapPin className="w-4 h-4 mr-2 text-gray-500" />
-                        {project.address}
+                      {/* Editable Project Title */}
+                      <div className="relative mb-2">
+                        {editingProject === project.id && editingField === 'name' ? (
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="text"
+                              value={editValues.name || ''}
+                              onChange={(e) => setEditValues(prev => ({ ...prev, name: e.target.value }))}
+                              className="text-xl font-bold bg-white/90 border border-blue-300 rounded-lg px-2 py-1 text-gray-900 flex-1"
+                              onKeyPress={(e) => e.key === 'Enter' && saveEdit(project.id, 'name')}
+                              autoFocus
+                            />
+                            <button onClick={() => saveEdit(project.id, 'name')} className="text-green-600 hover:text-green-700">
+                              <Check className="w-4 h-4" />
+                            </button>
+                            <button onClick={cancelEdit} className="text-red-600 hover:text-red-700">
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 group/title">
+                            <h3 className="text-xl font-bold text-gray-900 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-blue-800 group-hover:bg-clip-text transition-all duration-300 cursor-pointer flex-1"
+                                onClick={() => startEditing(project.id, 'name', project.name)}
+                            >
+                              {project.name}
+                            </h3>
+                            <button 
+                              onClick={() => startEditing(project.id, 'name', project.name)}
+                              className="opacity-0 group-hover/title:opacity-100 text-gray-400 hover:text-blue-600 transition-all duration-200"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Editable Address */}
+                      <div className="relative mb-3">
+                        {editingProject === project.id && editingField === 'address' ? (
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center flex-1">
+                              <MapPin className="w-4 h-4 mr-2 text-gray-500" />
+                              <input
+                                type="text"
+                                value={editValues.address || ''}
+                                onChange={(e) => setEditValues(prev => ({ ...prev, address: e.target.value }))}
+                                className="bg-white/90 border border-blue-300 rounded px-2 py-1 text-gray-600 text-sm flex-1"
+                                onKeyPress={(e) => e.key === 'Enter' && saveEdit(project.id, 'address')}
+                                autoFocus
+                              />
+                            </div>
+                            <button onClick={() => saveEdit(project.id, 'address')} className="text-green-600 hover:text-green-700">
+                              <Check className="w-3 h-3" />
+                            </button>
+                            <button onClick={cancelEdit} className="text-red-600 hover:text-red-700">
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center text-gray-600 group/address cursor-pointer"
+                               onClick={() => startEditing(project.id, 'address', project.address)}
+                          >
+                            <MapPin className="w-4 h-4 mr-2 text-gray-500" />
+                            <span className="flex-1">{project.address}</span>
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                startEditing(project.id, 'address', project.address);
+                              }}
+                              className="opacity-0 group-hover/address:opacity-100 text-gray-400 hover:text-blue-600 transition-all duration-200 ml-2"
+                            >
+                              <Edit2 className="w-3 h-3" />
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(project.status)} shadow-lg`}>
-                      {project.status}
-                    </span>
+                    
+                    {/* Editable Status Badge */}
+                    <div className="relative">
+                      {editingProject === project.id && editingField === 'status' ? (
+                        <div className="flex items-center gap-2">
+                          <select
+                            value={editValues.status || ''}
+                            onChange={(e) => setEditValues(prev => ({ ...prev, status: e.target.value }))}
+                            className="text-xs font-semibold bg-white border border-blue-300 rounded-full px-3 py-1"
+                            onKeyPress={(e) => e.key === 'Enter' && saveEdit(project.id, 'status')}
+                            autoFocus
+                          >
+                            <option value="active">Active</option>
+                            <option value="on-hold">On Hold</option>
+                            <option value="completed">Completed</option>
+                          </select>
+                          <button onClick={() => saveEdit(project.id, 'status')} className="text-green-600 hover:text-green-700">
+                            <Check className="w-3 h-3" />
+                          </button>
+                          <button onClick={cancelEdit} className="text-red-600 hover:text-red-700">
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => startEditing(project.id, 'status', project.status)}
+                          className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(project.status)} shadow-lg hover:scale-105 transition-transform duration-200`}
+                        >
+                          {project.status}
+                        </button>
+                      )}
+                    </div>
                   </div>
-                  {/* Progress with Glass Design */}
+                  {/* Progress with Milestone Floating Recap */}
                   <div className="mb-6">
-                    <div className="flex justify-between text-sm mb-3">
+                    <div className="flex justify-between text-sm mb-2">
                       <span className="text-gray-600">Progress</span>
                       <span className="font-semibold text-gray-900">{project.progress}%</span>
                     </div>
-                    <div className="w-full bg-gray-200/60 rounded-full h-3 overflow-hidden backdrop-blur-sm shadow-inner border border-gray-300/50">
+                    <div className="relative">
+                      <div className="w-full bg-gray-200/60 rounded-full h-3 overflow-hidden backdrop-blur-sm shadow-inner border border-gray-300/50">
+                        <div 
+                          className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 h-full rounded-full transition-all duration-700 shadow-lg relative"
+                          style={{ width: `${project.progress}%` }}
+                        >
+                          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-300/60 via-blue-200/40 to-transparent rounded-full"></div>
+                        </div>
+                      </div>
+                      {/* Floating Milestone Indicator */}
                       <div 
-                        className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 h-full rounded-full transition-all duration-700 shadow-lg relative"
-                        style={{ width: `${project.progress}%` }}
+                        className="absolute top-4 bg-white/95 backdrop-blur-sm border border-gray-200 rounded-lg px-3 py-1 shadow-lg text-xs text-gray-700 font-medium z-10"
+                        style={{ left: `${Math.min(project.progress, 85)}%`, transform: 'translateX(-50%)' }}
                       >
-                        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-300/60 via-blue-200/40 to-transparent rounded-full"></div>
+                        <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white/95 border-l border-t border-gray-200 rotate-45"></div>
+                        {project.currentMilestone}
                       </div>
                     </div>
                   </div>
 
-                  {/* Budget with Glass Design */}
+                  {/* Professional Budget Display */}
                   <div className="mb-6">
-                    <div className="flex items-center text-sm text-gray-600 mb-2">
-                      <DollarSign className="w-4 h-4 mr-2 text-green-600" />
-                      Budget
+                    <div className="flex items-center text-sm text-gray-600 mb-3">
+                      <div className="w-2 h-2 bg-emerald-500 rounded-full mr-2"></div>
+                      Budget Overview
                     </div>
-                    <div className="text-lg font-bold text-gray-900">
-                      <span className="text-green-600">{formatCurrency(project.spentBudget)}</span>
-                      <span className="text-gray-500 mx-2">/</span>
-                      <span>{formatCurrency(project.totalBudget)}</span>
+                    <div className="bg-gray-50/80 rounded-xl p-4 border border-gray-200/50">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm text-gray-600">Spent</span>
+                        <span className="text-sm font-semibold text-emerald-600">{formatCurrency(project.spentBudget)}</span>
+                      </div>
+                      <div className="flex justify-between items-center mb-3">
+                        <span className="text-sm text-gray-600">Total Budget</span>
+                        <span className="text-sm font-semibold text-gray-900">{formatCurrency(project.totalBudget)}</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-emerald-500 to-emerald-600 h-2 rounded-full transition-all duration-700"
+                          style={{ width: `${(project.spentBudget / project.totalBudget) * 100}%` }}
+                        ></div>
+                      </div>
+                      <div className="text-xs text-gray-500 mt-2 text-center">
+                        {Math.round((project.spentBudget / project.totalBudget) * 100)}% utilized
+                      </div>
                     </div>
                   </div>
 
@@ -300,14 +477,51 @@ export default function Projects() {
                     </div>
                   </div>
 
-                  {/* Team with Glass Design */}
+                  {/* Project Lead Section */}
                   <div className="mb-6">
                     <div className="flex items-center justify-between text-sm">
                       <div className="flex items-center text-gray-600">
                         <Users className="w-4 h-4 mr-2 text-purple-600" />
-                        Team: {project.team} members
+                        Project Lead
                       </div>
-                      <span className="text-gray-900 font-semibold">{project.manager}</span>
+                      
+                      {/* Editable Project Lead */}
+                      <div className="relative">
+                        {editingProject === project.id && editingField === 'manager' ? (
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="text"
+                              value={editValues.manager || ''}
+                              onChange={(e) => setEditValues(prev => ({ ...prev, manager: e.target.value }))}
+                              className="bg-white/90 border border-blue-300 rounded px-2 py-1 text-gray-900 text-sm font-semibold"
+                              onKeyPress={(e) => e.key === 'Enter' && saveEdit(project.id, 'manager')}
+                              autoFocus
+                              placeholder="Enter project lead name"
+                            />
+                            <button onClick={() => saveEdit(project.id, 'manager')} className="text-green-600 hover:text-green-700">
+                              <Check className="w-3 h-3" />
+                            </button>
+                            <button onClick={cancelEdit} className="text-red-600 hover:text-red-700">
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 group/manager">
+                            <span 
+                              className="text-gray-900 font-semibold cursor-pointer"
+                              onClick={() => startEditing(project.id, 'manager', project.manager)}
+                            >
+                              {project.manager}
+                            </span>
+                            <button 
+                              onClick={() => startEditing(project.id, 'manager', project.manager)}
+                              className="opacity-0 group-hover/manager:opacity-100 text-gray-400 hover:text-blue-600 transition-all duration-200"
+                            >
+                              <Edit2 className="w-3 h-3" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -343,15 +557,23 @@ export default function Projects() {
               <div className="text-sm text-gray-600">Total Projects</div>
             </div>
             
-            <div className="bg-white/80 backdrop-blur-xl border border-gray-200/60 rounded-2xl p-6 text-center shadow-xl hover:bg-white/90 hover:shadow-2xl transition-all duration-300 hover:scale-105 relative overflow-hidden" data-testid="stat-avg-progress">
+            <button 
+              onClick={() => setLocation('/analytics')}
+              className="bg-white/80 backdrop-blur-xl border border-gray-200/60 rounded-2xl p-6 text-center shadow-xl hover:bg-white/90 hover:shadow-2xl transition-all duration-300 hover:scale-105 relative overflow-hidden w-full"
+              data-testid="stat-avg-progress"
+            >
               <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent"></div>
               <div className="text-3xl font-bold bg-gradient-to-b from-blue-600 via-blue-700 to-blue-800 bg-clip-text text-transparent mb-2">
                 {Math.round(projects.reduce((sum, p) => sum + p.progress, 0) / projects.length)}%
               </div>
               <div className="text-sm text-gray-600">Average Progress</div>
-            </div>
+            </button>
 
-            <div className="bg-white/80 backdrop-blur-xl border border-gray-200/60 rounded-2xl p-6 text-center shadow-xl hover:bg-white/90 hover:shadow-2xl transition-all duration-300 hover:scale-105 relative overflow-hidden" data-testid="stat-nearest-deadline">
+            <button 
+              onClick={() => setLocation('/schedule')}
+              className="bg-white/80 backdrop-blur-xl border border-gray-200/60 rounded-2xl p-6 text-center shadow-xl hover:bg-white/90 hover:shadow-2xl transition-all duration-300 hover:scale-105 relative overflow-hidden w-full"
+              data-testid="stat-nearest-deadline"
+            >
               <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent"></div>
               <div className="flex items-center justify-center mb-2">
                 <Clock className="w-8 h-8 text-orange-600 mr-2" />
@@ -360,9 +582,13 @@ export default function Projects() {
                 </div>
               </div>
               <div className="text-sm text-gray-600">Days to Nearest Deadline</div>
-            </div>
+            </button>
 
-            <div className="bg-white/80 backdrop-blur-xl border border-gray-200/60 rounded-2xl p-6 text-center shadow-xl hover:bg-white/90 hover:shadow-2xl transition-all duration-300 hover:scale-105 relative overflow-hidden" data-testid="stat-efficiency">
+            <button 
+              onClick={() => setLocation('/analytics')}
+              className="bg-white/80 backdrop-blur-xl border border-gray-200/60 rounded-2xl p-6 text-center shadow-xl hover:bg-white/90 hover:shadow-2xl transition-all duration-300 hover:scale-105 relative overflow-hidden w-full"
+              data-testid="stat-efficiency"
+            >
               <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent"></div>
               <div className="flex items-center justify-center mb-2">
                 <TrendingUp className="w-8 h-8 text-emerald-600 mr-2" />
@@ -371,7 +597,7 @@ export default function Projects() {
                 </div>
               </div>
               <div className="text-sm text-gray-600">Project Efficiency</div>
-            </div>
+            </button>
           </div>
         </div>
       </div>
