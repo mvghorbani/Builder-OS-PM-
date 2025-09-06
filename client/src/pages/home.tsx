@@ -206,7 +206,6 @@ const Dashboard = () => {
       status: 'active',
       progress: 0,
       type: 'residential',
-      totalBudget: '100000',
     });
   };
 
