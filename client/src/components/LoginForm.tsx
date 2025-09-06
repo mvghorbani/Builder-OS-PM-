@@ -57,10 +57,10 @@ export default function LoginForm() {
             <div className="w-16 h-16 bg-primary rounded-lg flex items-center justify-center mx-auto mb-4">
               <i className="fas fa-hard-hat text-primary-foreground text-2xl"></i>
             </div>
-            ConstructPro
+            BuilderOS PM
           </CardTitle>
           <p className="text-center text-muted-foreground">
-            Sign in to your account
+            Project Management
           </p>
         </CardHeader>
         <CardContent>
@@ -107,7 +107,7 @@ export default function LoginForm() {
           </div>
 
           <p className="text-xs text-muted-foreground mt-4 text-center">
-            Secure authentication powered by ConstructPro
+            powered by AAlchemy Development Group
           </p>
         </CardContent>
       </Card>
