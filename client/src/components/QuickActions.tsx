@@ -16,7 +16,7 @@ export default function QuickActions() {
         onClick={() => toast({ title: "Upload Document", description: "Document upload feature coming soon!" })}
         aria-label="Upload Document"
       >
-        <div className="p-2.5 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-600 group-hover:via-blue-700 group-hover:to-blue-800 rounded-lg mb-2 shadow-2xl group-hover:shadow-inner group-hover:shadow-blue-800/30 transition-all duration-300 relative overflow-hidden group-hover:scale-95">
+        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-400 group-hover:via-blue-500 group-hover:to-blue-600 rounded-full mb-2 shadow-2xl group-hover:shadow-inner group-hover:shadow-blue-800/30 transition-all duration-300 relative overflow-hidden group-hover:scale-95 ring-4 ring-white ring-opacity-20 flex items-center justify-center mx-auto">
           <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           <Upload className="h-4 w-4 text-white drop-shadow-lg relative z-10 transition-colors duration-300" aria-hidden="true" />
         </div>
@@ -33,7 +33,7 @@ export default function QuickActions() {
         onClick={() => toast({ title: "Daily Log", description: "Daily log feature coming soon!" })}
         aria-label="Daily Log"
       >
-        <div className="p-2.5 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-600 group-hover:via-blue-700 group-hover:to-blue-800 rounded-lg mb-2 shadow-2xl group-hover:shadow-inner group-hover:shadow-blue-800/30 transition-all duration-300 relative overflow-hidden group-hover:scale-95">
+        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-400 group-hover:via-blue-500 group-hover:to-blue-600 rounded-full mb-2 shadow-2xl group-hover:shadow-inner group-hover:shadow-blue-800/30 transition-all duration-300 relative overflow-hidden group-hover:scale-95 ring-4 ring-white ring-opacity-20 flex items-center justify-center mx-auto">
           <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           <ClipboardCheck className="h-4 w-4 text-white drop-shadow-lg relative z-10 transition-colors duration-300" aria-hidden="true" />
         </div>
@@ -50,7 +50,7 @@ export default function QuickActions() {
         onClick={() => toast({ title: "Create RFQ", description: "RFQ creation feature coming soon!" })}
         aria-label="Create RFQ"
       >
-        <div className="p-2.5 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-600 group-hover:via-blue-700 group-hover:to-blue-800 rounded-lg mb-2 shadow-2xl group-hover:shadow-inner group-hover:shadow-blue-800/30 transition-all duration-300 relative overflow-hidden group-hover:scale-95">
+        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-400 group-hover:via-blue-500 group-hover:to-blue-600 rounded-full mb-2 shadow-2xl group-hover:shadow-inner group-hover:shadow-blue-800/30 transition-all duration-300 relative overflow-hidden group-hover:scale-95 ring-4 ring-white ring-opacity-20 flex items-center justify-center mx-auto">
           <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           <Plus className="h-4 w-4 text-white drop-shadow-lg relative z-10 transition-colors duration-300" aria-hidden="true" />
         </div>
@@ -67,7 +67,7 @@ export default function QuickActions() {
         onClick={() => toast({ title: "Submit RFI", description: "RFI submission feature coming soon!" })}
         aria-label="Submit RFI"
       >
-        <div className="p-2.5 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-600 group-hover:via-blue-700 group-hover:to-blue-800 rounded-lg mb-2 shadow-2xl group-hover:shadow-inner group-hover:shadow-blue-800/30 transition-all duration-300 relative overflow-hidden group-hover:scale-95">
+        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-400 group-hover:via-blue-500 group-hover:to-blue-600 rounded-full mb-2 shadow-2xl group-hover:shadow-inner group-hover:shadow-blue-800/30 transition-all duration-300 relative overflow-hidden group-hover:scale-95 ring-4 ring-white ring-opacity-20 flex items-center justify-center mx-auto">
           <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           <HelpCircle className="h-4 w-4 text-white drop-shadow-lg relative z-10 transition-colors duration-300" aria-hidden="true" />
         </div>

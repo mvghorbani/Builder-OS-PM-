@@ -135,7 +135,7 @@ const mockRecentActivities = [
     id: 1,
     type: 'document_upload',
     user: { name: 'MV Ghorbani', avatar: null },
-    action: 'uploaded',
+    action: 'submitted updated',
     object: 'Structural Plans v2.pdf',
     target: '717 S Palmway Development',
     timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
@@ -145,9 +145,9 @@ const mockRecentActivities = [
   {
     id: 2,
     type: 'permit_approved',
-    user: { name: 'System', avatar: null },
+    user: { name: 'City Planning Dept', avatar: null },
     action: 'approved',
-    object: 'Permit #B-2025-1138',
+    object: 'Building Permit #B-2025-1138',
     target: '284 Lytton Project',
     timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
     clickableObject: true,
@@ -157,8 +157,8 @@ const mockRecentActivities = [
     id: 3,
     type: 'comment',
     user: { name: 'MV Ghorbani', avatar: null },
-    action: 'left a comment on',
-    object: 'RFI-004',
+    action: 'provided update on',
+    object: 'Information Request #RFI-004',
     target: '128 18th Ave Construction',
     timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
     clickableObject: true,
@@ -177,27 +177,79 @@ const mockRecentActivities = [
   }
 ];
 
+// Function to determine stakeholder-friendly project status
+const getProjectStatus = (property: any) => {
+  const progress = typeof property.progress === 'number' ? property.progress : 0;
+  const status = property.status?.toLowerCase() || 'active';
+  
+  // If project is marked as completed
+  if (status === 'completed' || progress >= 100) {
+    return { text: 'Completed', color: 'from-green-100 to-green-200 text-green-700 border-green-200' };
+  }
+  
+  // If project is delayed or behind schedule
+  if (status === 'delayed' || status === 'behind') {
+    return { text: 'Delayed', color: 'from-red-100 to-red-200 text-red-700 border-red-200' };
+  }
+  
+  // If project is on hold or paused
+  if (status === 'paused' || status === 'hold' || status === 'suspended') {
+    return { text: 'On Hold', color: 'from-yellow-100 to-yellow-200 text-yellow-700 border-yellow-200' };
+  }
+  
+  // Determine status based on progress percentage
+  if (progress >= 90) {
+    return { text: 'Nearing Completion', color: 'from-emerald-100 to-emerald-200 text-emerald-700 border-emerald-200' };
+  } else if (progress >= 75) {
+    return { text: 'Ahead of Schedule', color: 'from-blue-100 to-blue-200 text-blue-700 border-blue-200' };
+  } else if (progress >= 25) {
+    return { text: 'On Schedule', color: 'from-blue-100 to-blue-200 text-blue-700 border-blue-200' };
+  } else if (progress > 0) {
+    return { text: 'Getting Started', color: 'from-indigo-100 to-indigo-200 text-indigo-700 border-indigo-200' };
+  } else {
+    return { text: 'Planning Phase', color: 'from-gray-100 to-gray-200 text-gray-700 border-gray-200' };
+  }
+};
+
 const PropertyCard = ({ property }: { property: Property }) => (
   <div
-    className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 active:shadow-inner active:from-gray-100 active:via-gray-200 active:to-gray-300 transition-all duration-300 hover:translate-y-1 hover:scale-[0.98] active:translate-y-2 active:scale-[0.96] cursor-pointer group"
+    className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 active:shadow-inner active:from-gray-100 active:via-gray-200 active:to-gray-300 transition-all duration-300 hover:translate-y-1 hover:scale-[0.98] active:translate-y-2 active:scale-[0.96] cursor-pointer group h-full flex flex-col"
     data-testid={`card-property-${property.id}`}
   >
-    <div className="flex items-start justify-between mb-6">
-      <div className="flex-1 min-w-0">
-        <h3 className="text-xl font-bold text-gray-900 mb-1 truncate group-hover:text-blue-700 transition-colors duration-300">{property.name || property.address}</h3>
-        <p className="text-sm text-gray-600">
+    <div className="flex items-start justify-between mb-6 min-h-[4rem]">
+      <div className="flex-1 min-w-0 flex flex-col justify-center">
+        <h3 className="text-xl font-bold text-gray-900 mb-1 line-clamp-2 group-hover:text-blue-700 transition-colors duration-300 leading-tight">{property.name || property.address}</h3>
+        <p className="text-sm text-gray-600 line-clamp-1">
           {property.city && property.state ? 
             `${property.city}, ${property.state}${property.zipCode ? ' ' + property.zipCode : ''}` : 
             property.type
           }
         </p>
       </div>
-      <div className="px-3 py-1 bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 text-xs font-medium rounded-full border border-blue-200">
-        {(property.status || 'active').charAt(0).toUpperCase() + (property.status || 'active').slice(1)}
+      <div className={`px-3 py-1 bg-gradient-to-r ${getProjectStatus(property).color} text-xs font-medium rounded-full border flex-shrink-0 self-start`}>
+        {getProjectStatus(property).text}
       </div>
     </div>
 
-    <div className="space-y-4">
+    {/* Property Photo */}
+    <div className="mb-6 -mx-6 -mt-6">
+      <div className="relative h-40 bg-gradient-to-br from-gray-100 to-gray-200 rounded-t-2xl overflow-hidden">
+        {property.imageUrl ? (
+          <img 
+            src={property.imageUrl} 
+            alt={property.name || property.address}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">
+            <Building2 className="w-12 h-12 text-blue-400" />
+          </div>
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent"></div>
+      </div>
+    </div>
+
+    <div className="space-y-4 flex-1 flex flex-col">
       <div>
         <div className="flex justify-between items-center mb-2">
           <span className="text-sm font-medium text-gray-600">Completion</span>
@@ -213,7 +265,7 @@ const PropertyCard = ({ property }: { property: Property }) => (
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4 flex-1">
         <div>
           <p className="text-sm text-gray-600 mb-1">Budget</p>
           <p className="font-bold text-gray-900">
@@ -230,7 +282,7 @@ const PropertyCard = ({ property }: { property: Property }) => (
         </div>
       </div>
 
-      <div className="flex gap-3 pt-4 border-t border-gray-200">
+      <div className="flex gap-3 pt-4 border-t border-gray-200 mt-auto">
         <button
           className="flex-1 text-xs font-medium py-2 px-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center"
           onClick={(e) => {
@@ -460,7 +512,7 @@ const Dashboard = () => {
             onClick={() => setLocation('/projects')}
             data-testid="button-stat-projects"
           >
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-400 group-hover:via-blue-500 group-hover:to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95 ring-4 ring-white ring-opacity-20">
               <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <Building2 className="h-6 w-6 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
             </div>
@@ -476,7 +528,7 @@ const Dashboard = () => {
             onClick={() => setLocation('/budget')}
             data-testid="button-stat-budget"
           >
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-400 group-hover:via-blue-500 group-hover:to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95 ring-4 ring-white ring-opacity-20">
               <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <Wallet className="h-6 w-6 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
             </div>
@@ -494,7 +546,7 @@ const Dashboard = () => {
             onClick={() => setLocation('/analytics')}
             data-testid="button-stat-schedule"
           >
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-400 group-hover:via-blue-500 group-hover:to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95 ring-4 ring-white ring-opacity-20">
               <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <Calendar className="h-6 w-6 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
             </div>
@@ -520,7 +572,7 @@ const Dashboard = () => {
             onClick={() => setLocation('/permits')}
             data-testid="button-stat-permits"
           >
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-400 group-hover:via-blue-500 group-hover:to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95 ring-4 ring-white ring-opacity-20">
               <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <FileCheck className="h-6 w-6 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
             </div>
@@ -540,7 +592,7 @@ const Dashboard = () => {
               data-testid="button-daily-log"
               onClick={() => setLocation('/analytics')}
             >
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-400 group-hover:via-blue-500 group-hover:to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95 ring-4 ring-white ring-opacity-20">
                 <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <ClipboardCheck className="h-6 w-6 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
               </div>
@@ -553,7 +605,7 @@ const Dashboard = () => {
               data-testid="button-upload-document"
               onClick={() => setLocation('/documents')}
             >
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-400 group-hover:via-blue-500 group-hover:to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95 ring-4 ring-white ring-opacity-20">
                 <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <Upload className="h-6 w-6 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
               </div>
@@ -566,7 +618,7 @@ const Dashboard = () => {
               data-testid="button-create-rfq"
               onClick={() => setLocation('/vendors')}
             >
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-400 group-hover:via-blue-500 group-hover:to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95 ring-4 ring-white ring-opacity-20">
                 <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <FilePlus className="h-6 w-6 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
               </div>
@@ -579,7 +631,7 @@ const Dashboard = () => {
               data-testid="button-submit-rfi"
               onClick={() => setLocation('/vendors')}
             >
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-400 group-hover:via-blue-500 group-hover:to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95 ring-4 ring-white ring-opacity-20">
                 <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <HelpCircle className="h-6 w-6 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
               </div>
@@ -735,7 +787,7 @@ const Dashboard = () => {
 
         {/* Recent Activity */}
         <section className="mb-8 sm:mb-12">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6 sm:mb-8">Recent Activity</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6 sm:mb-8">Project Updates</h2>
 
           {activitiesError && (
             <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl p-6 shadow-lg border border-red-200 mb-8 hover:shadow-inner hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 active:shadow-inner active:from-gray-100 active:via-gray-200 active:to-gray-300 transition-all duration-300 hover:translate-y-1 hover:scale-[0.98] active:translate-y-2 active:scale-[0.96] group">
@@ -782,9 +834,9 @@ const Dashboard = () => {
                       <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
                         <ActivityIcon className="w-12 h-12 text-blue-600" />
                       </div>
-                      <h3 className="text-2xl font-bold text-gray-900 mb-4">No recent activity</h3>
+                      <h3 className="text-2xl font-bold text-gray-900 mb-4">No Recent Updates</h3>
                       <p className="text-gray-600 mb-8 max-w-md mx-auto">
-                        Updates on document uploads, permit statuses, team comments, and project milestones will appear here.
+                        Project milestones, permit approvals, document submissions, and stakeholder communications will appear here as they occur.
                       </p>
                       <Button 
                         size="lg" 
@@ -793,7 +845,7 @@ const Dashboard = () => {
                         onClick={() => toast({ title: "View All Activity", description: "Full activity timeline coming soon!" })}
                       >
                         <ActivityIcon className="w-5 h-5 mr-2" />
-                        View All Activity
+                        View All Updates
                       </Button>
                     </div>
                   </div>
