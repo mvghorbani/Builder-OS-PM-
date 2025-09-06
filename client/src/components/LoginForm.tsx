@@ -27,12 +27,12 @@ export default function LoginForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-3">
+    <form onSubmit={onSubmit} className="space-y-3 text-center">
       <div>
         <input
           type="email"
           placeholder="Email"
-          className="w-full rounded-xl bg-white border border-black/10 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full text-center rounded-xl bg-white border border-black/10 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-600"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -43,7 +43,7 @@ export default function LoginForm() {
         <input
           type="password"
           placeholder="Password"
-          className="w-full rounded-xl bg-white border border-black/10 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full text-center rounded-xl bg-white border border-black/10 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-600"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -58,7 +58,7 @@ export default function LoginForm() {
       <button
         type="submit"
         disabled={busy}
-        className="w-full rounded-xl bg-blue-600 text-white py-3 text-sm font-medium hover:bg-blue-700 disabled:opacity-60"
+        className="w-full rounded-xl bg-blue-600 text-white py-3 text-sm font-semibold hover:bg-blue-700 disabled:opacity-60"
       >
         {busy ? "Signing in…" : "Sign In"}
       </button>

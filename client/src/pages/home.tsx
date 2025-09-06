@@ -9,11 +9,11 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 import {
-  Building,
-  DollarSign,
+  Building2,
+  Wallet,
   Calendar,
-  FileText,
-  Plus,
+  FileCheck,
+  FilePlus,
   Bell,
   Check,
   Upload,
@@ -248,106 +248,122 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="h-full overflow-y-auto">
+    <div className="container mx-auto px-4 py-8">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-gray-600 mt-1">Project overview and quick actions</p>
-          </div>
-          
-          <div className="flex items-center space-x-3">
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button data-testid="button-create-project">
-                  <Plus className="w-4 h-4 mr-2" />
-                  New Project
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <form onSubmit={handleCreateProject}>
-                  <DialogHeader>
-                    <DialogTitle>Create New Project</DialogTitle>
-                    <DialogDescription>
-                      Add a new construction project to your portfolio.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="name" className="text-right">Name</Label>
-                      <Input
-                        id="name"
-                        value={newProjectName}
-                        onChange={(e) => setNewProjectName(e.target.value)}
-                        className="col-span-3"
-                        required
-                      />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="address" className="text-right">Address</Label>
-                      <Input
-                        id="address"
-                        value={newProjectAddress}
-                        onChange={(e) => setNewProjectAddress(e.target.value)}
-                        className="col-span-3"
-                        required
-                      />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="city" className="text-right">City</Label>
-                      <Input
-                        id="city"
-                        value={newProjectCity}
-                        onChange={(e) => setNewProjectCity(e.target.value)}
-                        className="col-span-3"
-                        required
-                      />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="state" className="text-right">State</Label>
-                      <Input
-                        id="state"
-                        value={newProjectState}
-                        onChange={(e) => setNewProjectState(e.target.value)}
-                        className="col-span-3"
-                        required
-                      />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="zip" className="text-right">Zip Code</Label>
-                      <Input
-                        id="zip"
-                        value={newProjectZip}
-                        onChange={(e) => setNewProjectZip(e.target.value)}
-                        className="col-span-3"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button type="submit" disabled={createProjectMutation.isPending}>
-                      {createProjectMutation.isPending ? 'Creating...' : 'Create Project'}
-                    </Button>
-                  </DialogFooter>
-                </form>
-              </DialogContent>
-            </Dialog>
-
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              data-testid="button-notifications"
-              onClick={() => toast({ title: "Notifications", description: "You have no new notifications." })}
-            >
-              <Bell className="w-5 h-5" />
-            </Button>
-          </div>
-        </div>
+      <header className="mb-8 text-center">
+        <h1 className="text-2xl font-bold tracking-tight">Project Dashboard</h1>
+        <p className="text-sm text-gray-500">Overview and quick actions</p>
       </header>
 
+      {/* Stats Grid */}
+      <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Active Projects */}
+        <div className="rounded-2xl border border-black/5 bg-white p-4 text-center">
+          <div className="mx-auto mb-2 grid h-10 w-10 place-items-center rounded-xl bg-blue-50">
+            <Building2 className="h-5 w-5 text-blue-600" />
+          </div>
+          <div className="text-xs uppercase tracking-wide text-gray-500">Active Projects</div>
+          <div className="mt-1 text-2xl font-bold" data-testid="text-stat-projects">
+            {fmtInt(stats?.activeProjects)}
+          </div>
+        </div>
+
+        {/* Budget */}
+        <div className="rounded-2xl border border-black/5 bg-white p-4 text-center">
+          <div className="mx-auto mb-2 grid h-10 w-10 place-items-center rounded-xl bg-blue-50">
+            <Wallet className="h-5 w-5 text-blue-600" />
+          </div>
+          <div className="text-xs uppercase tracking-wide text-gray-500">Total Budget</div>
+          <div className="mt-1 text-2xl font-bold" data-testid="text-stat-budget">
+            {fmtUSDk(stats?.totalBudget)}
+          </div>
+        </div>
+
+        {/* Schedule */}
+        <div className="rounded-2xl border border-black/5 bg-white p-4 text-center">
+          <div className="mx-auto mb-2 grid h-10 w-10 place-items-center rounded-xl bg-green-50">
+            <Calendar className="h-5 w-5 text-green-600" />
+          </div>
+          <div className="text-xs uppercase tracking-wide text-gray-500">Schedule Health</div>
+          <div className="mt-1 text-2xl font-bold" data-testid="text-stat-schedule">
+            {Number.isFinite(stats?.avgScheduleAdherence) && (stats?.scheduleSampleSize || 0) > 0
+              ? `${Math.max(0, Math.min(100, Number(stats!.avgScheduleAdherence))).toFixed(0)}%`
+              : '—'}
+          </div>
+        </div>
+
+        {/* Permits */}
+        <div className="rounded-2xl border border-black/5 bg-white p-4 text-center">
+          <div className="mx-auto mb-2 grid h-10 w-10 place-items-center rounded-xl bg-yellow-50">
+            <FileCheck className="h-5 w-5 text-yellow-600" />
+          </div>
+          <div className="text-xs uppercase tracking-wide text-gray-500">Open Permits</div>
+          <div className="mt-1 text-2xl font-bold" data-testid="text-stat-permits">
+            {fmtInt(stats?.pendingPermits)}
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <section className="mb-8">
+        <h2 className="mb-4 text-center text-2xl font-bold tracking-tight">Quick Actions</h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <Button 
+            variant="ghost" 
+            className="group h-auto p-4 bg-blue-50 hover:bg-blue-100 justify-start rounded-xl" 
+            data-testid="button-create-rfq"
+            onClick={() => toast({ title: "Create RFQ", description: "RFQ creation feature coming soon!" })}
+          >
+            <div className="mx-auto mb-1 grid h-8 w-8 place-items-center rounded-lg bg-blue-50">
+              <FilePlus className="h-4 w-4 text-blue-600" />
+            </div>
+            <div className="text-sm font-medium">Create RFQ</div>
+            <div className="text-[11px] text-gray-500">Get bids for work</div>
+          </Button>
+
+          <Button 
+            variant="ghost" 
+            className="group h-auto p-4 bg-green-50 hover:bg-green-100 justify-start rounded-xl" 
+            data-testid="button-upload-document"
+            onClick={() => toast({ title: "Upload Document", description: "Document upload feature coming soon!" })}
+          >
+            <div className="mx-auto mb-1 grid h-8 w-8 place-items-center rounded-lg bg-green-50">
+              <Upload className="h-4 w-4 text-green-600" />
+            </div>
+            <div className="text-sm font-medium">Upload Document</div>
+            <div className="text-[11px] text-gray-500">Add project files</div>
+          </Button>
+
+          <Button 
+            variant="ghost" 
+            className="group h-auto p-4 bg-amber-50 hover:bg-amber-100 justify-start rounded-xl" 
+            data-testid="button-daily-log"
+            onClick={() => toast({ title: "Daily Log", description: "Daily log feature coming soon!" })}
+          >
+            <div className="mx-auto mb-1 grid h-8 w-8 place-items-center rounded-lg bg-amber-50">
+              <ClipboardCheck className="h-4 w-4 text-amber-600" />
+            </div>
+            <div className="text-sm font-medium">Daily Log</div>
+            <div className="text-[11px] text-gray-500">Record site activity</div>
+          </Button>
+
+          <Button 
+            variant="ghost" 
+            className="group h-auto p-4 bg-purple-50 hover:bg-purple-100 justify-start rounded-xl" 
+            data-testid="button-submit-rfi"
+            onClick={() => toast({ title: "Submit RFI", description: "RFI submission feature coming soon!" })}
+          >
+            <div className="mx-auto mb-1 grid h-8 w-8 place-items-center rounded-lg bg-purple-50">
+              <HelpCircle className="h-4 w-4 text-purple-600" />
+            </div>
+            <div className="text-sm font-medium">Submit RFI</div>
+            <div className="text-[11px] text-gray-500">Request information</div>
+          </Button>
+        </div>
+      </section>
+
       {/* Content */}
-      <div className="p-6 space-y-6">
+      <div className="space-y-8">
         {/* Error States */}
         {statsError && (
           <Card className="rounded-xl border-0 shadow-sm p-6">
@@ -383,7 +399,7 @@ const Dashboard = () => {
                     </p>
                   </div>
                   <div className="p-3 bg-blue-50 rounded-lg">
-                    <Building className="text-blue-600 text-xl" />
+                    <Building2 className="text-blue-600 text-xl" />
                   </div>
                 </div>
               </CardContent>
@@ -399,7 +415,7 @@ const Dashboard = () => {
                     </p>
                   </div>
                   <div className="p-3 bg-green-50 rounded-lg">
-                    <DollarSign className="text-green-600 text-xl" />
+                    <Wallet className="text-green-600 text-xl" />
                   </div>
                 </div>
                 {typeof stats?.spentBudget === 'number' && (
@@ -438,7 +454,7 @@ const Dashboard = () => {
                     </p>
                   </div>
                   <div className="p-3 bg-red-50 rounded-lg">
-                    <FileText className="text-red-600 text-xl" />
+                    <FileCheck className="text-red-600 text-xl" />
                   </div>
                 </div>
               </CardContent>
@@ -499,62 +515,54 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Button 
                 variant="ghost" 
-                className="h-auto p-4 bg-blue-50 hover:bg-blue-100 justify-start rounded-xl" 
+                className="group h-auto p-4 bg-blue-50 hover:bg-blue-100 justify-start rounded-xl" 
                 data-testid="button-create-rfq"
                 onClick={() => toast({ title: "Create RFQ", description: "RFQ creation feature coming soon!" })}
               >
-                <div className="p-2 bg-blue-500 rounded-lg mr-3">
-                  <Plus className="text-white text-sm" />
+                <div className="mx-auto mb-1 grid h-8 w-8 place-items-center rounded-lg bg-blue-50">
+                  <FilePlus className="h-4 w-4 text-blue-600" />
                 </div>
-                <div className="text-left">
-                  <p className="font-medium text-gray-900">Create RFQ</p>
-                  <p className="text-xs text-gray-600">Get bids for work</p>
-                </div>
+                <div className="text-sm font-medium">Create RFQ</div>
+                <div className="text-[11px] text-gray-500">Get bids for work</div>
               </Button>
 
               <Button 
                 variant="ghost" 
-                className="h-auto p-4 bg-green-50 hover:bg-green-100 justify-start rounded-xl" 
+                className="group h-auto p-4 bg-green-50 hover:bg-green-100 justify-start rounded-xl" 
                 data-testid="button-upload-document"
                 onClick={() => toast({ title: "Upload Document", description: "Document upload feature coming soon!" })}
               >
-                <div className="p-2 bg-green-500 rounded-lg mr-3">
-                  <Upload className="text-white text-sm" />
+                <div className="mx-auto mb-1 grid h-8 w-8 place-items-center rounded-lg bg-green-50">
+                  <Upload className="h-4 w-4 text-green-600" />
                 </div>
-                <div className="text-left">
-                  <p className="font-medium text-gray-900">Upload Document</p>
-                  <p className="text-xs text-gray-600">Add project files</p>
-                </div>
+                <div className="text-sm font-medium">Upload Document</div>
+                <div className="text-[11px] text-gray-500">Add project files</div>
               </Button>
 
               <Button 
                 variant="ghost" 
-                className="h-auto p-4 bg-amber-50 hover:bg-amber-100 justify-start rounded-xl" 
+                className="group h-auto p-4 bg-amber-50 hover:bg-amber-100 justify-start rounded-xl" 
                 data-testid="button-daily-log"
                 onClick={() => toast({ title: "Daily Log", description: "Daily log feature coming soon!" })}
               >
-                <div className="p-2 bg-amber-500 rounded-lg mr-3">
-                  <ClipboardCheck className="text-white text-sm" />
+                <div className="mx-auto mb-1 grid h-8 w-8 place-items-center rounded-lg bg-amber-50">
+                  <ClipboardCheck className="h-4 w-4 text-amber-600" />
                 </div>
-                <div className="text-left">
-                  <p className="font-medium text-gray-900">Daily Log</p>
-                  <p className="text-xs text-gray-600">Record site activity</p>
-                </div>
+                <div className="text-sm font-medium">Daily Log</div>
+                <div className="text-[11px] text-gray-500">Record site activity</div>
               </Button>
 
               <Button 
                 variant="ghost" 
-                className="h-auto p-4 bg-purple-50 hover:bg-purple-100 justify-start rounded-xl" 
+                className="group h-auto p-4 bg-purple-50 hover:bg-purple-100 justify-start rounded-xl" 
                 data-testid="button-submit-rfi"
                 onClick={() => toast({ title: "Submit RFI", description: "RFI submission feature coming soon!" })}
               >
-                <div className="p-2 bg-purple-500 rounded-lg mr-3">
-                  <HelpCircle className="text-white text-sm" />
+                <div className="mx-auto mb-1 grid h-8 w-8 place-items-center rounded-lg bg-purple-50">
+                  <HelpCircle className="h-4 w-4 text-purple-600" />
                 </div>
-                <div className="text-left">
-                  <p className="font-medium text-gray-900">Submit RFI</p>
-                  <p className="text-xs text-gray-600">Request information</p>
-                </div>
+                <div className="text-sm font-medium">Submit RFI</div>
+                <div className="text-[11px] text-gray-500">Request information</div>
               </Button>
             </div>
           </CardContent>
