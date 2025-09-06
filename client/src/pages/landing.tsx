@@ -52,24 +52,3 @@ export default function Landing() {
     </div>
   );
 }
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500/10">
-                <div className="h-8 w-8">
-                  <ConstructionIcon variant="blue" />
-                </div>
-              </div>
-              <LoginForm />
-            </div>
-
-            <div className="mt-3 text-center text-xs text-gray-500">
-              powered by AAlchemy Development Group
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="mt-4 text-center text-[11px] text-gray-500">
-          © {new Date().getFullYear()} BuilderOS PM • v1 preview
-        </div>
-      </div>
-    </div>
-  );
-}
