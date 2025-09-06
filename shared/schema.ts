@@ -52,6 +52,7 @@ export const auditActionEnum = pgEnum('audit_action', ['create', 'update', 'dele
 // Core tables
 export const properties = pgTable("properties", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
   address: text("address").notNull(),
   city: text("city"),
   state: text("state"),

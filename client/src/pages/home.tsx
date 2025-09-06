@@ -71,7 +71,7 @@ const PropertyCard = ({ property, onSelect }: { property: Property; onSelect: (p
     <CardContent className="p-6">
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="font-semibold text-lg text-gray-900">{property.address}</h3>
+          <h3 className="font-semibold text-lg text-gray-900">{property.name || property.address}</h3>
           <p className="text-sm text-gray-500 mt-1">
             {property.city && property.state ? 
               `${property.city}, ${property.state}${property.zipCode ? ' ' + property.zipCode : ''}` : 
@@ -117,6 +117,7 @@ const Dashboard = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+  const [newProjectName, setNewProjectName] = useState("");
   const [newProjectAddress, setNewProjectAddress] = useState("");
   const [newProjectCity, setNewProjectCity] = useState("");
   const [newProjectState, setNewProjectState] = useState("");
@@ -154,6 +155,7 @@ const Dashboard = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
       queryClient.invalidateQueries({ queryKey: ['/api/dashboard/stats'] });
+      setNewProjectName("");
       setNewProjectAddress("");
       setNewProjectCity("");
       setNewProjectState("");
@@ -172,6 +174,7 @@ const Dashboard = () => {
   const handleCreateProject = (e: React.FormEvent) => {
     e.preventDefault();
     createProjectMutation.mutate({
+      name: newProjectName,
       address: newProjectAddress,
       city: newProjectCity,
       state: newProjectState,
@@ -209,6 +212,16 @@ const Dashboard = () => {
                     </DialogDescription>
                   </DialogHeader>
                   <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="name" className="text-right">Name</Label>
+                      <Input
+                        id="name"
+                        value={newProjectName}
+                        onChange={(e) => setNewProjectName(e.target.value)}
+                        className="col-span-3"
+                        required
+                      />
+                    </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                       <Label htmlFor="address" className="text-right">Address</Label>
                       <Input
