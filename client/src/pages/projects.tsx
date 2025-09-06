@@ -1,7 +1,8 @@
 
 import { useState, useEffect, useRef } from "react";
-import { Building2, Plus, Search, Filter, Calendar, DollarSign, Users, MapPin, ChevronDown, TrendingUp, Clock, Edit2, X, Check } from "lucide-react";
+import { Building2, Plus, Search, Filter, Calendar, DollarSign, Users, MapPin, ChevronDown, TrendingUp, Clock, Edit2, X, Check, GripVertical } from "lucide-react";
 import { useLocation } from "wouter";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { MainLayout } from "../layouts/MainLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
@@ -109,6 +110,32 @@ export default function Projects() {
     setEditingProject(null);
     setEditingField(null);
     setEditValues({});
+  };
+
+  // Handle drag and drop reordering
+  const handleDragEnd = (result: any) => {
+    if (!result.destination) return;
+
+    const items = Array.from(filteredProjects);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    // Update the main projects array to maintain the new order
+    const newProjects = [...projects];
+    const reorderedProject = newProjects.find(p => p.id === reorderedItem.id);
+    if (reorderedProject) {
+      // Remove from old position
+      const oldIndex = newProjects.findIndex(p => p.id === reorderedItem.id);
+      newProjects.splice(oldIndex, 1);
+      
+      // Insert at new position (accounting for filtered items)
+      const targetProject = items[result.destination.index === 0 ? 0 : result.destination.index - 1];
+      const targetIndex = targetProject ? newProjects.findIndex(p => p.id === targetProject.id) : 0;
+      const insertIndex = result.destination.index === 0 ? targetIndex : targetIndex + 1;
+      
+      newProjects.splice(insertIndex, 0, reorderedProject);
+      setProjects(newProjects);
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -282,17 +309,41 @@ export default function Projects() {
             </div>
           )}
 
-          {/* Glassmorphism Projects Grid */}
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {filteredProjects.map((project, index) => (
-              <div 
-                key={project.id} 
-                className="group relative bg-white/80 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-6 hover:bg-white/90 hover:border-gray-300/60 transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl shadow-xl hover:shadow-blue-500/10"
-                style={{
-                  animationDelay: `${index * 150}ms`
-                }}
-                data-testid={`card-project-${project.id}`}
-              >
+          {/* Drag-and-Drop Projects Grid */}
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable droppableId="projects-grid">
+              {(provided) => (
+                <div 
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  className="grid gap-8 md:grid-cols-2 lg:grid-cols-3"
+                >
+                  {filteredProjects.map((project, index) => (
+                    <Draggable key={project.id} draggableId={project.id} index={index}>
+                      {(provided, snapshot) => (
+                        <div 
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          className={`group relative bg-white/80 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-6 hover:bg-white/90 hover:border-gray-300/60 transition-all duration-500 shadow-xl hover:shadow-blue-500/10 ${
+                            snapshot.isDragging 
+                              ? 'rotate-2 scale-105 shadow-2xl border-blue-300/60 bg-white/95' 
+                              : 'hover:scale-[1.02] hover:shadow-2xl'
+                          }`}
+                          style={{
+                            animationDelay: `${index * 150}ms`,
+                            ...provided.draggableProps.style
+                          }}
+                          data-testid={`card-project-${project.id}`}
+                        >
+                          {/* Drag Handle */}
+                          <div 
+                            {...provided.dragHandleProps}
+                            className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-grab active:cursor-grabbing z-10"
+                          >
+                            <div className="p-2 bg-gray-100/80 backdrop-blur-sm rounded-lg hover:bg-gray-200/80 transition-colors duration-200">
+                              <GripVertical className="w-4 h-4 text-gray-500" />
+                            </div>
+                          </div>
                 {/* Enhanced Glossy Border Effect */}
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-100/40 via-blue-200/30 to-blue-300/40 rounded-3xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 
@@ -622,9 +673,15 @@ export default function Projects() {
                     </button>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
 
           {/* iOS-Style Glossy Summary Stats - Tailored for Small Business */}
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
