@@ -1,0 +1,170 @@
+You hit a classic middleware ordering/config mismatch: your auth middleware in replitAuth.ts is calling req.isAuthenticated(), but Passport isn’t mounted, so Express doesn’t add that function. Result: TypeError: req.isAuthenticated is not a function and then all your /api/* routes that require auth 401.
+
+Here’s a clean, Replit-friendly fix you can paste in now. It gives you:
+
+Proper session + Passport wiring (using your existing deps)
+
+A safe requireAuth guard that doesn’t crash if Passport isn’t present
+
+A temporary dev login route so you can keep building Permits (and other pages) without blocking on OAuth
+
+1) Patch server/index.ts — mount cookie/session/passport before routes
+
+Add the imports at the top:
+
+import cookieParser from "cookie-parser";
+import session from "express-session";
+import passport from "passport";
+import createMemoryStore from "memorystore";
+import { configurePassport } from "./replitAuth"; // we'll add this export below
+
+
+Right after const app = express(); add cookie + session + passport:
+
+const MemoryStore = createMemoryStore(session);
+
+// cookies first
+app.use(cookieParser(process.env.SESSION_SECRET || "dev-secret"));
+
+// session next (MemoryStore fine for dev on Replit)
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "dev-secret",
+    resave: false,
+    saveUninitialized: false,
+    store: new MemoryStore({ checkPeriod: 24 * 60 * 60 * 1000 }), // prune daily
+    cookie: {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: false, // Replit dev: false ; set true behind HTTPS in prod
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    },
+  })
+);
+
+// passport MUST be after session
+app.use(passport.initialize());
+app.use(passport.session());
+
+// configure strategies/serialize/deserialize
+configurePassport(passport);
+
+
+(Keep the rest of your file the same.)
+
+2) Patch server/replitAuth.ts — make guards resilient + add configure function
+
+At the top of server/replitAuth.ts, export a configurePassport and a safe requireAuth. Replace or add the following:
+
+import type { Request, Response, NextFunction } from "express";
+import type { PassportStatic } from "passport";
+
+/** Call this from server/index.ts once */
+export function configurePassport(passport: PassportStatic) {
+  // If you already had strategies, keep them. For now, just serialize whole user.
+  passport.serializeUser((user: any, done) => {
+    done(null, user);
+  });
+  passport.deserializeUser((obj: any, done) => {
+    done(null, obj);
+  });
+
+  // TODO: add your real strategy (Replit auth, Google, etc.)
+}
+
+/** Defensive helper: works with Passport *or* plain session */
+export function requireAuth(req: Request, res: Response, next: NextFunction) {
+  // If passport is present and a user is authed
+  const hasPassportAuth =
+    typeof (req as any).isAuthenticated === "function" &&
+    (req as any).isAuthenticated();
+
+  // Or we set a user on the session (dev mode / custom login)
+  const sessUser = (req.session as any)?.user;
+  const user = hasPassportAuth ? (req as any).user : sessUser;
+
+  if (user && (!user.expires_at || Date.now() < new Date(user.expires_at).getTime())) {
+    // attach to req for downstream handlers
+    (req as any).user = user;
+    return next();
+  }
+
+  return res.status(401).json({ message: "Unauthorized" });
+}
+
+/** Dev login to unblock local building (remove in prod) */
+export function devLogin(req: Request, res: Response) {
+  const user = {
+    id: "dev-user",
+    email: "dev@example.com",
+    name: "Dev User",
+    // one-week session
+    expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+  };
+  (req.session as any).user = user;
+  return res.json(user);
+}
+
+
+Why this helps: if Passport isn’t set up yet for real OAuth, you can still authenticate in dev via session (req.session.user) and your guard won’t crash when req.isAuthenticated doesn’t exist.
+
+3) Register auth routes and apply guard (in server/routes.ts)
+
+Inside your registerRoutes(app) function:
+
+import { requireAuth, devLogin } from "./replitAuth";
+
+// Dev-only login to set a session user
+app.post("/api/auth/dev-login", devLogin);
+
+// Your “who am I” route should NOT crash if not logged in
+app.get("/api/auth/user", (req, res) => {
+  const user = (req as any).user || (req.session as any)?.user || null;
+  if (!user) return res.status(401).json({ message: "Unauthorized" });
+  res.json(user);
+});
+
+// Example: protect API groups with requireAuth
+app.get("/api/properties", requireAuth, (_req, res) => { /* ... */ });
+app.post("/api/properties", requireAuth, (_req, res) => { /* ... */ });
+
+app.get("/api/activities", requireAuth, (_req, res) => { /* ... */ });
+app.get("/api/dashboard/stats", requireAuth, (_req, res) => { /* ... */ });
+
+// (And so on for permits routes.)
+
+4) Quick test path (no frontend changes needed)
+
+In Replit Shell:
+
+# start the app
+npm run dev
+
+
+In a new terminal tab (or from your browser, use a REST client / curl) once to set a dev session:
+
+curl -X POST https://<your-replit-domain>/api/auth/dev-login -c cookies.txt -b cookies.txt
+
+
+Now hit a protected route with the same cookie jar:
+
+curl https://<your-replit-domain>/api/dashboard/stats -c cookies.txt -b cookies.txt
+
+
+You should get JSON (200), not 401, and no crash.
+
+In the browser, just refresh the app; /api/auth/user should return 200 and your Permits page should stop erroring.
+
+5) Frontend nicety (optional but helpful)
+
+If you want the app to auto “dev login” when not authenticated (only in dev), you can add a single line in your useAuth flow (or a tiny effect in Landing) to POST /api/auth/dev-login when NODE_ENV === 'development'. But with the server changes above, you can also just visit the dev login route once via curl/Postman and keep building.
+
+Why you were seeing 401s + crash
+
+Routes like /api/properties, /api/activities, /api/dashboard/stats were guarded.
+
+The guard used req.isAuthenticated() but Passport wasn’t mounted → function undefined → crash.
+
+After the crash, subsequent calls 401’d because the middleware bailed.
+
+The patches above fix the crash, restore a working guard, and give you a dev session so you can continue wiring Permits immediately.
