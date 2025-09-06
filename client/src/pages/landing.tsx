@@ -31,8 +31,8 @@ export default function Landing() {
 
           <CardContent className="pb-6">
             <div className="mx-auto w-full rounded-2xl border border-black/5 bg-gray-50/90 p-5 shadow-inner">
-              <div>
-                <div className="mx-auto mb-4 grid place-items-center h-12 w-12 rounded-2xl bg-blue-500/10">
+              <div className="space-y-4">
+                <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-blue-500/10">
                   <BrandIcon variant="brand" size={28} />
                 </div>
                 <LoginForm />
