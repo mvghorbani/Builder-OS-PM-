@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useRef } from "react";
-import { Building2, Plus, Search, Filter, Calendar, DollarSign, Users, MapPin, ChevronDown, TrendingUp, Clock, Edit2, X, Check, GripVertical } from "lucide-react";
+import { Building2, Plus, Search, Filter, Calendar, DollarSign, Users, MapPin, ChevronDown, TrendingUp, Clock, Edit2, X, Check, GripVertical, Type, Palette } from "lucide-react";
 import { useLocation } from "wouter";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { MainLayout } from "../layouts/MainLayout";
@@ -23,12 +23,32 @@ export default function Projects() {
   
   // Refs for click outside detection
   const filterRef = useRef<HTMLDivElement>(null);
+  const typographyRef = useRef<HTMLDivElement>(null);
 
-  // Close filter dropdown when clicking outside
+  // Typography control states
+  const [typographyOpen, setTypographyOpen] = useState(false);
+  const [fontFamily, setFontFamily] = useState("EB Garamond");
+  const [fontSize, setFontSize] = useState("base");
+  const [customLabels, setCustomLabels] = useState({
+    progress: "Progress",
+    budgetOverview: "Budget Overview",
+    committed: "Committed",
+    totalAllocated: "Total Allocated",
+    projectTimeline: "Project Timeline",
+    projectLead: "Project Lead",
+    startDate: "Start Date",
+    endDate: "End Date",
+    currentPhase: "Current Phase"
+  });
+
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
         setFilterOpen(false);
+      }
+      if (typographyRef.current && !typographyRef.current.contains(event.target as Node)) {
+        setTypographyOpen(false);
       }
     };
 
@@ -37,6 +57,27 @@ export default function Projects() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  // Apply dynamic styles
+  const getTypographyClasses = () => {
+    const fontClasses = {
+      "EB Garamond": "font-serif",
+      "Inter": "font-sans",
+      "Roboto": "font-sans",
+      "Playfair Display": "font-serif",
+      "Open Sans": "font-sans"
+    };
+    
+    const sizeClasses = {
+      "xs": "text-xs",
+      "sm": "text-sm", 
+      "base": "text-base",
+      "lg": "text-lg",
+      "xl": "text-xl"
+    };
+    
+    return `${fontClasses[fontFamily as keyof typeof fontClasses]} ${sizeClasses[fontSize as keyof typeof sizeClasses]}`;
+  };
 
   // Real project data with milestones
   const [projects, setProjects] = useState([
@@ -213,6 +254,79 @@ export default function Projects() {
                 <p className="text-base sm:text-lg text-gray-600">Manage and track all construction projects</p>
               </div>
               <div className="flex items-center space-x-3">
+                {/* Typography Control Panel */}
+                <div className="relative" ref={typographyRef}>
+                  <button 
+                    onClick={() => setTypographyOpen(!typographyOpen)}
+                    className="px-6 py-2.5 bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:from-purple-400 hover:via-purple-500 hover:to-purple-600 text-white rounded-full transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
+                    data-testid="button-typography"
+                  >
+                    <Type className="w-4 h-4" />
+                    Typography
+                    <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${typographyOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  
+                  {typographyOpen && (
+                    <div className="absolute top-12 right-0 z-50 bg-white/95 backdrop-blur-xl border border-gray-200/80 rounded-2xl shadow-2xl p-6 w-80">
+                      <div className="space-y-4">
+                        <h3 className="font-bold text-gray-900 mb-4">Typography Controls</h3>
+                        
+                        {/* Font Family Selection */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Font Family</label>
+                          <select 
+                            value={fontFamily}
+                            onChange={(e) => setFontFamily(e.target.value)}
+                            className="w-full p-2 border border-gray-300 rounded-lg"
+                          >
+                            <option value="EB Garamond">EB Garamond (Serif)</option>
+                            <option value="Inter">Inter (Sans-serif)</option>
+                            <option value="Roboto">Roboto (Sans-serif)</option>
+                            <option value="Playfair Display">Playfair Display (Serif)</option>
+                            <option value="Open Sans">Open Sans (Sans-serif)</option>
+                          </select>
+                        </div>
+
+                        {/* Font Size Selection */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Font Size</label>
+                          <select 
+                            value={fontSize}
+                            onChange={(e) => setFontSize(e.target.value)}
+                            className="w-full p-2 border border-gray-300 rounded-lg"
+                          >
+                            <option value="xs">Extra Small</option>
+                            <option value="sm">Small</option>
+                            <option value="base">Base</option>
+                            <option value="lg">Large</option>
+                            <option value="xl">Extra Large</option>
+                          </select>
+                        </div>
+
+                        {/* Custom Label Editor */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Custom Labels</label>
+                          <div className="space-y-2 max-h-48 overflow-y-auto">
+                            {Object.entries(customLabels).map(([key, value]) => (
+                              <div key={key} className="flex items-center gap-2">
+                                <span className="text-xs text-gray-500 w-20 flex-shrink-0 capitalize">
+                                  {key.replace(/([A-Z])/g, ' $1').trim()}:
+                                </span>
+                                <input
+                                  type="text"
+                                  value={value}
+                                  onChange={(e) => setCustomLabels(prev => ({ ...prev, [key]: e.target.value }))}
+                                  className="flex-1 p-1 text-xs border border-gray-200 rounded"
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 <div className="relative" ref={filterRef}>
                   <button 
                     onClick={() => setFilterOpen(!filterOpen)}
@@ -472,8 +586,8 @@ export default function Projects() {
                   </div>
                   {/* Progress with Hover Budget Info */}
                   <div className="mb-6">
-                    <div className="flex justify-between text-sm mb-2">
-                      <span className="text-gray-600 font-bold">Progress</span>
+                    <div className={`flex justify-between mb-2 ${getTypographyClasses()}`}>
+                      <span className="text-gray-600 font-bold">{customLabels.progress}</span>
                       <span className="font-semibold text-gray-900">{project.progress}%</span>
                     </div>
                     <div className="relative">
@@ -494,13 +608,13 @@ export default function Projects() {
                           <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-white/98 border-l border-t border-gray-200/80 rotate-45"></div>
                           
                           {/* Professional Content */}
-                          <div className="text-center">
-                            <div className="text-sm font-bold text-gray-900 mb-1">Current Phase</div>
-                            <div className="text-xs text-gray-600 leading-relaxed">
+                          <div className={`text-center ${getTypographyClasses()}`}>
+                            <div className="font-bold text-gray-900 mb-1">{customLabels.currentPhase}</div>
+                            <div className="text-gray-600 leading-relaxed">
                               {project.currentMilestone}
                             </div>
                             <div className="mt-2 pt-2 border-t border-gray-100">
-                              <div className="text-xs text-blue-600 font-medium">{project.progress}% Complete</div>
+                              <div className="text-blue-600 font-medium">{project.progress}% Complete</div>
                             </div>
                           </div>
                         </div>
@@ -510,18 +624,18 @@ export default function Projects() {
 
                   {/* Budget Section */}
                   <div className="mb-6">
-                    <div className="flex items-center text-sm text-gray-600 mb-3">
+                    <div className={`flex items-center text-gray-600 mb-3 ${getTypographyClasses()}`}>
                       <div className="w-2 h-2 bg-emerald-500 rounded-full mr-2"></div>
-                      <span className="font-bold">Budget Overview</span>
+                      <span className="font-bold">{customLabels.budgetOverview}</span>
                     </div>
                     <div className="bg-gray-50/80 rounded-xl p-4 border border-gray-200/50">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-gray-600">Committed</span>
-                        <span className="text-sm font-semibold text-emerald-600">{formatCurrency(project.spentBudget)}</span>
+                      <div className={`flex justify-between items-center mb-2 ${getTypographyClasses()}`}>
+                        <span className="text-gray-600">{customLabels.committed}</span>
+                        <span className="font-semibold text-emerald-600">{formatCurrency(project.spentBudget)}</span>
                       </div>
-                      <div className="flex justify-between items-center mb-3">
-                        <span className="text-sm text-gray-600">Total Allocated</span>
-                        <span className="text-sm font-semibold text-gray-900">{formatCurrency(project.totalBudget)}</span>
+                      <div className={`flex justify-between items-center mb-3 ${getTypographyClasses()}`}>
+                        <span className="text-gray-600">{customLabels.totalAllocated}</span>
+                        <span className="font-semibold text-gray-900">{formatCurrency(project.totalBudget)}</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div 
@@ -537,15 +651,15 @@ export default function Projects() {
 
                   {/* Enhanced Timeline Display */}
                   <div className="mb-6">
-                    <div className="flex items-center text-sm text-gray-600 mb-3">
+                    <div className={`flex items-center text-gray-600 mb-3 ${getTypographyClasses()}`}>
                       <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
-                      <span className="font-bold">Project Timeline</span>
+                      <span className="font-bold">{customLabels.projectTimeline}</span>
                     </div>
                     <div className="bg-gradient-to-r from-blue-50/80 to-indigo-50/80 rounded-xl p-4 border border-blue-100/60 backdrop-blur-sm">
                       <div className="flex items-center justify-between">
-                        <div className="text-center">
-                          <div className="text-xs text-blue-600 font-medium mb-1">Start Date</div>
-                          <div className="text-sm font-semibold text-gray-900">
+                        <div className={`text-center ${getTypographyClasses()}`}>
+                          <div className="text-blue-600 font-medium mb-1">{customLabels.startDate}</div>
+                          <div className="font-semibold text-gray-900">
                             {new Date(project.startDate).toLocaleDateString('en-US', { 
                               month: 'short', 
                               day: 'numeric',
@@ -561,9 +675,9 @@ export default function Projects() {
                           </div>
                         </div>
                         
-                        <div className="text-center">
-                          <div className="text-xs text-blue-600 font-medium mb-1">End Date</div>
-                          <div className="text-sm font-semibold text-gray-900">
+                        <div className={`text-center ${getTypographyClasses()}`}>
+                          <div className="text-blue-600 font-medium mb-1">{customLabels.endDate}</div>
+                          <div className="font-semibold text-gray-900">
                             {new Date(project.endDate).toLocaleDateString('en-US', { 
                               month: 'short', 
                               day: 'numeric',
@@ -583,10 +697,10 @@ export default function Projects() {
 
                   {/* Project Lead Section */}
                   <div className="mb-6">
-                    <div className="flex items-center justify-between text-sm">
+                    <div className={`flex items-center justify-between ${getTypographyClasses()}`}>
                       <div className="flex items-center text-gray-600">
                         <Users className="w-4 h-4 mr-2 text-purple-600" />
-                        <span className="font-bold">Project Lead</span>
+                        <span className="font-bold">{customLabels.projectLead}</span>
                       </div>
                       
                       {/* Editable Project Lead */}
