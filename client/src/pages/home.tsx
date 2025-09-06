@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -264,6 +265,7 @@ const PropertyCard = ({ property }: { property: Property }) => (
 const Dashboard = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, setLocation] = useLocation();
 
   // Safe formatter helpers
   const fmtInt = (n: unknown) =>
@@ -453,7 +455,11 @@ const Dashboard = () => {
         {/* Stats Grid */}
         <div className="mb-8 sm:mb-12 grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {/* Active Projects */}
-          <button className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 active:translate-y-1 active:scale-[0.98] group text-center">
+          <button 
+            className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 active:translate-y-1 active:scale-[0.98] group text-center"
+            onClick={() => setLocation('/projects')}
+            data-testid="button-stat-projects"
+          >
             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95">
               <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <Building2 className="h-6 w-6 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
@@ -465,7 +471,11 @@ const Dashboard = () => {
           </button>
 
           {/* Budget */}
-          <button className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 active:translate-y-1 active:scale-[0.98] group text-center">
+          <button 
+            className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 active:translate-y-1 active:scale-[0.98] group text-center"
+            onClick={() => setLocation('/budget')}
+            data-testid="button-stat-budget"
+          >
             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95">
               <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <Wallet className="h-6 w-6 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
@@ -479,7 +489,11 @@ const Dashboard = () => {
           </button>
 
           {/* Schedule Health */}
-          <button className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 active:translate-y-1 active:scale-[0.98] group text-center">
+          <button 
+            className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 active:translate-y-1 active:scale-[0.98] group text-center"
+            onClick={() => setLocation('/analytics')}
+            data-testid="button-stat-schedule"
+          >
             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95">
               <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <Calendar className="h-6 w-6 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
@@ -501,7 +515,11 @@ const Dashboard = () => {
           </button>
 
           {/* Permits */}
-          <button className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 active:translate-y-1 active:scale-[0.98] group text-center">
+          <button 
+            className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 active:translate-y-1 active:scale-[0.98] group text-center"
+            onClick={() => setLocation('/permits')}
+            data-testid="button-stat-permits"
+          >
             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95">
               <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <FileCheck className="h-6 w-6 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
@@ -520,7 +538,7 @@ const Dashboard = () => {
             <button 
               className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 active:translate-y-1 active:scale-[0.98] group text-center" 
               data-testid="button-daily-log"
-              onClick={() => toast({ title: "Daily Log", description: "Daily log feature coming soon!" })}
+              onClick={() => setLocation('/analytics')}
             >
               <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95">
                 <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -533,7 +551,7 @@ const Dashboard = () => {
             <button 
               className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 active:translate-y-1 active:scale-[0.98] group text-center" 
               data-testid="button-upload-document"
-              onClick={() => toast({ title: "Upload Document", description: "Document upload feature coming soon!" })}
+              onClick={() => setLocation('/documents')}
             >
               <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95">
                 <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -546,7 +564,7 @@ const Dashboard = () => {
             <button 
               className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 active:translate-y-1 active:scale-[0.98] group text-center" 
               data-testid="button-create-rfq"
-              onClick={() => toast({ title: "Create RFQ", description: "RFQ creation feature coming soon!" })}
+              onClick={() => setLocation('/vendors')}
             >
               <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95">
                 <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -559,7 +577,7 @@ const Dashboard = () => {
             <button 
               className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 active:translate-y-1 active:scale-[0.98] group text-center" 
               data-testid="button-submit-rfi"
-              onClick={() => toast({ title: "Submit RFI", description: "RFI submission feature coming soon!" })}
+              onClick={() => setLocation('/vendors')}
             >
               <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95">
                 <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
