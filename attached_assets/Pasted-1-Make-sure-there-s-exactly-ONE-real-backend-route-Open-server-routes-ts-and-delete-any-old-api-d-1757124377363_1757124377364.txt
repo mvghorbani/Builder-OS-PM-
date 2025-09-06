@@ -1,0 +1,100 @@
+1) Make sure there’s exactly ONE real backend route
+
+Open server/routes.ts and delete any old /api/dashboard/stats route (e.g., one that uses requireAuth or hardcoded values). Keep only the authenticateJWT version below.
+
+Paste this (replace any existing stats handler)
+// server/routes.ts
+import { authenticateJWT } from "./replitAuth";
+import { db } from "./db";
+// adjust import name to your table
+import { properties } from "@shared/schema"; // if you have it
+
+app.get("/api/dashboard/stats", authenticateJWT, async (req, res, next) => {
+  try {
+    // Pull only what we need; adjust column names to your schema.
+    const rows = await db.query.properties.findMany({
+      columns: {
+        id: true,
+        status: true,        // 'active' etc.
+        totalBudget: true,   // number | null
+        spentBudget: true,   // number | null (if you have it)
+        progress: true,      // number | null (0..100) used as temporary schedule proxy
+      },
+    });
+
+    const activeProjects = rows.filter(r => r.status === "active").length;
+    const totalBudget = rows.reduce((sum, r) => sum + (Number(r.totalBudget) || 0), 0);
+    const spentBudget = rows.reduce((sum, r) => sum + (Number((r as any).spentBudget) || 0), 0);
+
+    // Only use finite progress values
+    const progressValues = rows
+      .map(r => Number(r.progress))
+      .filter(v => Number.isFinite(v));
+
+    const scheduleSampleSize = progressValues.length;
+    const avgScheduleAdherence = scheduleSampleSize
+      ? progressValues.reduce((a, b) => a + b, 0) / scheduleSampleSize
+      : null; // <- critical: null when no data, NOT 100
+
+    const pendingPermits = 0; // TODO: compute from your permits table when ready
+
+    res.json({
+      activeProjects,
+      totalBudget,
+      spentBudget,
+      avgScheduleAdherence, // number | null
+      scheduleSampleSize,   // integer to let UI decide if it should render a %
+      pendingPermits,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+2) Ensure the frontend expects scheduleSampleSize
+
+In client/src/pages/home.tsx:
+
+Update the type:
+
+interface DashboardStats {
+  activeProjects: number;
+  totalBudget: number;
+  spentBudget: number;
+  avgScheduleAdherence: number | null;
+  scheduleSampleSize: number;  // NEW
+  pendingPermits: number;
+}
+
+
+In the Schedule card, render only with real data:
+
+<p className="text-3xl font-bold text-gray-900" data-testid="text-stat-schedule">
+  {Number.isFinite(stats?.avgScheduleAdherence) && (stats?.scheduleSampleSize || 0) > 0
+    ? `${Math.max(0, Math.min(100, Number(stats!.avgScheduleAdherence))).toFixed(0)}%`
+    : '—'}
+</p>
+
+3) Kill any stray/old route definitions
+
+From your grep:
+
+app.get('/api/dashboard/stats', authenticateJWT, … ← keep this one (your real handler).
+
+app.get("/api/dashboard/stats", requireAuth, … ← delete this old one.
+
+Matches inside attached_assets/ or docs → ignore (not executed).
+
+4) Quick test
+
+In the browser DevTools → Network → click /api/dashboard/stats.
+You should see:
+
+{
+  "activeProjects": 0,
+  "totalBudget": 0,
+  "spentBudget": 0,
+  "avgScheduleAdherence": null,
+  "scheduleSampleSize": 0,
+  "pendingPermits": 0
+}

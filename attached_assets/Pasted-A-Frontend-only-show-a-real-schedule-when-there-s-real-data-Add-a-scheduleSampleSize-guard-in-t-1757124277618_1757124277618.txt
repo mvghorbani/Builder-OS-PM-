@@ -1,0 +1,107 @@
+A) Frontend: only show a real schedule % when there’s real data
+
+Add a scheduleSampleSize guard in the UI so it never renders 100% unless the API actually computed it.
+
+In client/src/pages/home.tsx, right under your DashboardStats interface, extend it:
+
+interface DashboardStats {
+  activeProjects: number;
+  totalBudget: number;
+  spentBudget: number;
+  avgScheduleAdherence: number | null; // allow null
+  scheduleSampleSize: number;          // NEW: how many projects contributed
+  pendingPermits: number;
+}
+
+
+In the Schedule card where you render the big number, replace that <p> with this:
+
+<p className="text-3xl font-bold text-gray-900" data-testid="text-stat-schedule">
+  {Number.isFinite(stats?.avgScheduleAdherence) && (stats?.scheduleSampleSize || 0) > 0
+    ? `${Math.max(0, Math.min(100, Number(stats!.avgScheduleAdherence))).toFixed(0)}%`
+    : '—'}
+</p>
+
+
+That will display — (dash) when there’s no real schedule data and clamp valid values to 0–100.
+
+Note: You’re already formatting other stats safely—this mirrors that behavior.
+
+B) Backend: make /api/dashboard/stats return honest numbers (no default 100)
+
+If your stats endpoint is currently defaulting or “fixing” NaN to 100, that’s the source. Use this route so the frontend gets avgScheduleAdherence: null and scheduleSampleSize: 0 when no data exists.
+
+Drop this into server/routes.ts (or wherever you define routes). Adjust table/column names if they differ.
+
+import { authenticateJWT } from "./replitAuth"; // or wherever your auth middleware lives
+import { db } from "./db";                       // your Drizzle instance
+import { properties } from "@shared/schema";     // table import if you have it
+
+app.get("/api/dashboard/stats", authenticateJWT, async (req, res, next) => {
+  try {
+    // Pull just what we need. Adjust columns to match your schema.
+    const rows = await db.query.properties.findMany({
+      columns: {
+        id: true,
+        status: true,        // 'active' | ...
+        totalBudget: true,   // number | null
+        spentBudget: true,   // number | null (if you track it)
+        progress: true,      // number | null (0..100) as a proxy for schedule
+      },
+    });
+
+    const activeProjects = rows.filter(r => r.status === "active").length;
+
+    const totalBudget = rows.reduce((sum, r) => sum + (Number(r.totalBudget) || 0), 0);
+    const spentBudget = rows.reduce((sum, r) => sum + (Number(r.spentBudget) || 0), 0);
+
+    // Use only projects with a finite progress number
+    const progressValues = rows
+      .map(r => Number(r.progress))
+      .filter(v => Number.isFinite(v));
+
+    const scheduleSampleSize = progressValues.length;
+    const avgScheduleAdherence = scheduleSampleSize
+      ? progressValues.reduce((a, b) => a + b, 0) / scheduleSampleSize
+      : null; // <-- key: null when no data (DO NOT default to 100)
+
+    // TODO: replace with a real query once your permits table is live
+    const pendingPermits = 0;
+
+    res.json({
+      activeProjects,
+      totalBudget,
+      spentBudget,
+      avgScheduleAdherence, // null if no valid progress
+      scheduleSampleSize,   // let the UI decide whether to render a %
+      pendingPermits,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+
+Why this fixes it:
+No more “if NaN then 100” fallbacks. We return null and a sample size of 0 when there’s nothing to average, and the UI shows a dash.
+
+Quick sanity checks
+
+Network tab → open /api/dashboard/stats response. You should see:
+
+{
+  "activeProjects": 0,
+  "totalBudget": 0,
+  "spentBudget": 0,
+  "avgScheduleAdherence": null,
+  "scheduleSampleSize": 0,
+  "pendingPermits": 0
+}
+
+
+…until you add projects with a progress number.
+
+Add a project (progress=0) → schedule should be 0% (sample size 1).
+If you don’t want 0% to show until you have milestones, just leave progress null for new projects; then it will stay — until you have real data.
+
+If you later compute schedule from milestones instead of progress, keep the same pattern: skip projects without milestones, average only the ones with data, and return null + 0 when there are none.

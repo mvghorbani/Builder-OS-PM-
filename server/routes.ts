@@ -1196,11 +1196,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/dashboard/stats', authenticateJWT, async (req, res) => {
     try {
       const properties = await storage.getProperties();
+      const activeProjects = properties.filter(p => p.status === 'active').length;
       const totalBudget = properties.reduce((sum, p) => sum + parseFloat(p.totalBudget), 0);
       const spentBudget = properties.reduce((sum, p) => sum + parseFloat(p.spentBudget), 0);
-      const avgScheduleAdherence = properties.length > 0 
-        ? Math.round(properties.reduce((sum, p) => sum + p.scheduleAdherence, 0) / properties.length)
-        : 100;
+      
+      // Only use properties with finite schedule adherence values
+      const scheduleValues = properties
+        .map(p => Number(p.scheduleAdherence))
+        .filter(v => Number.isFinite(v));
+
+      const scheduleSampleSize = scheduleValues.length;
+      const avgScheduleAdherence = scheduleSampleSize > 0
+        ? scheduleValues.reduce((a, b) => a + b, 0) / scheduleSampleSize
+        : null; // critical: null when no data, NOT 100
 
       let pendingPermits = 0;
       for (const property of properties) {
@@ -1209,10 +1217,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       res.json({
-        activeProjects: properties.length,
+        activeProjects,
         totalBudget: Math.round(totalBudget / 1000) / 1000, // in millions
         spentBudget: Math.round(spentBudget / 1000), // in thousands
-        avgScheduleAdherence,
+        avgScheduleAdherence, // number | null
+        scheduleSampleSize,   // integer to let UI decide if it should render a %
         pendingPermits,
       });
     } catch (error) {

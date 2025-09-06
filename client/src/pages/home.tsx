@@ -39,7 +39,8 @@ interface DashboardStats {
   activeProjects: number;
   totalBudget: number;
   spentBudget: number;
-  avgScheduleAdherence: number;
+  avgScheduleAdherence: number | null; // allow null
+  scheduleSampleSize: number;          // NEW: how many projects contributed
   pendingPermits: number;
 }
 
@@ -379,8 +380,8 @@ const Dashboard = () => {
                   <div>
                     <p className="text-sm text-gray-600">Schedule</p>
                     <p className="text-3xl font-bold text-gray-900" data-testid="text-stat-schedule">
-                      {typeof stats?.avgScheduleAdherence === 'number'
-                        ? `${stats.avgScheduleAdherence}%`
+                      {Number.isFinite(stats?.avgScheduleAdherence) && (stats?.scheduleSampleSize || 0) > 0
+                        ? `${Math.max(0, Math.min(100, Number(stats!.avgScheduleAdherence))).toFixed(0)}%`
                         : '—'}
                     </p>
                   </div>
