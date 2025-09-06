@@ -563,7 +563,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   await setupAuth(app);
 
   // Auth routes
-  app.get('/api/auth/user', requireAuth, async (req: any, res) => {
+  app.get('/api/auth/user', authenticateJWT, async (req: any, res) => {
     try {
       const userId = req.user.id; // JWT contains user.id directly
       const user = await storage.getUser(userId);
