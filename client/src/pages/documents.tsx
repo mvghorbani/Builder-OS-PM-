@@ -140,7 +140,7 @@ export default function Documents() {
       const params = new URLSearchParams();
       if (searchQuery) params.append('search', searchQuery);
       Object.entries(filters).forEach(([key, value]) => {
-        if (value) params.append(key, value);
+        if (value && value !== 'all') params.append(key, value);
       });
       return apiRequest(`/api/documents?${params.toString()}`);
     }
@@ -494,7 +494,7 @@ export default function Documents() {
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Categories</SelectItem>
+                  <SelectItem value="all">All Categories</SelectItem>
                   {DOCUMENT_CATEGORIES.map((category) => (
                     <SelectItem key={category} value={category}>
                       {category.charAt(0).toUpperCase() + category.slice(1)}
@@ -508,7 +508,7 @@ export default function Documents() {
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Status</SelectItem>
+                  <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="draft">Draft</SelectItem>
                   <SelectItem value="review">Review</SelectItem>
                   <SelectItem value="approved">Approved</SelectItem>
@@ -522,7 +522,7 @@ export default function Documents() {
                   <SelectValue placeholder="Project" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Projects</SelectItem>
+                  <SelectItem value="all">All Projects</SelectItem>
                   {projects.map((project: any) => (
                     <SelectItem key={project.id} value={project.id}>
                       {project.name}
@@ -533,7 +533,7 @@ export default function Documents() {
 
               <Button 
                 variant="outline" 
-                onClick={() => setFilters({ category: "", type: "", status: "", accessLevel: "", propertyId: "" })}
+                onClick={() => setFilters({ category: "all", type: "all", status: "all", accessLevel: "all", propertyId: "all" })}
                 className="bg-white/50 border-white/30"
                 data-testid="button-clear-filters"
               >
