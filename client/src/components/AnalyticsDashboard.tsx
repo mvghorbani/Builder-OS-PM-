@@ -33,6 +33,7 @@ import {
   Lightbulb,
 } from "lucide-react";
 import axios from "axios";
+import { queryClient } from "@/lib/queryClient";
 
 // Set baseURL once for Replit dev proxying
 axios.defaults.baseURL = "";
@@ -152,21 +153,22 @@ const AnalyticsDashboard = () => {
 
   const recommendationMutation = useMutation({
     mutationFn: async ({ projectId, riskFactors }: { projectId: string; riskFactors: string[] }) => {
-      return (await axios.post('/api/v1/analytics/ai-recommendation', { projectId, riskFactors })).data;
+      const res = await axios.post('/api/v1/analytics/ai-recommendation', { projectId, riskFactors });
+      return res.data; // { recommendation: string }
     },
     onSuccess: (data, variables) => {
-      // Update the aiInsights data to include the recommendation
-      if (aiInsights) {
-        const updatedInsights = {
-          ...aiInsights,
-          riskScores: aiInsights.riskScores.map(project => 
-            project.projectId === variables.projectId 
-              ? { ...project, recommendation: data.recommendation }
-              : project
+      // update the ai-insights cache
+      queryClient.setQueryData<AIInsights>(['/api/v1/analytics/ai-insights'], (prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          riskScores: prev.riskScores.map(p =>
+            p.projectId === variables.projectId
+              ? { ...p, recommendation: data.recommendation }
+              : p
           )
         };
-        // This would normally be handled by proper state management
-      }
+      });
       
       toast({
         title: "AI Recommendation Generated",
