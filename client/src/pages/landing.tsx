@@ -1,16 +1,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { GoogleOAuthProvider } from '@react-oauth/google';
 import LoginForm from "@/components/LoginForm";
 
 export default function Landing() {
-  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-
-  if (!clientId) {
-    return <div>Configuration error: Google Client ID not found</div>;
-  }
-
   return (
-    <GoogleOAuthProvider clientId={clientId}>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <Card className="shadow-lg border-0">
@@ -33,6 +25,5 @@ export default function Landing() {
           </Card>
         </div>
       </div>
-    </GoogleOAuthProvider>
   );
 }
