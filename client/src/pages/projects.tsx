@@ -54,10 +54,10 @@ export default function Projects() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-100 text-green-800';
-      case 'on-hold': return 'bg-yellow-100 text-yellow-800';
-      case 'completed': return 'bg-blue-100 text-blue-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'active': return 'bg-gradient-to-r from-green-400 to-emerald-500 text-white';
+      case 'on-hold': return 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white';
+      case 'completed': return 'bg-gradient-to-r from-blue-400 to-cyan-500 text-white';
+      default: return 'bg-gradient-to-r from-gray-400 to-gray-500 text-white';
     }
   };
 
@@ -72,184 +72,168 @@ export default function Projects() {
 
   return (
     <MainLayout>
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-10">
-          {/* Header */}
+      <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        {/* Floating Orbs Background */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-r from-blue-400/30 to-cyan-400/30 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute top-3/4 right-1/4 w-48 h-48 bg-gradient-to-r from-purple-400/30 to-pink-400/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-1/2 left-3/4 w-32 h-32 bg-gradient-to-r from-green-400/30 to-emerald-400/30 rounded-full blur-2xl animate-pulse delay-500"></div>
+          <div className="absolute bottom-1/4 left-1/2 w-40 h-40 bg-gradient-to-r from-yellow-400/30 to-orange-400/30 rounded-full blur-3xl animate-pulse delay-2000"></div>
+        </div>
+        
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 py-6 sm:py-10">
+          {/* Header with Glass Effect */}
           <header className="mb-8 sm:mb-12">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">Active Projects</h1>
-                <p className="text-base sm:text-lg text-gray-600">Manage and track all construction projects</p>
+                <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2 bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
+                  Active Projects
+                </h1>
+                <p className="text-base sm:text-lg text-gray-300">Manage and track all construction projects</p>
               </div>
-              <div className="flex items-center space-x-2">
-                <Button variant="outline" className="flex items-center gap-1">
+              <div className="flex items-center space-x-3">
+                <button className="px-6 py-2.5 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-white hover:bg-white/20 transition-all duration-300 flex items-center gap-2 shadow-lg">
                   <Filter className="w-4 h-4" />
                   Filter
-                </Button>
-                <Button className="bg-blue-600 hover:bg-blue-700">
-                  <Plus className="w-4 h-4 mr-2" />
+                </button>
+                <button className="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-full transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl">
+                  <Plus className="w-4 h-4" />
                   New Project
-                </Button>
+                </button>
               </div>
             </div>
           </header>
 
-          {/* Search and Filters */}
-          <div className="mb-6 flex flex-col sm:flex-row gap-4">
+          {/* Glass Search Bar */}
+          <div className="mb-8 flex flex-col sm:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <Input
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-300" />
+              <input
+                type="text"
                 placeholder="Search projects by name, address, or manager..."
-                className="pl-10"
+                className="w-full pl-12 pr-4 py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-transparent transition-all duration-300"
               />
             </div>
           </div>
 
-          {/* Projects Grid */}
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {projects.map((project) => (
-              <Card key={project.id} className="bg-white hover:shadow-lg transition-all duration-300 border border-gray-100">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
+          {/* Glassmorphism Projects Grid */}
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {projects.map((project, index) => (
+              <div 
+                key={project.id} 
+                className="group relative bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-6 hover:bg-white/15 hover:border-white/30 transition-all duration-500 hover:scale-105 hover:shadow-2xl shadow-lg"
+                style={{
+                  animationDelay: `${index * 150}ms`
+                }}
+              >
+                {/* Gradient Border Effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-3xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                
+                <div className="relative z-10">
+                  <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
-                      <CardTitle className="text-lg font-semibold text-gray-900 mb-1">
+                      <h3 className="text-xl font-bold text-white mb-2 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-300 group-hover:to-purple-300 group-hover:bg-clip-text transition-all duration-300">
                         {project.name}
-                      </CardTitle>
-                      <div className="flex items-center text-sm text-gray-600 mb-2">
-                        <MapPin className="w-4 h-4 mr-1" />
+                      </h3>
+                      <div className="flex items-center text-gray-300 mb-3">
+                        <MapPin className="w-4 h-4 mr-2 text-gray-400" />
                         {project.address}
                       </div>
                     </div>
-                    <Badge className={getStatusColor(project.status)}>
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(project.status)} shadow-lg`}>
                       {project.status}
-                    </Badge>
+                    </span>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  {/* Progress */}
-                  <div className="mb-4">
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="text-gray-600">Progress</span>
-                      <span className="font-medium">{project.progress}%</span>
+                  {/* Progress with Glass Design */}
+                  <div className="mb-6">
+                    <div className="flex justify-between text-sm mb-3">
+                      <span className="text-gray-300">Progress</span>
+                      <span className="font-semibold text-white">{project.progress}%</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="w-full bg-white/10 rounded-full h-3 overflow-hidden backdrop-blur-sm">
                       <div 
-                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                        className="bg-gradient-to-r from-blue-400 to-cyan-400 h-full rounded-full transition-all duration-700 shadow-lg"
                         style={{ width: `${project.progress}%` }}
                       ></div>
                     </div>
                   </div>
 
-                  {/* Budget */}
-                  <div className="mb-4">
-                    <div className="flex items-center text-sm text-gray-600 mb-1">
-                      <DollarSign className="w-4 h-4 mr-1" />
+                  {/* Budget with Glass Design */}
+                  <div className="mb-6">
+                    <div className="flex items-center text-sm text-gray-300 mb-2">
+                      <DollarSign className="w-4 h-4 mr-2 text-green-400" />
                       Budget
                     </div>
-                    <div className="text-lg font-semibold text-gray-900">
-                      {formatCurrency(project.spentBudget)} / {formatCurrency(project.totalBudget)}
+                    <div className="text-lg font-bold text-white">
+                      <span className="text-green-400">{formatCurrency(project.spentBudget)}</span>
+                      <span className="text-gray-400 mx-2">/</span>
+                      <span>{formatCurrency(project.totalBudget)}</span>
                     </div>
                   </div>
 
-                  {/* Timeline */}
-                  <div className="mb-4">
-                    <div className="flex items-center text-sm text-gray-600 mb-1">
-                      <Calendar className="w-4 h-4 mr-1" />
+                  {/* Timeline with Glass Design */}
+                  <div className="mb-6">
+                    <div className="flex items-center text-sm text-gray-300 mb-2">
+                      <Calendar className="w-4 h-4 mr-2 text-blue-400" />
                       Timeline
                     </div>
-                    <div className="text-sm text-gray-900">
+                    <div className="text-sm text-gray-200">
                       {new Date(project.startDate).toLocaleDateString()} - {new Date(project.endDate).toLocaleDateString()}
                     </div>
                   </div>
 
-                  {/* Team */}
-                  <div className="mb-4">
+                  {/* Team with Glass Design */}
+                  <div className="mb-6">
                     <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center text-gray-600">
-                        <Users className="w-4 h-4 mr-1" />
+                      <div className="flex items-center text-gray-300">
+                        <Users className="w-4 h-4 mr-2 text-purple-400" />
                         Team: {project.team} members
                       </div>
-                      <span className="text-gray-900 font-medium">{project.manager}</span>
+                      <span className="text-white font-semibold">{project.manager}</span>
                     </div>
                   </div>
 
-                  {/* Actions */}
-                  <div className="flex space-x-2 mt-4">
-                    <Button variant="outline" size="sm" className="flex-1">
+                  {/* Glass Action Buttons */}
+                  <div className="flex space-x-3 mt-6">
+                    <button className="flex-1 px-4 py-2.5 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white hover:bg-white/20 transition-all duration-300 text-sm font-medium">
                       View Details
-                    </Button>
-                    <Button size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700">
+                    </button>
+                    <button className="flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-xl transition-all duration-300 text-sm font-semibold shadow-lg">
                       Manage
-                    </Button>
+                    </button>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
           </div>
 
-          {/* Summary Stats */}
-          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-blue-600 mb-1">Total Projects</p>
-                    <p className="text-3xl font-bold text-blue-900">{projects.length}</p>
-                  </div>
-                  <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
-                    <Building2 className="w-6 h-6 text-white" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          {/* Glass Summary Stats */}
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-6 text-center shadow-lg hover:bg-white/15 transition-all duration-300">
+              <div className="text-3xl font-bold text-white mb-2">{projects.length}</div>
+              <div className="text-sm text-gray-300">Total Projects</div>
+            </div>
+            
+            <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-6 text-center shadow-lg hover:bg-white/15 transition-all duration-300">
+              <div className="text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent mb-2">
+                {formatCurrency(projects.reduce((sum, p) => sum + p.totalBudget, 0))}
+              </div>
+              <div className="text-sm text-gray-300">Total Budget</div>
+            </div>
 
-            <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-green-600 mb-1">Total Budget</p>
-                    <p className="text-3xl font-bold text-green-900">
-                      {formatCurrency(projects.reduce((sum, p) => sum + p.totalBudget, 0))}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center">
-                    <DollarSign className="w-6 h-6 text-white" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-6 text-center shadow-lg hover:bg-white/15 transition-all duration-300">
+              <div className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mb-2">
+                {Math.round(projects.reduce((sum, p) => sum + p.progress, 0) / projects.length)}%
+              </div>
+              <div className="text-sm text-gray-300">Average Progress</div>
+            </div>
 
-            <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-purple-600 mb-1">Avg Progress</p>
-                    <p className="text-3xl font-bold text-purple-900">
-                      {Math.round(projects.reduce((sum, p) => sum + p.progress, 0) / projects.length)}%
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center">
-                    <Calendar className="w-6 h-6 text-white" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-orange-600 mb-1">Team Size</p>
-                    <p className="text-3xl font-bold text-orange-900">
-                      {projects.reduce((sum, p) => sum + p.team, 0)}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-orange-600 rounded-xl flex items-center justify-center">
-                    <Users className="w-6 h-6 text-white" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-6 text-center shadow-lg hover:bg-white/15 transition-all duration-300">
+              <div className="text-3xl font-bold bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent mb-2">
+                {projects.reduce((sum, p) => sum + p.team, 0)}
+              </div>
+              <div className="text-sm text-gray-300">Team Members</div>
+            </div>
           </div>
         </div>
       </div>
