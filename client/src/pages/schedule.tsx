@@ -10,12 +10,15 @@ import {
   Users,
   CheckCircle,
   AlertTriangle,
+  AlertCircle,
   BarChart3,
   LineChart,
   Target,
   FileText,
   Zap,
-  TrendingUp
+  TrendingUp,
+  MapPin,
+  Activity
 } from "lucide-react";
 
 export default function Schedule() {
