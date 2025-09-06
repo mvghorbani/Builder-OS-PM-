@@ -123,20 +123,33 @@ const Dashboard = () => {
   const [newProjectState, setNewProjectState] = useState("");
   const [newProjectZip, setNewProjectZip] = useState("");
 
+  // Helper function for fetch requests
+  const fetchJSON = async (url: string) => {
+    const res = await fetch(url, { credentials: 'include' });
+    if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
+    return res.json();
+  };
+
   // Data fetching
-  const { data: stats, isLoading: statsLoading } = useQuery({
+  const { data: stats, isLoading: statsLoading, isError: statsError } = useQuery({
     queryKey: ['/api/dashboard/stats'],
-    retry: (failureCount, error) => !isUnauthorizedError(error) && failureCount < 3,
+    queryFn: () => fetchJSON('/api/dashboard/stats'),
+    retry: (failureCount, error) => !isUnauthorizedError(error) && failureCount < 2,
+    staleTime: 60_000,
   });
 
-  const { data: properties = [], isLoading: propertiesLoading } = useQuery({
+  const { data: properties = [], isLoading: propertiesLoading, isError: propertiesError } = useQuery({
     queryKey: ['/api/properties'],
-    retry: (failureCount, error) => !isUnauthorizedError(error) && failureCount < 3,
+    queryFn: () => fetchJSON('/api/properties'),
+    retry: (failureCount, error) => !isUnauthorizedError(error) && failureCount < 2,
+    staleTime: 30_000,
   });
 
-  const { data: activities = [] } = useQuery({
+  const { data: activities = [], isLoading: activitiesLoading, isError: activitiesError } = useQuery({
     queryKey: ['/api/activities'],
-    retry: (failureCount, error) => !isUnauthorizedError(error) && failureCount < 3,
+    queryFn: () => fetchJSON('/api/activities'),
+    retry: (failureCount, error) => !isUnauthorizedError(error) && failureCount < 2,
+    staleTime: 30_000,
   });
 
   const createProjectMutation = useMutation({
@@ -290,6 +303,16 @@ const Dashboard = () => {
 
       {/* Content */}
       <div className="p-6 space-y-6">
+        {/* Error States */}
+        {statsError && (
+          <Card className="rounded-xl border-0 shadow-sm p-6">
+            <p className="text-sm text-red-600">Couldn't load dashboard stats.</p>
+            <Button size="sm" className="mt-2" onClick={() => queryClient.invalidateQueries({ queryKey: ['/api/dashboard/stats'] })}>
+              Retry
+            </Button>
+          </Card>
+        )}
+
         {/* Stats Cards */}
         {stats && typeof stats === 'object' && 'activeProjects' in stats && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -374,6 +397,14 @@ const Dashboard = () => {
         {/* Projects Grid */}
         <div>
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Active Projects</h2>
+          {propertiesError && (
+            <Card className="rounded-xl border-0 shadow-sm p-6 mb-6">
+              <p className="text-sm text-red-600">Couldn't load projects.</p>
+              <Button size="sm" className="mt-2" onClick={() => queryClient.invalidateQueries({ queryKey: ['/api/properties'] })}>
+                Retry
+              </Button>
+            </Card>
+          )}
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {propertiesLoading ? (
               Array.from({ length: 3 }).map((_, i) => (
@@ -474,6 +505,14 @@ const Dashboard = () => {
             <CardTitle>Recent Activity</CardTitle>
           </CardHeader>
           <CardContent>
+            {activitiesError && (
+              <div className="mb-4">
+                <p className="text-sm text-red-600">Couldn't load activities.</p>
+                <Button size="sm" className="mt-2" onClick={() => queryClient.invalidateQueries({ queryKey: ['/api/activities'] })}>
+                  Retry
+                </Button>
+              </div>
+            )}
             <div className="space-y-4">
               {Array.isArray(activities) && activities.slice(0, 4).map((activity: any) => (
                 <div key={activity.id} className="flex items-start space-x-4" data-testid={`activity-${activity.id}`}>
