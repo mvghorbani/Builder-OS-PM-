@@ -202,59 +202,69 @@ export default function Analytics() {
           </header>
 
           {/* Quick Stats */}
-          <div className="mb-8 sm:mb-12 grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="bg-white/80 backdrop-blur-xl border border-blue-200/30 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1 font-serif">Performance Score</p>
-                  <p className="text-3xl font-bold text-gray-800">87%</p>
-                  <p className="text-xs text-blue-600 mt-1 font-medium">↑ 5% from last month</p>
-                </div>
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-md">
-                  <TrendingUp className="w-6 h-6 text-white" />
+          {analytics && (
+            <div className="mb-8 sm:mb-12 grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="bg-white/80 backdrop-blur-xl border border-blue-200/30 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1 font-serif">Performance Score</p>
+                    <p className="text-3xl font-bold text-gray-800">{analytics.performanceScore}%</p>
+                    <p className="text-xs text-blue-600 mt-1 font-medium">
+                      {analytics.performanceScore >= 85 ? '↑ Excellent' : analytics.performanceScore >= 70 ? '→ Good' : '↓ Needs improvement'}
+                    </p>
+                  </div>
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-md">
+                    <TrendingUp className="w-6 h-6 text-white" />
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="bg-white/80 backdrop-blur-xl border border-gray-200/40 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1 font-serif">Budget Efficiency</p>
-                  <p className="text-3xl font-bold text-gray-800">92%</p>
-                  <p className="text-xs text-gray-500 mt-1 font-medium">On target</p>
-                </div>
-                <div className="w-12 h-12 bg-gradient-to-br from-gray-400 to-gray-600 rounded-xl flex items-center justify-center shadow-md">
-                  <Target className="w-6 h-6 text-white" />
+              <div className="bg-white/80 backdrop-blur-xl border border-gray-200/40 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1 font-serif">Budget Efficiency</p>
+                    <p className="text-3xl font-bold text-gray-800">{analytics.averageBudgetEfficiency}%</p>
+                    <p className="text-xs text-gray-500 mt-1 font-medium">
+                      {analytics.averageBudgetEfficiency >= 95 ? 'Excellent' : analytics.averageBudgetEfficiency >= 85 ? 'Good' : 'Monitor closely'}
+                    </p>
+                  </div>
+                  <div className="w-12 h-12 bg-gradient-to-br from-gray-400 to-gray-600 rounded-xl flex items-center justify-center shadow-md">
+                    <Target className="w-6 h-6 text-white" />
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="bg-blue-50/60 backdrop-blur-xl border border-blue-300/40 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-blue-700 mb-1 font-serif">Schedule Adherence</p>
-                  <p className="text-3xl font-bold text-blue-800">78%</p>
-                  <p className="text-xs text-blue-600 mt-1 font-medium">Needs attention</p>
-                </div>
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-300 to-blue-500 rounded-xl flex items-center justify-center shadow-md">
-                  <Calendar className="w-6 h-6 text-white" />
+              <div className="bg-blue-50/60 backdrop-blur-xl border border-blue-300/40 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-blue-700 mb-1 font-serif">Schedule Adherence</p>
+                    <p className="text-3xl font-bold text-blue-800">{analytics.averageScheduleAdherence}%</p>
+                    <p className="text-xs text-blue-600 mt-1 font-medium">
+                      {analytics.averageScheduleAdherence >= 90 ? 'On track' : analytics.averageScheduleAdherence >= 75 ? 'Minor delays' : 'Needs attention'}
+                    </p>
+                  </div>
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-300 to-blue-500 rounded-xl flex items-center justify-center shadow-md">
+                    <Calendar className="w-6 h-6 text-white" />
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="bg-gray-100/70 backdrop-blur-xl border border-gray-300/50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-700 mb-1 font-serif">Risk Alerts</p>
-                  <p className="text-3xl font-bold text-gray-800">3</p>
-                  <p className="text-xs text-gray-600 mt-1 font-medium">Requires review</p>
-                </div>
-                <div className="w-12 h-12 bg-gradient-to-br from-gray-500 to-gray-700 rounded-xl flex items-center justify-center shadow-md">
-                  <AlertTriangle className="w-6 h-6 text-white" />
+              <div className="bg-gray-100/70 backdrop-blur-xl border border-gray-300/50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-700 mb-1 font-serif">Risk Alerts</p>
+                    <p className="text-3xl font-bold text-gray-800">{analytics.totalRiskAlerts}</p>
+                    <p className="text-xs text-gray-600 mt-1 font-medium">
+                      {analytics.totalRiskAlerts === 0 ? 'All clear' : analytics.totalRiskAlerts <= 2 ? 'Monitor' : 'Requires review'}
+                    </p>
+                  </div>
+                  <div className="w-12 h-12 bg-gradient-to-br from-gray-500 to-gray-700 rounded-xl flex items-center justify-center shadow-md">
+                    <AlertTriangle className="w-6 h-6 text-white" />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Analytics Modules */}
           <div className="grid gap-6 sm:gap-8 lg:grid-cols-2 xl:grid-cols-3">
@@ -359,41 +369,56 @@ export default function Analytics() {
           <section className="mt-12">
             <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6 font-serif">Recent Insights</h2>
             <div className="space-y-4">
-              <div className="bg-blue-100/70 backdrop-blur-xl border border-blue-300/50 rounded-2xl shadow-lg p-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
-                    <Brain className="w-5 h-5 text-white" />
+              {analytics && (
+                <>
+                  <div className="bg-blue-100/70 backdrop-blur-xl border border-blue-300/50 rounded-2xl shadow-lg p-6">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
+                        <Brain className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-blue-900 mb-2 font-serif">Budget Analysis</h3>
+                        <p className="text-sm text-blue-800">
+                          Portfolio of {analytics.totalProjects} projects with {formatCurrency(analytics.totalBudget)} total budget. 
+                          Current expenditure efficiency at {analytics.averageBudgetEfficiency}%.
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-bold text-blue-900 mb-2 font-serif">Budget Optimization Opportunity</h3>
-                    <p className="text-sm text-blue-800">AI analysis suggests reallocating 15% of materials budget could improve efficiency by 8%.</p>
-                  </div>
-                </div>
-              </div>
 
-              <div className="bg-gray-100/80 backdrop-blur-xl border border-gray-300/60 rounded-2xl shadow-lg p-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-gradient-to-br from-gray-500 to-gray-700 rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
-                    <AlertTriangle className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-gray-900 mb-2 font-serif">Schedule Risk Detected</h3>
-                    <p className="text-sm text-gray-800">Downtown Office project showing 23% delay risk. Consider resource reallocation.</p>
-                  </div>
-                </div>
-              </div>
+                  {analytics.totalRiskAlerts > 0 && (
+                    <div className="bg-gray-100/80 backdrop-blur-xl border border-gray-300/60 rounded-2xl shadow-lg p-6">
+                      <div className="flex items-start gap-4">
+                        <div className="w-10 h-10 bg-gradient-to-br from-gray-500 to-gray-700 rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
+                          <AlertTriangle className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-gray-900 mb-2 font-serif">Risk Monitoring</h3>
+                          <p className="text-sm text-gray-800">
+                            {analytics.totalRiskAlerts} project{analytics.totalRiskAlerts > 1 ? 's' : ''} requiring attention. 
+                            Review risk assessment for proactive management.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
-              <div className="bg-white/80 backdrop-blur-xl border border-blue-200/40 rounded-2xl shadow-lg p-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
-                    <TrendingUp className="w-5 h-5 text-white" />
+                  <div className="bg-white/80 backdrop-blur-xl border border-blue-200/40 rounded-2xl shadow-lg p-6">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
+                        <TrendingUp className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-gray-900 mb-2 font-serif">Performance Overview</h3>
+                        <p className="text-sm text-gray-800">
+                          {analytics.activeProjects} active projects with {analytics.averageProgress}% average completion. 
+                          Schedule adherence at {analytics.averageScheduleAdherence}%.
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-bold text-gray-900 mb-2 font-serif">Performance Improvement</h3>
-                    <p className="text-sm text-gray-800">Overall project efficiency increased by 12% compared to last quarter.</p>
-                  </div>
-                </div>
-              </div>
+                </>
+              )}
             </div>
           </section>
         </div>
