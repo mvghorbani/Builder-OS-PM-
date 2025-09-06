@@ -279,8 +279,11 @@ export default function Analytics() {
           {/* Analytics Modules */}
           <div className="grid gap-6 sm:gap-8 lg:grid-cols-2 xl:grid-cols-3">
             {/* Project Performance */}
-            <div className="relative bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 hover:from-white/50 hover:via-white/30 hover:to-white/20 transition-all duration-300" style={{
-              boxShadow: '0 8px 32px rgba(31, 38, 135, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(255, 255, 255, 0.2)'
+            <div className="relative rounded-2xl p-6 hover:backdrop-brightness-110 transition-all duration-500" style={{
+              background: 'rgba(255, 255, 255, 0.08)',
+              backdropFilter: 'blur(20px) saturate(120%)',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              boxShadow: '0 25px 45px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.4), inset 0 -1px 0 rgba(255, 255, 255, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.05)'
             }}>
               <div className="mb-4">
                 <div className="flex items-center gap-3 mb-4">
@@ -290,8 +293,11 @@ export default function Analytics() {
                   <h3 className="text-lg font-bold text-gray-900 font-serif">Project Performance</h3>
                 </div>
                 <p className="text-gray-800 mb-6">Track completion rates, milestone achievements, and overall project health.</p>
-                <button className="w-full py-3 relative bg-gradient-to-br from-white/30 via-white/15 to-white/5 backdrop-blur-xl border border-white/30 hover:from-white/40 hover:via-white/25 hover:to-white/15 text-blue-600 rounded-xl font-medium transition-all duration-300" style={{
-                  boxShadow: '0 4px 16px rgba(31, 38, 135, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6)'
+                <button className="w-full py-3 text-blue-600 rounded-xl font-medium transition-all duration-500 hover:backdrop-brightness-105" style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  backdropFilter: 'blur(15px) saturate(110%)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  boxShadow: '0 8px 25px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
                 }}>
                   View Performance Dashboard
                 </button>
@@ -299,8 +305,11 @@ export default function Analytics() {
             </div>
 
             {/* Financial Analytics */}
-            <div className="relative bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 hover:from-white/50 hover:via-white/30 hover:to-white/20 transition-all duration-300" style={{
-              boxShadow: '0 8px 32px rgba(31, 38, 135, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(255, 255, 255, 0.2)'
+            <div className="relative rounded-2xl p-6 hover:backdrop-brightness-110 transition-all duration-500" style={{
+              background: 'rgba(255, 255, 255, 0.08)',
+              backdropFilter: 'blur(20px) saturate(120%)',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              boxShadow: '0 25px 45px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.4), inset 0 -1px 0 rgba(255, 255, 255, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.05)'
             }}>
               <div className="mb-4">
                 <div className="flex items-center gap-3 mb-4">
@@ -310,8 +319,11 @@ export default function Analytics() {
                   <h3 className="text-lg font-bold text-gray-900 font-serif">Financial Analytics</h3>
                 </div>
                 <p className="text-gray-800 mb-6">Budget variance analysis, cost forecasting, and financial performance metrics.</p>
-                <button className="w-full py-3 relative bg-gradient-to-br from-white/30 via-white/15 to-white/5 backdrop-blur-xl border border-white/30 hover:from-white/40 hover:via-white/25 hover:to-white/15 text-blue-600 rounded-xl font-medium transition-all duration-300" style={{
-                  boxShadow: '0 4px 16px rgba(31, 38, 135, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6)'
+                <button className="w-full py-3 text-blue-600 rounded-xl font-medium transition-all duration-500 hover:backdrop-brightness-105" style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  backdropFilter: 'blur(15px) saturate(110%)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  boxShadow: '0 8px 25px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
                 }}>
                   View Financial Reports
                 </button>
@@ -319,8 +331,11 @@ export default function Analytics() {
             </div>
 
             {/* Resource Utilization */}
-            <div className="relative bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 hover:from-white/50 hover:via-white/30 hover:to-white/20 transition-all duration-300" style={{
-              boxShadow: '0 8px 32px rgba(31, 38, 135, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(255, 255, 255, 0.2)'
+            <div className="relative rounded-2xl p-6 hover:backdrop-brightness-110 transition-all duration-500" style={{
+              background: 'rgba(255, 255, 255, 0.08)',
+              backdropFilter: 'blur(20px) saturate(120%)',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              boxShadow: '0 25px 45px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.4), inset 0 -1px 0 rgba(255, 255, 255, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.05)'
             }}>
               <div className="mb-4">
                 <div className="flex items-center gap-3 mb-4">
@@ -330,8 +345,11 @@ export default function Analytics() {
                   <h3 className="text-lg font-bold text-gray-900 font-serif">Resource Utilization</h3>
                 </div>
                 <p className="text-gray-800 mb-6">Labor efficiency, equipment usage, and material consumption analysis.</p>
-                <button className="w-full py-3 relative bg-gradient-to-br from-white/30 via-white/15 to-white/5 backdrop-blur-xl border border-white/30 hover:from-white/40 hover:via-white/25 hover:to-white/15 text-blue-600 rounded-xl font-medium transition-all duration-300" style={{
-                  boxShadow: '0 4px 16px rgba(31, 38, 135, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6)'
+                <button className="w-full py-3 text-blue-600 rounded-xl font-medium transition-all duration-500 hover:backdrop-brightness-105" style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  backdropFilter: 'blur(15px) saturate(110%)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  boxShadow: '0 8px 25px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
                 }}>
                   View Resource Analytics
                 </button>
@@ -339,8 +357,11 @@ export default function Analytics() {
             </div>
 
             {/* Risk Assessment */}
-            <div className="relative bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 hover:from-white/50 hover:via-white/30 hover:to-white/20 transition-all duration-300" style={{
-              boxShadow: '0 8px 32px rgba(31, 38, 135, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(255, 255, 255, 0.2)'
+            <div className="relative rounded-2xl p-6 hover:backdrop-brightness-110 transition-all duration-500" style={{
+              background: 'rgba(255, 255, 255, 0.08)',
+              backdropFilter: 'blur(20px) saturate(120%)',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              boxShadow: '0 25px 45px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.4), inset 0 -1px 0 rgba(255, 255, 255, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.05)'
             }}>
               <div className="mb-4">
                 <div className="flex items-center gap-3 mb-4">
@@ -350,8 +371,11 @@ export default function Analytics() {
                   <h3 className="text-lg font-bold text-gray-900 font-serif">Risk Assessment</h3>
                 </div>
                 <p className="text-gray-800 mb-6">AI-powered risk identification, impact analysis, and mitigation strategies.</p>
-                <button className="w-full py-3 relative bg-gradient-to-br from-white/30 via-white/15 to-white/5 backdrop-blur-xl border border-white/30 hover:from-white/40 hover:via-white/25 hover:to-white/15 text-blue-600 rounded-xl font-medium transition-all duration-300" style={{
-                  boxShadow: '0 4px 16px rgba(31, 38, 135, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6)'
+                <button className="w-full py-3 text-blue-600 rounded-xl font-medium transition-all duration-500 hover:backdrop-brightness-105" style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  backdropFilter: 'blur(15px) saturate(110%)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  boxShadow: '0 8px 25px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
                 }}>
                   View Risk Dashboard
                 </button>
@@ -359,8 +383,11 @@ export default function Analytics() {
             </div>
 
             {/* Timeline Analytics */}
-            <div className="relative bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 hover:from-white/50 hover:via-white/30 hover:to-white/20 transition-all duration-300" style={{
-              boxShadow: '0 8px 32px rgba(31, 38, 135, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(255, 255, 255, 0.2)'
+            <div className="relative rounded-2xl p-6 hover:backdrop-brightness-110 transition-all duration-500" style={{
+              background: 'rgba(255, 255, 255, 0.08)',
+              backdropFilter: 'blur(20px) saturate(120%)',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              boxShadow: '0 25px 45px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.4), inset 0 -1px 0 rgba(255, 255, 255, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.05)'
             }}>
               <div className="mb-4">
                 <div className="flex items-center gap-3 mb-4">
@@ -370,8 +397,11 @@ export default function Analytics() {
                   <h3 className="text-lg font-bold text-gray-900 font-serif">Timeline Analytics</h3>
                 </div>
                 <p className="text-gray-800 mb-6">Schedule variance, critical path analysis, and completion forecasts.</p>
-                <button className="w-full py-3 relative bg-gradient-to-br from-white/30 via-white/15 to-white/5 backdrop-blur-xl border border-white/30 hover:from-white/40 hover:via-white/25 hover:to-white/15 text-blue-600 rounded-xl font-medium transition-all duration-300" style={{
-                  boxShadow: '0 4px 16px rgba(31, 38, 135, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6)'
+                <button className="w-full py-3 text-blue-600 rounded-xl font-medium transition-all duration-500 hover:backdrop-brightness-105" style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  backdropFilter: 'blur(15px) saturate(110%)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  boxShadow: '0 8px 25px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
                 }}>
                   View Timeline Reports
                 </button>
@@ -379,8 +409,11 @@ export default function Analytics() {
             </div>
 
             {/* Custom Reports */}
-            <div className="relative bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 hover:from-white/50 hover:via-white/30 hover:to-white/20 transition-all duration-300" style={{
-              boxShadow: '0 8px 32px rgba(31, 38, 135, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(255, 255, 255, 0.2)'
+            <div className="relative rounded-2xl p-6 hover:backdrop-brightness-110 transition-all duration-500" style={{
+              background: 'rgba(255, 255, 255, 0.08)',
+              backdropFilter: 'blur(20px) saturate(120%)',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              boxShadow: '0 25px 45px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.4), inset 0 -1px 0 rgba(255, 255, 255, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.05)'
             }}>
               <div className="mb-4">
                 <div className="flex items-center gap-3 mb-4">
@@ -390,8 +423,11 @@ export default function Analytics() {
                   <h3 className="text-lg font-bold text-gray-900 font-serif">Custom Reports</h3>
                 </div>
                 <p className="text-gray-800 mb-6">Build custom analytics dashboards and generate tailored reports.</p>
-                <button className="w-full py-3 relative bg-gradient-to-br from-white/30 via-white/15 to-white/5 backdrop-blur-xl border border-white/30 hover:from-white/40 hover:via-white/25 hover:to-white/15 text-blue-600 rounded-xl font-medium transition-all duration-300" style={{
-                  boxShadow: '0 4px 16px rgba(31, 38, 135, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6)'
+                <button className="w-full py-3 text-blue-600 rounded-xl font-medium transition-all duration-500 hover:backdrop-brightness-105" style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  backdropFilter: 'blur(15px) saturate(110%)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  boxShadow: '0 8px 25px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
                 }}>
                   Create Custom Report
                 </button>
