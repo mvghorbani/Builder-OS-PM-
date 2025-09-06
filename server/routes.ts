@@ -1230,6 +1230,95 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Export endpoints
+  app.get('/api/projects/:projectId/export/pdf', authenticateJWT, async (req: any, res) => {
+    try {
+      const projectId = req.params.projectId;
+      
+      // Get project data
+      const project = await storage.getProperty(projectId);
+      if (!project) {
+        return res.status(404).json({ message: "Project not found" });
+      }
+
+      // Verify user has access
+      if (project.pmId !== req.user.id) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      // Get related data
+      const [milestones, budgetLines, permits, activities] = await Promise.all([
+        storage.getMilestones(projectId),
+        storage.getBudgetLines(projectId),
+        storage.getPermits(projectId),
+        storage.getActivities(projectId)
+      ]);
+
+      // Generate PDF report data
+      const reportData = {
+        project,
+        milestones,
+        budgetLines,
+        permits,
+        activities: activities.slice(0, 10), // Latest 10 activities
+        generatedAt: new Date().toISOString()
+      };
+
+      res.json({
+        success: true,
+        data: reportData,
+        format: 'pdf'
+      });
+    } catch (error) {
+      console.error("Error generating PDF export:", error);
+      res.status(500).json({ message: "Failed to generate PDF export" });
+    }
+  });
+
+  app.get('/api/projects/:projectId/export/excel', authenticateJWT, async (req: any, res) => {
+    try {
+      const projectId = req.params.projectId;
+      
+      // Get project data
+      const project = await storage.getProperty(projectId);
+      if (!project) {
+        return res.status(404).json({ message: "Project not found" });
+      }
+
+      // Verify user has access
+      if (project.pmId !== req.user.id) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      // Get related data
+      const [milestones, budgetLines, permits, activities] = await Promise.all([
+        storage.getMilestones(projectId),
+        storage.getBudgetLines(projectId),
+        storage.getPermits(projectId),
+        storage.getActivities(projectId)
+      ]);
+
+      // Generate Excel report data
+      const reportData = {
+        project,
+        milestones,
+        budgetLines,
+        permits,
+        activities,
+        generatedAt: new Date().toISOString()
+      };
+
+      res.json({
+        success: true,
+        data: reportData,
+        format: 'excel'
+      });
+    } catch (error) {
+      console.error("Error generating Excel export:", error);
+      res.status(500).json({ message: "Failed to generate Excel export" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

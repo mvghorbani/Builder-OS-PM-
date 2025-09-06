@@ -19,6 +19,8 @@ import {
   Upload,
   ClipboardCheck,
   HelpCircle,
+  Download,
+  FileDown,
 } from "lucide-react";
 import type { Property, Activity } from "@shared/schema";
 import {
@@ -34,6 +36,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MainLayout } from "@/layouts/MainLayout";
 import { PermitsCompliance } from "@/components/PermitsCompliance";
+import { exportProject } from "@/lib/exportUtils";
 
 interface DashboardStats {
   activeProjects: number;
@@ -108,6 +111,39 @@ const PropertyCard = ({ property }: { property: Property }) => (
             <p className="text-gray-500">Type</p>
             <p className="font-medium text-gray-900">{property.type}</p>
           </div>
+        </div>
+        
+        <div className="flex gap-2 mt-4 pt-4 border-t border-gray-100">
+          <Button
+            size="sm"
+            variant="outline"
+            className="flex-1 text-xs"
+            onClick={(e) => {
+              e.stopPropagation();
+              exportProject(property.id, 'pdf').catch((error: any) => {
+                console.error('PDF export failed:', error);
+              });
+            }}
+            data-testid={`button-export-pdf-${property.id}`}
+          >
+            <FileDown className="w-3 h-3 mr-1" />
+            PDF
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="flex-1 text-xs"
+            onClick={(e) => {
+              e.stopPropagation();
+              exportProject(property.id, 'excel').catch((error: any) => {
+                console.error('Excel export failed:', error);
+              });
+            }}
+            data-testid={`button-export-excel-${property.id}`}
+          >
+            <Download className="w-3 h-3 mr-1" />
+            Excel
+          </Button>
         </div>
       </div>
     </CardContent>
