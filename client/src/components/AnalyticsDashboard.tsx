@@ -59,7 +59,7 @@ interface GanttData {
 // Convert project data to Gantt task format
 const convertToGanttTasks = (projects: GanttData['projects']): Task[] => {
   const tasks: Task[] = [];
-  
+
   projects.forEach((project, index) => {
     // Add main project task
     const projectTask: Task = {
@@ -87,7 +87,7 @@ const convertToGanttTasks = (projects: GanttData['projects']): Task[] => {
       tasks.push(milestoneTask);
     });
   });
-  
+
   return tasks;
 };
 
@@ -114,6 +114,9 @@ interface AIInsights {
     recommendation?: string;
   }>;
 }
+
+// Helper to format currency consistently
+const fmtMoney = (n: number) => `$${n.toLocaleString()}`;
 
 const AnalyticsDashboard = () => {
   const [activeTab, setActiveTab] = useState("portfolio");
@@ -169,7 +172,7 @@ const AnalyticsDashboard = () => {
           )
         };
       });
-      
+
       toast({
         title: "AI Recommendation Generated",
         description: "New insights have been generated for the project.",
@@ -216,7 +219,7 @@ const AnalyticsDashboard = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="md:grid-cols-3 grid-cols-1">
           <TabsTrigger value="portfolio" className="flex items-center gap-2">
             <Calendar className="w-4 h-4" />
             Portfolio Schedule
@@ -283,7 +286,9 @@ const AnalyticsDashboard = () => {
                     <Gantt
                       tasks={ganttTasks}
                       viewMode={viewMode}
-                      listCellWidth=""
+                      listCellWidth="220px"
+                      barCornerRadius={3}
+                      ganttHeight={500}
                       columnWidth={viewMode === ViewMode.Month ? 300 : viewMode === ViewMode.Week ? 100 : 50}
                     />
                   </div>
@@ -295,7 +300,7 @@ const AnalyticsDashboard = () => {
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between mb-2">
                             <h3 className="font-semibold text-sm">{project.name}</h3>
-                            <Badge className={`${getStatusColor(project.status)} text-white text-xs`}>
+                            <Badge className={`${getStatusColor(project.status)} text-white text-xs rounded-full px-2 py-0.5`}>
                               {project.status.replace('-', ' ')}
                             </Badge>
                           </div>
@@ -305,7 +310,7 @@ const AnalyticsDashboard = () => {
                               <span>{project.progress}%</span>
                             </div>
                             <div className="w-full bg-gray-200 rounded-full h-2">
-                              <div 
+                              <div
                                 className={`h-2 rounded-full ${getStatusColor(project.status)} transition-all duration-500`}
                                 style={{ width: `${project.progress}%` }}
                               />
@@ -345,8 +350,8 @@ const AnalyticsDashboard = () => {
                     <BarChart data={financialData?.budgetVariance}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="category" />
-                      <YAxis />
-                      <Tooltip formatter={(value) => `$${(value as number).toLocaleString()}`} />
+                      <YAxis tickFormatter={fmtMoney} />
+                      <Tooltip formatter={(value) => fmtMoney(value as number)} />
                       <Bar dataKey="planned" fill="#8884d8" name="Planned" />
                       <Bar dataKey="actual" fill="#82ca9d" name="Actual" />
                     </BarChart>
@@ -369,8 +374,8 @@ const AnalyticsDashboard = () => {
                     <LineChart data={financialData?.cashFlow}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="date" />
-                      <YAxis />
-                      <Tooltip formatter={(value) => `$${(value as number).toLocaleString()}`} />
+                      <YAxis tickFormatter={fmtMoney} />
+                      <Tooltip formatter={(value) => fmtMoney(value as number)} />
                       <Line type="monotone" dataKey="projected" stroke="#8884d8" name="Projected" />
                       <Line type="monotone" dataKey="actual" stroke="#82ca9d" name="Actual" />
                     </LineChart>
@@ -388,7 +393,7 @@ const AnalyticsDashboard = () => {
                   <div>
                     <p className="text-sm text-muted-foreground">Total Variance</p>
                     <p className="text-2xl font-bold text-foreground">
-                      ${financialData?.budgetVariance.reduce((sum, item) => sum + item.variance, 0).toLocaleString()}
+                      {fmtMoney(financialData?.budgetVariance.reduce((sum, item) => sum + item.variance, 0) || 0)}
                     </p>
                   </div>
                   <TrendingUp className="w-8 h-8 text-red-500" />
@@ -448,14 +453,14 @@ const AnalyticsDashboard = () => {
                           <h3 className="font-semibold">{project.projectName}</h3>
                           <div className="flex flex-wrap gap-1 mt-1">
                             {project.riskFactors.map((factor, index) => (
-                              <Badge key={index} variant="outline" className="text-xs">
+                              <Badge key={index} variant="outline" className="text-xs rounded-full px-2 py-0.5">
                                 {factor}
                               </Badge>
                             ))}
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
-                          <Badge className={`${getRiskColor(project.riskScore)} border-0`}>
+                          <Badge className={`${getRiskColor(project.riskScore)} border-0 rounded-full px-2 py-0.5`}>
                             Risk: {project.riskScore}%
                           </Badge>
                           <Button
@@ -473,7 +478,7 @@ const AnalyticsDashboard = () => {
                           </Button>
                         </div>
                       </div>
-                      
+
                       {project.recommendation && (
                         <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded">
                           <div className="flex items-start gap-2">
