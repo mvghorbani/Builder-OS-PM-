@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,16 +7,15 @@ import { useEffect, useState } from "react";
 import {
   Calendar,
   Clock,
-  CheckCircle,
-  AlertCircle,
-  Target,
   Users,
-  Gantt,
-  Activity,
-  TrendingUp,
-  MapPin,
+  CheckCircle,
+  AlertTriangle,
+  BarChart3,
+  LineChart,
+  Target,
   FileText,
-  Zap
+  Zap,
+  TrendingUp
 } from "lucide-react";
 
 export default function Schedule() {
@@ -138,7 +136,7 @@ export default function Schedule() {
             <Card className="bg-gradient-to-br from-white via-gray-50 to-gray-100 border border-gray-100 hover:shadow-lg transition-all duration-300">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Gantt className="w-5 h-5 text-blue-600" />
+                  <Target className="w-5 h-5 text-blue-600" />
                   Gantt Chart
                 </CardTitle>
               </CardHeader>
