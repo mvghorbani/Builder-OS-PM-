@@ -244,17 +244,16 @@ const PropertyCard = ({ property }: { property: Property }) => (
           PDF
         </button>
         <button
-          className="flex-1 text-xs font-medium py-2 px-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-lg hover:from-gray-600 hover:to-gray-700 transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center"
+          className="flex-1 text-xs font-medium py-2 px-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center"
           onClick={(e) => {
             e.stopPropagation();
-            exportProject(property.id, 'excel').catch((error: any) => {
-              console.error('Excel export failed:', error);
-            });
+            // TODO: Implement project health view
+            console.log('Show project health for:', property.id);
           }}
-          data-testid={`button-export-excel-${property.id}`}
+          data-testid={`button-health-${property.id}`}
         >
-          <Download className="w-3 h-3 mr-1" />
-          Excel
+          <ActivityIcon className="w-3 h-3 mr-1" />
+          Health
         </button>
       </div>
     </div>
@@ -364,8 +363,91 @@ const Dashboard = () => {
       <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-10">
         {/* Header */}
         <header className="mb-8 sm:mb-12">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">Project Dashboard</h1>
-          <p className="text-base sm:text-lg text-gray-600">Overview and quick actions</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">Project Dashboard</h1>
+              <p className="text-base sm:text-lg text-gray-600">Overview and quick actions</p>
+            </div>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-2 font-semibold shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-0.5" data-testid="button-create-project">
+                  <FilePlus className="w-4 h-4 mr-2" />
+                  New Project
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Create New Project</DialogTitle>
+                  <DialogDescription>
+                    Enter the details for your new construction project.
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleCreateProject} className="space-y-4">
+                  <div>
+                    <Label htmlFor="name">Project Name</Label>
+                    <Input
+                      id="name"
+                      value={newProjectName}
+                      onChange={(e) => setNewProjectName(e.target.value)}
+                      placeholder="Downtown Office Renovation"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="address">Address</Label>
+                    <Input
+                      id="address"
+                      value={newProjectAddress}
+                      onChange={(e) => setNewProjectAddress(e.target.value)}
+                      placeholder="123 Main Street"
+                      required
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="city">City</Label>
+                      <Input
+                        id="city"
+                        value={newProjectCity}
+                        onChange={(e) => setNewProjectCity(e.target.value)}
+                        placeholder="New York"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="state">State</Label>
+                      <Input
+                        id="state"
+                        value={newProjectState}
+                        onChange={(e) => setNewProjectState(e.target.value)}
+                        placeholder="NY"
+                        maxLength={2}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="zip">Zip Code</Label>
+                    <Input
+                      id="zip"
+                      value={newProjectZip}
+                      onChange={(e) => setNewProjectZip(e.target.value)}
+                      placeholder="10001"
+                    />
+                  </div>
+                  <DialogFooter>
+                    <Button
+                      type="submit"
+                      disabled={createProjectMutation.isPending}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      {createProjectMutation.isPending ? 'Creating...' : 'Create Project'}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
         </header>
 
         {/* Stats Grid */}
