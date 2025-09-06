@@ -355,6 +355,7 @@ const Dashboard = () => {
       status: 'active',
       progress: 0,
       type: 'residential',
+      totalBudget: '0',
     });
   };
 
@@ -410,8 +411,8 @@ const Dashboard = () => {
               </p>
               {Number.isFinite(stats?.avgScheduleAdherence) && (stats?.scheduleSampleSize || 0) > 0 && (
                 <span className="text-sm font-medium text-gray-600 mt-1">
-                  {stats!.avgScheduleAdherence >= 90 ? 'On Track' :
-                   stats!.avgScheduleAdherence >= 70 ? 'At Risk' : 'Delayed'}
+                  {stats?.avgScheduleAdherence && stats.avgScheduleAdherence >= 90 ? 'On Track' :
+                   stats?.avgScheduleAdherence && stats.avgScheduleAdherence >= 70 ? 'At Risk' : 'Delayed'}
                 </span>
               )}
             </div>
