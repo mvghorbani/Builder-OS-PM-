@@ -148,7 +148,9 @@ const Dashboard = () => {
         headers: { 'Content-Type': 'application/json' },
       });
       if (!response.ok) {
-        throw new Error('Failed to create project');
+        const errorText = await response.text();
+        console.error('Create project error:', response.status, errorText);
+        throw new Error(`Failed to create project: ${response.status} ${errorText}`);
       }
       return await response.json();
     },
@@ -182,6 +184,7 @@ const Dashboard = () => {
       status: 'active',
       progress: 0,
       type: 'residential',
+      totalBudget: '100000',
     });
   };
 
