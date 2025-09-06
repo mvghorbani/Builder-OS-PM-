@@ -116,6 +116,15 @@ const PropertyCard = ({ property, onSelect }: { property: Property; onSelect: (p
 const Dashboard = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Safe formatter helpers
+  const fmtInt = (n: unknown) =>
+    typeof n === 'number' && Number.isFinite(n) ? n : '—';
+
+  const fmtUSDk = (n: unknown) => {
+    if (typeof n === 'number' && Number.isFinite(n)) return `$${Math.round(n / 1000)}k`;
+    return '—';
+  };
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [newProjectName, setNewProjectName] = useState("");
   const [newProjectAddress, setNewProjectAddress] = useState("");
@@ -322,15 +331,12 @@ const Dashboard = () => {
                   <div>
                     <p className="text-sm text-gray-600">Active Projects</p>
                     <p className="text-3xl font-bold text-gray-900" data-testid="text-stat-projects">
-                      {(stats as any).activeProjects}
+                      {fmtInt((stats as any)?.activeProjects)}
                     </p>
                   </div>
                   <div className="p-3 bg-blue-50 rounded-lg">
                     <Building className="text-blue-600 text-xl" />
                   </div>
-                </div>
-                <div className="flex items-center mt-4 text-sm">
-                  <span className="text-green-600 font-medium">+2 this month</span>
                 </div>
               </CardContent>
             </Card>
@@ -341,16 +347,18 @@ const Dashboard = () => {
                   <div>
                     <p className="text-sm text-gray-600">Total Budget</p>
                     <p className="text-3xl font-bold text-gray-900" data-testid="text-stat-budget">
-                      ${Math.round((stats as any).totalBudget / 1000)}k
+                      {fmtUSDk((stats as any)?.totalBudget)}
                     </p>
                   </div>
                   <div className="p-3 bg-green-50 rounded-lg">
                     <DollarSign className="text-green-600 text-xl" />
                   </div>
                 </div>
-                <div className="flex items-center mt-4 text-sm">
-                  <span className="text-green-600 font-medium">${Math.round((stats as any).spentBudget / 1000)}k spent</span>
-                </div>
+                {typeof (stats as any)?.spentBudget === 'number' && (
+                  <div className="flex items-center mt-4 text-sm">
+                    <span className="text-gray-600">{fmtUSDk((stats as any).spentBudget)} spent</span>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -360,15 +368,14 @@ const Dashboard = () => {
                   <div>
                     <p className="text-sm text-gray-600">Schedule</p>
                     <p className="text-3xl font-bold text-gray-900" data-testid="text-stat-schedule">
-                      {(stats as any).avgScheduleAdherence}%
+                      {typeof (stats as any)?.avgScheduleAdherence === 'number'
+                        ? `${(stats as any).avgScheduleAdherence}%`
+                        : '—'}
                     </p>
                   </div>
                   <div className="p-3 bg-amber-50 rounded-lg">
                     <Calendar className="text-amber-600 text-xl" />
                   </div>
-                </div>
-                <div className="flex items-center mt-4 text-sm">
-                  <span className="text-green-600 font-medium">On track</span>
                 </div>
               </CardContent>
             </Card>
@@ -379,15 +386,12 @@ const Dashboard = () => {
                   <div>
                     <p className="text-sm text-gray-600">Permits Pending</p>
                     <p className="text-3xl font-bold text-gray-900" data-testid="text-stat-permits">
-                      {(stats as any).pendingPermits}
+                      {fmtInt((stats as any)?.pendingPermits)}
                     </p>
                   </div>
                   <div className="p-3 bg-red-50 rounded-lg">
                     <FileText className="text-red-600 text-xl" />
                   </div>
-                </div>
-                <div className="flex items-center mt-4 text-sm">
-                  <span className="text-red-600 font-medium">2 overdue</span>
                 </div>
               </CardContent>
             </Card>
