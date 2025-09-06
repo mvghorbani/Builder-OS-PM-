@@ -33,7 +33,7 @@ export function MainLayout({ children, activeView, onViewChange }: MainLayoutPro
       <aside className="w-64 bg-white border-r border-gray-200 shadow-sm flex flex-col">
         {/* Header */}
         <div className="p-6 border-b border-gray-100">
-          <h1 className="text-xl font-bold text-gray-900">ConstructPro</h1>
+          <h1 className="text-xl font-bold text-gray-900">BuilderOS PM</h1>
           <p className="text-sm text-gray-500 mt-1">Project Management</p>
         </div>
 
@@ -58,7 +58,7 @@ export function MainLayout({ children, activeView, onViewChange }: MainLayoutPro
 
         {/* Footer */}
         <div className="p-4 border-t border-gray-100">
-          <p className="text-xs text-gray-400">© 2025 ConstructPro</p>
+          <p className="text-xs text-gray-400">© 2025 BuilderOS PM</p>
         </div>
       </aside>
 

@@ -21,6 +21,13 @@ import {
   HelpCircle,
   Download,
   FileDown,
+  MessageSquare,
+  AlertCircle,
+  User,
+  FileText,
+  CheckCircle,
+  Clock,
+  Activity,
 } from "lucide-react";
 import type { Property, Activity } from "@shared/schema";
 import {
@@ -67,6 +74,107 @@ const getWhen = (a: Activity) => {
   const raw = (a as any).createdAt ?? (a as any).created_at ?? null;
   return raw ? new Date(raw).toLocaleString() : '—';
 };
+
+const getRelativeTime = (dateString: string | Date) => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  
+  if (diffInSeconds < 60) return 'Just now';
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+  if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+  
+  return date.toLocaleDateString('en-US', { 
+    month: 'short', 
+    day: 'numeric',
+    ...(date.getFullYear() !== now.getFullYear() && { year: 'numeric' })
+  });
+};
+
+const getActivityIcon = (type: string) => {
+  const iconMap = {
+    'document_upload': FileText,
+    'permit_approved': CheckCircle,
+    'permit_pending': Clock,
+    'comment': MessageSquare,
+    'task_completed': Check,
+    'milestone_reached': Activity,
+    'budget_updated': Wallet,
+    'rfi_submitted': HelpCircle,
+    'user_joined': User,
+    'alert': AlertCircle,
+    'default': Activity
+  };
+  
+  return iconMap[type as keyof typeof iconMap] || iconMap.default;
+};
+
+const getActivityColor = (type: string) => {
+  const colorMap = {
+    'document_upload': 'bg-blue-100 text-blue-600',
+    'permit_approved': 'bg-green-100 text-green-600',
+    'permit_pending': 'bg-yellow-100 text-yellow-600',
+    'comment': 'bg-blue-100 text-blue-600',
+    'task_completed': 'bg-green-100 text-green-600',
+    'milestone_reached': 'bg-blue-100 text-blue-600',
+    'budget_updated': 'bg-yellow-100 text-yellow-600',
+    'rfi_submitted': 'bg-gray-100 text-gray-600',
+    'user_joined': 'bg-blue-100 text-blue-600',
+    'alert': 'bg-red-100 text-red-600',
+    'default': 'bg-gray-100 text-gray-600'
+  };
+  
+  return colorMap[type as keyof typeof colorMap] || colorMap.default;
+};
+
+// Mock activity data for demonstration (replace with real data)
+const mockRecentActivities = [
+  {
+    id: 1,
+    type: 'document_upload',
+    user: { name: 'Sarah Chen', avatar: null },
+    action: 'uploaded',
+    object: 'Structural Plans v2.pdf',
+    target: 'Downtown Office Renovation',
+    timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
+    clickableObject: true,
+    clickableTarget: true
+  },
+  {
+    id: 2,
+    type: 'permit_approved',
+    user: { name: 'System', avatar: null },
+    action: 'approved',
+    object: 'Permit #B-2025-1138',
+    target: 'Downtown Office Renovation',
+    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+    clickableObject: true,
+    clickableTarget: true
+  },
+  {
+    id: 3,
+    type: 'comment',
+    user: { name: 'Mike Rivera', avatar: null },
+    action: 'left a comment on',
+    object: 'RFI-004',
+    target: 'Residential Complex Phase 2',
+    timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
+    clickableObject: true,
+    clickableTarget: true
+  },
+  {
+    id: 4,
+    type: 'task_completed',
+    user: { name: 'Jessica Park', avatar: null },
+    action: 'completed',
+    object: 'Foundation Inspection',
+    target: 'Harbor View Apartments',
+    timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // Yesterday
+    clickableObject: false,
+    clickableTarget: true
+  }
+];
 
 const PropertyCard = ({ property }: { property: Property }) => (
   <div
@@ -558,47 +666,127 @@ const Dashboard = () => {
               </div>
             )}
             
-            <div className="space-y-6">
-              {Array.isArray(activities) && activities
-                .slice() // copy
-                .sort((a: Activity, b: Activity) => {
-                  const aDate = (a as any).createdAt ?? (a as any).created_at ?? null;
-                  const bDate = (b as any).createdAt ?? (b as any).created_at ?? null;
-                  const da = aDate ? Date.parse(aDate) : 0;
-                  const db = bDate ? Date.parse(bDate) : 0;
-                  return db - da;
-                })
-                .slice(0, 4)
-                .map((activity: any) => (
-                <div key={activity.id} className="flex items-start space-x-4 pb-6 border-b border-gray-100 last:border-b-0 last:pb-0" data-testid={`activity-${activity.id}`}>
-                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Check className="w-5 h-5 text-green-600" />
+            <div className="space-y-4">
+              {/* Show mock activities if no real activities, or mix them */}
+              {(!Array.isArray(activities) || activities.length === 0) && !activitiesLoading && !activitiesError ? (
+                // Enhanced Empty State
+                <div className="text-center py-12">
+                  <div className="w-20 h-20 mx-auto mb-6 relative">
+                    {/* Blueprint/Timeline Illustration */}
+                    <div className="w-full h-full bg-blue-50 rounded-2xl flex items-center justify-center">
+                      <Activity className="w-10 h-10 text-blue-600" />
+                    </div>
+                    <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                      <Clock className="w-4 h-4 text-gray-500" />
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-base text-gray-900 mb-1">
-                      <span className="font-semibold">{activity.description}</span>
-                    </p>
-                    <p className="text-sm text-gray-600">{getWhen(activity)}</p>
-                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No recent activity</h3>
+                  <p className="text-gray-600 max-w-sm mx-auto leading-relaxed">
+                    Updates on document uploads, permit statuses, team comments, and project milestones will appear here.
+                  </p>
                 </div>
-              ))}
-              
-              {!activitiesLoading && Array.isArray(activities) && activities.length === 0 && (
-                <div className="text-center py-8">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Bell className="w-8 h-8 text-gray-400" />
-                  </div>
-                  <p className="text-gray-600">No recent activity.</p>
-                </div>
+              ) : (
+                // Populated State - Show enhanced activities
+                <>
+                  {mockRecentActivities.map((activity) => {
+                    const IconComponent = getActivityIcon(activity.type);
+                    const iconColorClass = getActivityColor(activity.type);
+                    
+                    return (
+                      <div key={activity.id} className="flex items-start space-x-4 py-4 border-b border-gray-100 last:border-b-0 last:pb-0 hover:bg-gray-50 rounded-lg px-2 -mx-2 transition-colors duration-150" data-testid={`activity-${activity.id}`}>
+                        {/* Activity Icon */}
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${iconColorClass}`}>
+                          <IconComponent className="w-5 h-5" />
+                        </div>
+                        
+                        {/* User Avatar */}
+                        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0 text-xs font-medium text-gray-600">
+                          {activity.user.name.split(' ').map(n => n[0]).join('')}
+                        </div>
+                        
+                        {/* Activity Content */}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-gray-900 leading-relaxed">
+                            <span className="font-semibold text-gray-700">{activity.user.name}</span>
+                            <span className="mx-1">{activity.action}</span>
+                            {activity.clickableObject ? (
+                              <button 
+                                className="font-semibold text-blue-600 hover:text-blue-700 hover:underline transition-colors"
+                                onClick={() => toast({ title: "Navigate", description: `Opening ${activity.object}...` })}
+                              >
+                                {activity.object}
+                              </button>
+                            ) : (
+                              <span className="font-semibold text-gray-900">{activity.object}</span>
+                            )}
+                            {activity.target && (
+                              <>
+                                <span className="mx-1">
+                                  {activity.action.includes('to') ? '' : activity.action.includes('on') ? '' : 'for'}
+                                </span>
+                                {activity.clickableTarget ? (
+                                  <button 
+                                    className="font-semibold text-blue-600 hover:text-blue-700 hover:underline transition-colors"
+                                    onClick={() => toast({ title: "Navigate", description: `Opening ${activity.target}...` })}
+                                  >
+                                    {activity.target}
+                                  </button>
+                                ) : (
+                                  <span className="font-semibold text-gray-900">{activity.target}</span>
+                                )}
+                              </>
+                            )}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1 flex items-center">
+                            <Clock className="w-3 h-3 mr-1" />
+                            {getRelativeTime(activity.timestamp)}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  
+                  {/* Show real activities if they exist */}
+                  {Array.isArray(activities) && activities.length > 0 && activities
+                    .slice()
+                    .sort((a: Activity, b: Activity) => {
+                      const aDate = (a as any).createdAt ?? (a as any).created_at ?? null;
+                      const bDate = (b as any).createdAt ?? (b as any).created_at ?? null;
+                      const da = aDate ? Date.parse(aDate) : 0;
+                      const db = bDate ? Date.parse(bDate) : 0;
+                      return db - da;
+                    })
+                    .slice(0, 2) // Show fewer real activities to make room for mock ones
+                    .map((activity: any) => (
+                    <div key={`real-${activity.id}`} className="flex items-start space-x-4 py-4 border-b border-gray-100 last:border-b-0 last:pb-0 hover:bg-gray-50 rounded-lg px-2 -mx-2 transition-colors duration-150" data-testid={`activity-${activity.id}`}>
+                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Check className="w-5 h-5 text-green-600" />
+                      </div>
+                      <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0 text-xs font-medium text-gray-600">
+                        U
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-gray-900 leading-relaxed">
+                          <span className="font-semibold">{activity.description}</span>
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1 flex items-center">
+                          <Clock className="w-3 h-3 mr-1" />
+                          {getWhen(activity)}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </>
               )}
             </div>
 
             <Button 
               variant="outline" 
-              className="w-full mt-6 bg-gray-50 hover:bg-gray-100 border-gray-200" 
+              className="w-full mt-6 bg-gray-50 hover:bg-gray-100 border-gray-200 transition-colors duration-200" 
               data-testid="button-view-all-activity"
-              onClick={() => toast({ title: "View All Activity", description: "Full activity view coming soon!" })}
+              onClick={() => toast({ title: "View All Activity", description: "Full activity timeline coming soon!" })}
             >
+              <Activity className="w-4 h-4 mr-2" />
               View All Activity
             </Button>
           </div>
