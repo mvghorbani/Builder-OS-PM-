@@ -1,12 +1,6 @@
 import { ReactNode } from "react";
 import { 
-  Home, 
-  BarChart3, 
-  Calendar, 
-  DollarSign, 
-  Users, 
-  FileText, 
-  Folder 
+  LayoutDashboard, BarChart3, Calendar, DollarSign, Users, FileCheck, FolderOpen, Building2 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -18,13 +12,14 @@ interface MainLayoutProps {
 
 export function MainLayout({ children, activeView, onViewChange }: MainLayoutProps) {
   const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: Home },
-    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-    { id: 'schedule', label: 'Schedule', icon: Calendar },
-    { id: 'budget', label: 'Budget', icon: DollarSign },
-    { id: 'vendors', label: 'Vendors', icon: Users },
-    { id: 'permits', label: 'Permits', icon: FileText },
-    { id: 'documents', label: 'Documents', icon: Folder },
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
+    { id: 'projects', label: 'Projects', icon: Building2, href: '/projects' },
+    { id: 'analytics', label: 'Analytics', icon: BarChart3, href: '/analytics' },
+    { id: 'schedule', label: 'Schedule', icon: Calendar, href: '/schedule' },
+    { id: 'budget', label: 'Budget', icon: DollarSign, href: '/budget' },
+    { id: 'vendors', label: 'Vendors', icon: Users, href: '/vendors' },
+    { id: 'permits', label: 'Permits', icon: FileCheck, href: '/permits' },
+    { id: 'documents', label: 'Documents', icon: FolderOpen, href: '/documents' },
   ];
 
   return (
