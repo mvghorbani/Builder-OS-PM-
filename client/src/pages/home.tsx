@@ -426,9 +426,18 @@ const Dashboard = () => {
                 </Card>
               ))
             ) : (
-              Array.isArray(properties) && properties.map((property: any) => (
-                <PropertyCard key={property.id} property={property} onSelect={setSelectedProperty} />
-              ))
+              <>
+                {Array.isArray(properties) && properties.map((property: any) => (
+                  <PropertyCard key={property.id} property={property} onSelect={setSelectedProperty} />
+                ))}
+                {!propertiesLoading && Array.isArray(properties) && properties.length === 0 && (
+                  <Card className="rounded-xl border-0 shadow-sm">
+                    <CardContent className="p-8 text-center text-gray-600">
+                      No projects yet. Use <span className="font-medium">New Project</span> to create your first one.
+                    </CardContent>
+                  </Card>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -533,6 +542,9 @@ const Dashboard = () => {
                   </div>
                 </div>
               ))}
+              {!activitiesLoading && Array.isArray(activities) && activities.length === 0 && (
+                <div className="text-center text-gray-600">No activity yet.</div>
+              )}
             </div>
 
             <Button 
