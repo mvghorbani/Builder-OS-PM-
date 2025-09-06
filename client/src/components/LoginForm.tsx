@@ -1,115 +1,67 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 export default function LoginForm() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setIsLoading(true);
-
+    setBusy(true);
+    setError(null);
     try {
-      const response = await axios.post('/api/v1/auth/login', {
-        email,
-        password
+      const res = await fetch("/api/v1/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email, password }),
       });
-
-      // JWT token is now set as a cookie by the server
-
-      // Show success message
-      toast({
-        title: "Login successful",
-        description: "Redirecting to dashboard...",
-      });
-
-      // Redirect to main projects dashboard
-      window.location.href = '/';
-    } catch (error) {
-      // Display error message
-      let errorMessage = 'Login failed. Please try again.';
-
-      if (axios.isAxiosError(error) && error.response) {
-        errorMessage = error.response.data?.message || errorMessage;
-      }
-
-      toast({
-        title: "Login failed",
-        description: errorMessage,
-        variant: "destructive",
-      });
+      if (!res.ok) throw new Error("Invalid credentials");
+      window.location.href = "/";
+    } catch (err: any) {
+      setError(err.message || "Login failed");
     } finally {
-      setIsLoading(false);
+      setBusy(false);
     }
-  };
+  }
 
   return (
-      <Card className="w-full max-w-md mx-4">
-        <CardHeader>
-          <CardTitle className="text-center">
-            <div className="w-16 h-16 bg-primary rounded-lg flex items-center justify-center mx-auto mb-4">
-              <i className="fas fa-hard-hat text-primary-foreground text-2xl"></i>
-            </div>
-            BuilderOS PM
-          </CardTitle>
-          <p className="text-center text-muted-foreground">
-            Project Management
-          </p>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                disabled={isLoading}
-              />
-            </div>
-            <div>
-              <Input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                disabled={isLoading}
-              />
-            </div>
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading}
-              data-testid="button-login"
-            >
-              {isLoading ? 'Signing in...' : 'Sign In'}
-            </Button>
-          </form>
+    <form onSubmit={onSubmit} className="space-y-3">
+      <div>
+        <input
+          type="email"
+          placeholder="Email"
+          className="w-full rounded-xl bg-white border border-black/10 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          autoComplete="email"
+        />
+      </div>
+      <div>
+        <input
+          type="password"
+          placeholder="Password"
+          className="w-full rounded-xl bg-white border border-black/10 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          autoComplete="current-password"
+        />
+      </div>
 
-          <div className="mt-4 text-center">
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => window.location.href = '/api/v1/auth/replit'}
-              data-testid="button-replit-login"
-            >
-              Continue with Replit
-            </Button>
-          </div>
+      {error && (
+        <div className="text-red-600 text-xs">{error}</div>
+      )}
 
-          <p className="text-xs text-muted-foreground mt-4 text-center">
-            powered by AAlchemy Development Group
-          </p>
-        </CardContent>
-      </Card>
-    );
+      <button
+        type="submit"
+        disabled={busy}
+        className="w-full rounded-xl bg-blue-600 text-white py-3 text-sm font-medium hover:bg-blue-700 disabled:opacity-60"
+      >
+        {busy ? "Signing in…" : "Sign In"}
+      </button>
+    </form>
+  );
 }
