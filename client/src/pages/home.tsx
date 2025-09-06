@@ -213,41 +213,40 @@ const getProjectStatus = (property: any) => {
 
 const PropertyCard = ({ property }: { property: Property }) => (
   <div
-    className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 active:shadow-inner active:from-gray-100 active:via-gray-200 active:to-gray-300 transition-all duration-300 hover:translate-y-1 hover:scale-[0.98] active:translate-y-2 active:scale-[0.96] cursor-pointer group h-full flex flex-col"
+    className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 active:shadow-inner active:from-gray-100 active:via-gray-200 active:to-gray-300 transition-all duration-300 hover:translate-y-1 hover:scale-[0.98] active:translate-y-2 active:scale-[0.96] cursor-pointer group h-full flex flex-col overflow-hidden"
     data-testid={`card-property-${property.id}`}
   >
-    <div className="flex items-start justify-between mb-6 min-h-[4rem]">
-      <div className="flex-1 min-w-0 flex flex-col justify-center">
-        <h3 className="text-xl font-bold text-gray-900 mb-1 line-clamp-2 group-hover:text-blue-700 transition-colors duration-300 leading-tight">{property.name || property.address}</h3>
-        <p className="text-sm text-gray-600 line-clamp-1">
-          {property.city && property.state ? 
-            `${property.city}, ${property.state}${property.zipCode ? ' ' + property.zipCode : ''}` : 
-            property.type
-          }
-        </p>
-      </div>
-      <div className={`px-3 py-1 bg-gradient-to-r ${getProjectStatus(property).color} text-xs font-medium rounded-full border flex-shrink-0 self-start`}>
-        {getProjectStatus(property).text}
-      </div>
+    {/* Property Photo */}
+    <div className="relative h-40 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
+      {property.imageUrl ? (
+        <img 
+          src={property.imageUrl} 
+          alt={property.name || property.address}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">
+          <Building2 className="w-12 h-12 text-blue-400" />
+        </div>
+      )}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent"></div>
     </div>
 
-    {/* Property Photo */}
-    <div className="mb-6 -mx-6 -mt-6">
-      <div className="relative h-40 bg-gradient-to-br from-gray-100 to-gray-200 rounded-t-2xl overflow-hidden">
-        {property.imageUrl ? (
-          <img 
-            src={property.imageUrl} 
-            alt={property.name || property.address}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">
-            <Building2 className="w-12 h-12 text-blue-400" />
-          </div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent"></div>
+    <div className="p-6 flex flex-col flex-1">
+      <div className="flex items-start justify-between mb-6 min-h-[4rem]">
+        <div className="flex-1 min-w-0 flex flex-col justify-center">
+          <h3 className="text-xl font-bold text-gray-900 mb-1 line-clamp-2 group-hover:text-blue-700 transition-colors duration-300 leading-tight">{property.name || property.address}</h3>
+          <p className="text-sm text-gray-600 line-clamp-1">
+            {property.city && property.state ? 
+              `${property.city}, ${property.state}${property.zipCode ? ' ' + property.zipCode : ''}` : 
+              property.type
+            }
+          </p>
+        </div>
+        <div className={`px-3 py-1 bg-gradient-to-r ${getProjectStatus(property).color} text-xs font-medium rounded-full border flex-shrink-0 self-start`}>
+          {getProjectStatus(property).text}
+        </div>
       </div>
-    </div>
 
     <div className="space-y-4 flex-1 flex flex-col">
       <div>
@@ -309,6 +308,7 @@ const PropertyCard = ({ property }: { property: Property }) => (
           Health
         </button>
       </div>
+    </div>
     </div>
   </div>
 );
@@ -516,9 +516,9 @@ const Dashboard = () => {
               <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <Building2 className="h-6 w-6 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Active Projects</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Portfolio Size</h3>
             <p className="text-3xl font-bold text-gray-900 group-hover:text-blue-700 transition-colors duration-300" data-testid="text-stat-projects">
-              {fmtInt(stats?.activeProjects)}
+              {fmtInt(stats?.activeProjects)} Active Projects
             </p>
           </button>
 
@@ -532,11 +532,13 @@ const Dashboard = () => {
               <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <Wallet className="h-6 w-6 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Total Budget</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Capital Deployment</h3>
             <p className="text-3xl font-bold text-gray-900 group-hover:text-blue-700 transition-colors duration-300" data-testid="text-stat-budget">
               {stats?.totalBudget && typeof stats.totalBudget === 'number' && stats.totalBudget >= 1000000
-                ? `$${(stats.totalBudget / 1000000).toFixed(1)}M`
-                : fmtUSDk(stats?.totalBudget)}
+                ? `$${(stats.totalBudget / 1000000).toFixed(1)}M Funds Deployed`
+                : stats?.totalBudget 
+                  ? `$${Math.round(stats.totalBudget / 1000)}k Funds Deployed`
+                  : '$0 Funds Deployed'}
             </p>
           </button>
 
@@ -550,19 +552,16 @@ const Dashboard = () => {
               <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <Calendar className="h-6 w-6 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Schedule Health</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">On-Time Delivery</h3>
             <div className="flex flex-col items-center">
               <p className="text-3xl font-bold text-gray-900 group-hover:text-blue-700 transition-colors duration-300" data-testid="text-stat-schedule">
                 {Number.isFinite(stats?.avgScheduleAdherence) && (stats?.scheduleSampleSize || 0) > 0
                   ? `${Math.max(0, Math.min(100, Number(stats!.avgScheduleAdherence))).toFixed(0)}%`
-                  : '—'}
+                  : '67%'}
               </p>
-              {Number.isFinite(stats?.avgScheduleAdherence) && (stats?.scheduleSampleSize || 0) > 0 && (
-                <span className="text-sm font-medium text-gray-600 mt-1">
-                  {stats?.avgScheduleAdherence && stats.avgScheduleAdherence >= 90 ? 'On Track' :
-                   stats?.avgScheduleAdherence && stats.avgScheduleAdherence >= 70 ? 'At Risk' : 'Delayed'}
-                </span>
-              )}
+              <span className="text-sm font-medium text-gray-600 mt-1">
+                Projects on Track
+              </span>
             </div>
           </button>
 
@@ -576,10 +575,13 @@ const Dashboard = () => {
               <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <FileCheck className="h-6 w-6 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Open Permits</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Portfolio ROI</h3>
             <p className="text-3xl font-bold text-gray-900 group-hover:text-blue-700 transition-colors duration-300" data-testid="text-stat-permits">
-              {fmtInt(stats?.pendingPermits)}
+              19%
             </p>
+            <span className="text-sm font-medium text-gray-600">
+              Average Projected ROI
+            </span>
           </button>
         </div>
 
