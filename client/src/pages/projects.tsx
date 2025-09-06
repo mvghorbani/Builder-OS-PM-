@@ -419,25 +419,35 @@ export default function Projects() {
                       <span className="text-gray-600">Progress</span>
                       <span className="font-semibold text-gray-900">{project.progress}%</span>
                     </div>
-                    <div className="relative group">
-                      <div className="w-full bg-gray-200/60 rounded-full h-3 overflow-hidden backdrop-blur-sm shadow-inner border border-gray-300/50 cursor-pointer">
+                    <div className="relative">
+                      <div className="w-full bg-gray-200/60 rounded-full h-3 overflow-hidden backdrop-blur-sm shadow-inner border border-gray-300/50 cursor-pointer group/progress">
                         <div 
                           className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 h-full rounded-full transition-all duration-700 shadow-lg relative"
                           style={{ width: `${project.progress}%` }}
                         >
                           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-300/60 via-blue-200/40 to-transparent rounded-full"></div>
                         </div>
+                        
+                        {/* Professional Milestone Tooltip - Only on Progress Bar Hover */}
+                        <div 
+                          className="absolute top-5 bg-white/98 backdrop-blur-lg border border-gray-200/80 rounded-xl p-4 shadow-2xl z-20 opacity-0 group-hover/progress:opacity-100 transition-all duration-300 ease-out transform translate-y-1 group-hover/progress:translate-y-0 min-w-[200px]"
+                          style={{ left: `${Math.min(project.progress, 70)}%`, transform: 'translateX(-50%)' }}
+                        >
+                          {/* Arrow pointing to progress bar */}
+                          <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-white/98 border-l border-t border-gray-200/80 rotate-45"></div>
+                          
+                          {/* Professional Content */}
+                          <div className="text-center">
+                            <div className="text-sm font-bold text-gray-900 mb-1">Current Phase</div>
+                            <div className="text-xs text-gray-600 leading-relaxed">
+                              {project.currentMilestone}
+                            </div>
+                            <div className="mt-2 pt-2 border-t border-gray-100">
+                              <div className="text-xs text-blue-600 font-medium">{project.progress}% Complete</div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      
-                      {/* Floating Milestone Indicator - Only on Hover */}
-                      <div 
-                        className="absolute top-4 bg-white/95 backdrop-blur-sm border border-gray-200 rounded-lg px-3 py-1 shadow-lg text-xs text-gray-700 font-medium z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                        style={{ left: `${Math.min(project.progress, 85)}%`, transform: 'translateX(-50%)' }}
-                      >
-                        <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white/95 border-l border-t border-gray-200 rotate-45"></div>
-                        {project.currentMilestone}
-                      </div>
-
                     </div>
                   </div>
 
