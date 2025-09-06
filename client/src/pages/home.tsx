@@ -370,78 +370,64 @@ const Dashboard = () => {
         {/* Stats Grid */}
         <div className="mb-8 sm:mb-12 grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {/* Active Projects */}
-          <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 transition-all duration-300 hover:-translate-y-1 group">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg group-hover:from-blue-600 group-hover:to-blue-700 transition-all duration-300">
-                <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <Building2 className="h-6 w-6 text-white relative z-10" />
-              </div>
-              <div className="w-2 h-2 bg-gradient-to-br from-blue-400 to-blue-500 rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <button className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 hover:translate-y-1 hover:scale-[0.98] active:translate-y-2 active:scale-[0.96] group text-center">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-600 group-hover:via-blue-700 group-hover:to-blue-800 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner group-hover:shadow-blue-800/30 transition-all duration-300 relative overflow-hidden group-hover:scale-95">
+              <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <Building2 className="h-6 w-6 text-white drop-shadow-lg relative z-10 transition-colors duration-300" />
             </div>
-            <p className="text-sm font-medium text-gray-600 mb-1">Active Projects</p>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Active Projects</h3>
             <p className="text-3xl font-bold text-gray-900 group-hover:text-blue-700 transition-colors duration-300" data-testid="text-stat-projects">
               {fmtInt(stats?.activeProjects)}
             </p>
-          </div>
+          </button>
 
           {/* Budget */}
-          <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 transition-all duration-300 hover:-translate-y-1 group">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-gradient-to-br from-gray-500 to-gray-600 rounded-xl shadow-lg group-hover:from-gray-600 group-hover:to-gray-700 transition-all duration-300">
-                <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <Wallet className="h-6 w-6 text-white relative z-10" />
-              </div>
-              <div className="w-2 h-2 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <button className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 hover:translate-y-1 hover:scale-[0.98] active:translate-y-2 active:scale-[0.96] group text-center">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-600 group-hover:via-blue-700 group-hover:to-blue-800 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner group-hover:shadow-blue-800/30 transition-all duration-300 relative overflow-hidden group-hover:scale-95">
+              <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <Wallet className="h-6 w-6 text-white drop-shadow-lg relative z-10 transition-colors duration-300" />
             </div>
-            <p className="text-sm font-medium text-gray-600 mb-1">Total Budget</p>
-            <p className="text-3xl font-bold text-gray-900 group-hover:text-gray-700 transition-colors duration-300" data-testid="text-stat-budget">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Total Budget</h3>
+            <p className="text-3xl font-bold text-gray-900 group-hover:text-blue-700 transition-colors duration-300" data-testid="text-stat-budget">
               {stats?.totalBudget && typeof stats.totalBudget === 'number' && stats.totalBudget >= 1000000
                 ? `$${(stats.totalBudget / 1000000).toFixed(1)}M`
                 : fmtUSDk(stats?.totalBudget)}
             </p>
-          </div>
+          </button>
 
           {/* Schedule Health */}
-          <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 transition-all duration-300 hover:-translate-y-1 group">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-gradient-to-br from-blue-400 to-blue-500 rounded-xl shadow-lg group-hover:from-blue-500 group-hover:to-blue-600 transition-all duration-300">
-                <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <Calendar className="h-6 w-6 text-white relative z-10" />
-              </div>
-              <div className="w-2 h-2 bg-gradient-to-br from-blue-300 to-blue-400 rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <button className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 hover:translate-y-1 hover:scale-[0.98] active:translate-y-2 active:scale-[0.96] group text-center">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-600 group-hover:via-blue-700 group-hover:to-blue-800 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner group-hover:shadow-blue-800/30 transition-all duration-300 relative overflow-hidden group-hover:scale-95">
+              <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <Calendar className="h-6 w-6 text-white drop-shadow-lg relative z-10 transition-colors duration-300" />
             </div>
-            <p className="text-sm font-medium text-gray-600 mb-1">Schedule Health</p>
-            <div className="flex items-center">
-              <p className="text-3xl font-bold text-gray-900 mr-2 group-hover:text-blue-700 transition-colors duration-300" data-testid="text-stat-schedule">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Schedule Health</h3>
+            <div className="flex flex-col items-center">
+              <p className="text-3xl font-bold text-gray-900 group-hover:text-blue-700 transition-colors duration-300" data-testid="text-stat-schedule">
                 {Number.isFinite(stats?.avgScheduleAdherence) && (stats?.scheduleSampleSize || 0) > 0
                   ? `${Math.max(0, Math.min(100, Number(stats!.avgScheduleAdherence))).toFixed(0)}%`
                   : '—'}
               </p>
               {Number.isFinite(stats?.avgScheduleAdherence) && (stats?.scheduleSampleSize || 0) > 0 && (
-                <span className="text-sm font-medium text-gray-600">
+                <span className="text-sm font-medium text-gray-600 mt-1">
                   {stats!.avgScheduleAdherence >= 90 ? 'On Track' :
                    stats!.avgScheduleAdherence >= 70 ? 'At Risk' : 'Delayed'}
                 </span>
               )}
             </div>
-          </div>
+          </button>
 
           {/* Permits */}
-          <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 transition-all duration-300 hover:-translate-y-1 group">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-xl shadow-2xl group-hover:from-blue-600 group-hover:via-blue-700 group-hover:to-blue-800 group-hover:shadow-inner group-hover:shadow-blue-800/30 transition-all duration-300 relative overflow-hidden group-hover:scale-95">
-                <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <FileCheck className="h-6 w-6 text-white relative z-10" />
-              </div>
-              {stats?.pendingPermits && Number(stats.pendingPermits) > 0 && (
-                <div className="w-2 h-2 bg-gradient-to-br from-gray-300 to-gray-400 rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
-              )}
+          <button className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 hover:translate-y-1 hover:scale-[0.98] active:translate-y-2 active:scale-[0.96] group text-center">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-600 group-hover:via-blue-700 group-hover:to-blue-800 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner group-hover:shadow-blue-800/30 transition-all duration-300 relative overflow-hidden group-hover:scale-95">
+              <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <FileCheck className="h-6 w-6 text-white drop-shadow-lg relative z-10 transition-colors duration-300" />
             </div>
-            <p className="text-sm font-medium text-gray-600 mb-1">Open Permits</p>
-            <p className="text-3xl font-bold text-gray-900 group-hover:text-gray-700 transition-colors duration-300" data-testid="text-stat-permits">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Open Permits</h3>
+            <p className="text-3xl font-bold text-gray-900 group-hover:text-blue-700 transition-colors duration-300" data-testid="text-stat-permits">
               {fmtInt(stats?.pendingPermits)}
             </p>
-          </div>
+          </button>
         </div>
 
         {/* Quick Actions */}
