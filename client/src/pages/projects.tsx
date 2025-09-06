@@ -413,50 +413,26 @@ export default function Projects() {
                             </button>
                           </div>
                         ) : (
-                          <div className="relative group/maps">
-                            <div className="flex items-center text-gray-600 cursor-pointer"
-                                 onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(project.address)}`, '_blank')}
+                          <div className="flex items-center text-gray-600 group/address">
+                            <MapPin className="w-4 h-4 mr-2 text-gray-500" />
+                            <a 
+                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(project.address)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex-1 hover:text-blue-600 hover:underline transition-colors duration-200 cursor-pointer"
+                              onClick={(e) => e.stopPropagation()}
                             >
-                              <MapPin className="w-4 h-4 mr-2 text-gray-500" />
-                              <span className="flex-1 hover:text-blue-600 transition-colors duration-200">{project.address}</span>
-                              <button 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  startEditing(project.id, 'address', project.address);
-                                }}
-                                className="opacity-0 group-hover/maps:opacity-100 text-gray-400 hover:text-blue-600 transition-all duration-200 ml-2"
-                              >
-                                <Edit2 className="w-3 h-3" />
-                              </button>
-                            </div>
-                            
-                            {/* Google Maps Preview on Hover */}
-                            <div className="absolute top-6 left-0 z-30 opacity-0 group-hover/maps:opacity-100 transition-all duration-300 transform translate-y-2 group-hover/maps:translate-y-0 pointer-events-none group-hover/maps:pointer-events-auto">
-                              <div className="bg-white/98 backdrop-blur-lg border border-gray-200/80 rounded-xl shadow-2xl overflow-hidden min-w-[300px]">
-                                {/* Arrow pointing to address */}
-                                <div className="absolute -top-2 left-6 w-4 h-4 bg-white/98 border-l border-t border-gray-200/80 rotate-45"></div>
-                                
-                                {/* Map embed */}
-                                <div className="h-48 w-full">
-                                  <iframe
-                                    src={`https://maps.google.com/maps?width=100%&height=200&hl=en&q=${encodeURIComponent(project.address)}&t=&z=16&ie=UTF8&iwloc=B&output=embed`}
-                                    width="100%"
-                                    height="100%"
-                                    style={{ border: 0 }}
-                                    allowFullScreen
-                                    loading="lazy"
-                                    referrerPolicy="no-referrer-when-downgrade"
-                                    title={`Map of ${project.address}`}
-                                  ></iframe>
-                                </div>
-                                
-                                {/* Address info footer */}
-                                <div className="p-3 bg-gradient-to-r from-blue-50/80 to-indigo-50/80 border-t border-gray-100">
-                                  <div className="text-xs text-gray-600 mb-1">Click to open in Google Maps</div>
-                                  <div className="text-sm font-medium text-gray-900 truncate">{project.address}</div>
-                                </div>
-                              </div>
-                            </div>
+                              {project.address}
+                            </a>
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                startEditing(project.id, 'address', project.address);
+                              }}
+                              className="opacity-0 group-hover/address:opacity-100 text-gray-400 hover:text-blue-600 transition-all duration-200 ml-2"
+                            >
+                              <Edit2 className="w-3 h-3" />
+                            </button>
                           </div>
                         )}
                       </div>
