@@ -635,145 +635,232 @@ const Dashboard = () => {
         {/* Recent Activity */}
         <section className="mb-8 sm:mb-12">
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6 sm:mb-8">Recent Activity</h2>
-          <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 active:shadow-inner active:from-gray-100 active:via-gray-200 active:to-gray-300 transition-all duration-300 hover:translate-y-1 hover:scale-[0.98] active:translate-y-2 active:scale-[0.96] group">
-            {activitiesError && (
-              <div className="mb-6">
-                <p className="text-sm text-red-600 mb-4">Couldn't load activities.</p>
-                <Button 
-                  size="sm" 
-                  className="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 text-white shadow-2xl hover:shadow-[0_15px_30px_-8px_rgba(59,130,246,0.5)] transition-all duration-500 hover:-translate-y-1 border-0 relative overflow-hidden group"
-                  onClick={() => queryClient.invalidateQueries({ queryKey: ['/api/activities'] })}
-                >
-                  Retry
-                </Button>
-              </div>
-            )}
 
-            <div className="space-y-4">
-              {/* Show mock activities if no real activities, or mix them */}
-              {(!Array.isArray(activities) || activities.length === 0) && !activitiesLoading && !activitiesError ? (
-                // Enhanced Empty State
-                <div className="text-center py-12">
-                  <div className="w-20 h-20 mx-auto mb-6 relative">
-                    {/* Blueprint/Timeline Illustration */}
-                    <div className="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300">
-                      <ActivityIcon className="w-10 h-10 text-white" />
+          {activitiesError && (
+            <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl p-6 shadow-lg border border-red-200 mb-8 hover:shadow-inner hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 active:shadow-inner active:from-gray-100 active:via-gray-200 active:to-gray-300 transition-all duration-300 hover:translate-y-1 hover:scale-[0.98] active:translate-y-2 active:scale-[0.96] group">
+              <p className="text-sm text-red-600 mb-4">Couldn't load activities.</p>
+              <Button 
+                size="sm" 
+                className="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 text-white shadow-2xl hover:shadow-[0_15px_30px_-8px_rgba(59,130,246,0.5)] transition-all duration-500 hover:-translate-y-1 border-0 relative overflow-hidden group" 
+                onClick={() => queryClient.invalidateQueries({ queryKey: ['/api/activities'] })}
+              >
+                Retry
+              </Button>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8">
+            {activitiesLoading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl p-6 shadow-lg border border-gray-100 animate-pulse hover:shadow-inner hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 active:shadow-inner active:from-gray-100 active:via-gray-200 active:to-gray-300 transition-all duration-300 hover:translate-y-1 hover:scale-[0.98] active:translate-y-2 active:scale-[0.96] group">
+                  <div className="flex items-start justify-between mb-6">
+                    <div className="flex-1">
+                      <div className="h-6 bg-gray-200 rounded mb-2 w-3/4"></div>
+                      <div className="h-4 bg-gray-200 rounded w-1/2"></div>
                     </div>
-                    <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center shadow-md">
-                      <Clock className="w-4 h-4 text-gray-600" />
+                    <div className="h-6 bg-gray-200 rounded w-16"></div>
+                  </div>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                      <div className="h-2 bg-gray-200 rounded"></div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="h-12 bg-gray-200 rounded"></div>
+                      <div className="h-12 bg-gray-200 rounded"></div>
                     </div>
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No recent activity</h3>
-                  <p className="text-gray-600 max-w-sm mx-auto leading-relaxed">
-                    Updates on document uploads, permit statuses, team comments, and project milestones will appear here.
-                  </p>
                 </div>
-              ) : (
-                // Populated State - Show enhanced activities
-                <>
-                  {mockRecentActivities.map((activity) => {
-                    const IconComponent = getActivityIcon(activity.type);
-                    const iconColorClass = getActivityColor(activity.type);
-
-                    return (
-                      <div key={activity.id} className="flex items-start space-x-4 py-4 border-b border-gray-100 last:border-b-0 last:pb-0 hover:bg-gray-50 rounded-lg px-2 -mx-2 transition-colors duration-150 group" data-testid={`activity-${activity.id}`}>
-                        {/* Activity Icon */}
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center flex-shrink-0 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95">
-                          <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                          <IconComponent className="w-5 h-5 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
-                        </div>
-
-                        {/* User Avatar */}
-                        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0 text-xs font-medium text-gray-600">
-                          {activity.user.name.split(' ').map(n => n[0]).join('')}
-                        </div>
-
-                        {/* Activity Content */}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm text-gray-900 leading-relaxed">
-                            <span className="font-semibold text-gray-700">{activity.user.name}</span>
-                            <span className="mx-1">{activity.action}</span>
-                            {activity.clickableObject ? (
-                              <button 
-                                className="font-semibold text-blue-600 hover:text-blue-700 hover:underline transition-colors"
-                                onClick={() => toast({ title: "Navigate", description: `Opening ${activity.object}...` })}
-                              >
-                                {activity.object}
-                              </button>
-                            ) : (
-                              <span className="font-semibold text-gray-900">{activity.object}</span>
-                            )}
-                            {activity.target && (
-                              <>
-                                <span className="mx-1">
-                                  {activity.action.includes('to') ? '' : activity.action.includes('on') ? '' : 'for'}
-                                </span>
-                                {activity.clickableTarget ? (
-                                  <button 
-                                    className="font-semibold text-blue-600 hover:text-blue-700 hover:underline transition-colors"
-                                    onClick={() => toast({ title: "Navigate", description: `Opening ${activity.target}...` })}
-                                  >
-                                    {activity.target}
-                                  </button>
-                                ) : (
-                                  <span className="font-semibold text-gray-900">{activity.target}</span>
-                                )}
-                              </>
-                            )}
-                          </p>
-                          <p className="text-xs text-gray-500 mt-1 flex items-center">
-                            <Clock className="w-3 h-3 mr-1" />
-                            {getRelativeTime(activity.timestamp)}
-                          </p>
-                        </div>
+              ))
+            ) : (
+              <>
+                {/* Show mock activities if no real activities, or mix them */}
+                {(!Array.isArray(activities) || activities.length === 0) && !activitiesLoading && !activitiesError ? (
+                  <div className="col-span-full">
+                    <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl p-12 shadow-lg border border-gray-100 text-center hover:shadow-inner hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 active:shadow-inner active:from-gray-100 active:via-gray-200 active:to-gray-300 transition-all duration-300 hover:translate-y-1 hover:scale-[0.98] active:translate-y-2 active:scale-[0.96] group">
+                      <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <ActivityIcon className="w-12 h-12 text-blue-600" />
                       </div>
-                    );
-                  })}
-
-                  {/* Show real activities if they exist */}
-                  {Array.isArray(activities) && activities.length > 0 && activities
-                    .slice()
-                    .sort((a: Activity, b: Activity) => {
-                      const aDate = (a as any).createdAt ?? (a as any).created_at ?? null;
-                      const bDate = (b as any).createdAt ?? (b as any).created_at ?? null;
-                      const da = aDate ? Date.parse(aDate) : 0;
-                      const db = bDate ? Date.parse(bDate) : 0;
-                      return db - da;
-                    })
-                    .slice(0, 2) // Show fewer real activities to make room for mock ones
-                    .map((activity: any) => (
-                    <div key={`real-${activity.id}`} className="flex items-start space-x-4 py-4 border-b border-gray-100 last:border-b-0 last:pb-0 hover:bg-gray-50 rounded-lg px-2 -mx-2 transition-colors duration-150 group" data-testid={`activity-${activity.id}`}>
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center flex-shrink-0 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95">
-                        <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        <Check className="w-5 h-5 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
-                      </div>
-                      <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0 text-xs font-medium text-gray-600">
-                        U
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm text-gray-900 leading-relaxed">
-                          <span className="font-semibold">{activity.description}</span>
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1 flex items-center">
-                          <Clock className="w-3 h-3 mr-1" />
-                          {getWhen(activity)}
-                        </p>
-                      </div>
+                      <h3 className="text-2xl font-bold text-gray-900 mb-4">No recent activity</h3>
+                      <p className="text-gray-600 mb-8 max-w-md mx-auto">
+                        Updates on document uploads, permit statuses, team comments, and project milestones will appear here.
+                      </p>
+                      <Button 
+                        size="lg" 
+                        className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-3 text-lg font-semibold shadow-2xl hover:shadow-[0_15px_30px_-8px_rgba(59,130,246,0.5)] transition-all duration-500 hover:-translate-y-1 border-0 relative overflow-hidden group"
+                        data-testid="button-view-all-activity"
+                        onClick={() => toast({ title: "View All Activity", description: "Full activity timeline coming soon!" })}
+                      >
+                        <ActivityIcon className="w-5 h-5 mr-2" />
+                        View All Activity
+                      </Button>
                     </div>
-                  ))}
-                </>
-              )}
-            </div>
+                  </div>
+                ) : (
+                  // Populated State - Show enhanced activities as cards
+                  <>
+                    {mockRecentActivities.map((activity) => {
+                      const IconComponent = getActivityIcon(activity.type);
 
-            <Button 
-              variant="outline" 
-              className="w-full mt-6 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-0 transition-all duration-300 shadow-2xl hover:shadow-[0_15px_30px_-8px_rgba(59,130,246,0.5)] hover:-translate-y-1 active:translate-y-1 active:scale-[0.98] relative overflow-hidden group" 
-              data-testid="button-view-all-activity"
-              onClick={() => toast({ title: "View All Activity", description: "Full activity timeline coming soon!" })}
-            >
-              <ActivityIcon className="w-4 h-4 mr-2 text-white" />
-              View All Activity
-            </Button>
+                      return (
+                        <div
+                          key={activity.id}
+                          className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 active:shadow-inner active:from-gray-100 active:via-gray-200 active:to-gray-300 transition-all duration-300 hover:translate-y-1 hover:scale-[0.98] active:translate-y-2 active:scale-[0.96] cursor-pointer group"
+                          data-testid={`activity-${activity.id}`}
+                        >
+                          <div className="flex items-start justify-between mb-6">
+                            <div className="flex-1 min-w-0">
+                              <h3 className="text-xl font-bold text-gray-900 mb-1 truncate group-hover:text-blue-700 transition-colors duration-300">{activity.object}</h3>
+                              <p className="text-sm text-gray-600">
+                                {activity.target || activity.type.replace('_', ' ').charAt(0).toUpperCase() + activity.type.replace('_', ' ').slice(1)}
+                              </p>
+                            </div>
+                            <div className="px-3 py-1 bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 text-xs font-medium rounded-full border border-blue-200">
+                              {getRelativeTime(activity.timestamp)}
+                            </div>
+                          </div>
+
+                          <div className="space-y-4">
+                            <div>
+                              <div className="flex justify-between items-center mb-2">
+                                <span className="text-sm font-medium text-gray-600">User</span>
+                                <span className="text-sm font-bold text-gray-900">
+                                  {activity.user.name}
+                                </span>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-2">
+                                <div 
+                                  className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-300 shadow-sm"
+                                  style={{ width: '100%' }}
+                                ></div>
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <p className="text-sm text-gray-600 mb-1">Action</p>
+                                <p className="font-bold text-gray-900 capitalize">{activity.action}</p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-gray-600 mb-1">Type</p>
+                                <p className="font-bold text-gray-900 capitalize">{activity.type.replace('_', ' ')}</p>
+                              </div>
+                            </div>
+
+                            <div className="flex gap-3 pt-4 border-t border-gray-200">
+                              <button
+                                className="flex-1 text-xs font-medium py-2 px-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toast({ title: "Navigate", description: `Opening ${activity.object}...` });
+                                }}
+                              >
+                                <IconComponent className="w-3 h-3 mr-1" />
+                                View
+                              </button>
+                              <button
+                                className="flex-1 text-xs font-medium py-2 px-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-lg hover:from-gray-600 hover:to-gray-700 transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (activity.target) {
+                                    toast({ title: "Navigate", description: `Opening ${activity.target}...` });
+                                  }
+                                }}
+                              >
+                                <Building2 className="w-3 h-3 mr-1" />
+                                Project
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    {/* Show real activities if they exist */}
+                    {Array.isArray(activities) && activities.length > 0 && activities
+                      .slice()
+                      .sort((a: Activity, b: Activity) => {
+                        const aDate = (a as any).createdAt ?? (a as any).created_at ?? null;
+                        const bDate = (b as any).createdAt ?? (b as any).created_at ?? null;
+                        const da = aDate ? Date.parse(aDate) : 0;
+                        const db = bDate ? Date.parse(bDate) : 0;
+                        return db - da;
+                      })
+                      .slice(0, 2) // Show fewer real activities to make room for mock ones
+                      .map((activity: any) => (
+                      <div
+                        key={`real-${activity.id}`}
+                        className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 active:shadow-inner active:from-gray-100 active:via-gray-200 active:to-gray-300 transition-all duration-300 hover:translate-y-1 hover:scale-[0.98] active:translate-y-2 active:scale-[0.96] cursor-pointer group"
+                        data-testid={`activity-${activity.id}`}
+                      >
+                        <div className="flex items-start justify-between mb-6">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-xl font-bold text-gray-900 mb-1 truncate group-hover:text-blue-700 transition-colors duration-300">{activity.description || 'Activity'}</h3>
+                            <p className="text-sm text-gray-600">
+                              System Activity
+                            </p>
+                          </div>
+                          <div className="px-3 py-1 bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 text-xs font-medium rounded-full border border-blue-200">
+                            {getWhen(activity)}
+                          </div>
+                        </div>
+
+                        <div className="space-y-4">
+                          <div>
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="text-sm font-medium text-gray-600">Status</span>
+                              <span className="text-sm font-bold text-gray-900">
+                                Complete
+                              </span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div 
+                                className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-300 shadow-sm"
+                                style={{ width: '100%' }}
+                              ></div>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <p className="text-sm text-gray-600 mb-1">Source</p>
+                              <p className="font-bold text-gray-900">System</p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-gray-600 mb-1">Type</p>
+                              <p className="font-bold text-gray-900">Update</p>
+                            </div>
+                          </div>
+
+                          <div className="flex gap-3 pt-4 border-t border-gray-200">
+                            <button
+                              className="flex-1 text-xs font-medium py-2 px-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toast({ title: "Activity", description: activity.description || 'System activity' });
+                              }}
+                            >
+                              <Check className="w-3 h-3 mr-1" />
+                              View
+                            </button>
+                            <button
+                              className="flex-1 text-xs font-medium py-2 px-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-lg hover:from-gray-600 hover:to-gray-700 transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toast({ title: "Details", description: "Activity details coming soon!" });
+                              }}
+                            >
+                              <ActivityIcon className="w-3 h-3 mr-1" />
+                              Details
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </>
+                )}
+              </>
+            )}
           </div>
         </section>
       </div>
