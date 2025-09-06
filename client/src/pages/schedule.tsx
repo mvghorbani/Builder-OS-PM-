@@ -243,7 +243,7 @@ export default function Schedule() {
                       <AlertCircle className="w-5 h-5 text-red-600 mt-1" />
                       <div>
                         <h3 className="font-semibold text-red-900 mb-1">Foundation Inspection</h3>
-                        <p className="text-sm text-red-800 mb-2">Downtown Office Renovation</p>
+                        <p className="text-sm text-red-800 mb-2">717 S Palmway Development</p>
                         <div className="flex items-center gap-2 text-xs text-red-700">
                           <MapPin className="w-3 h-3" />
                           Due: Tomorrow, 2:00 PM
@@ -262,7 +262,7 @@ export default function Schedule() {
                       <Clock className="w-5 h-5 text-yellow-600 mt-1" />
                       <div>
                         <h3 className="font-semibold text-yellow-900 mb-1">Electrical Rough-in Complete</h3>
-                        <p className="text-sm text-yellow-800 mb-2">Harbor View Apartments</p>
+                        <p className="text-sm text-yellow-800 mb-2">284 Lytton Project</p>
                         <div className="flex items-center gap-2 text-xs text-yellow-700">
                           <MapPin className="w-3 h-3" />
                           Due: Dec 15, 2024
@@ -281,7 +281,7 @@ export default function Schedule() {
                       <Activity className="w-5 h-5 text-blue-600 mt-1" />
                       <div>
                         <h3 className="font-semibold text-blue-900 mb-1">Drywall Installation Start</h3>
-                        <p className="text-sm text-blue-800 mb-2">Residential Complex Phase 2</p>
+                        <p className="text-sm text-blue-800 mb-2">128 18th Ave Construction</p>
                         <div className="flex items-center gap-2 text-xs text-blue-700">
                           <MapPin className="w-3 h-3" />
                           Scheduled: Dec 20, 2024

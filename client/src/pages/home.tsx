@@ -134,10 +134,10 @@ const mockRecentActivities = [
   {
     id: 1,
     type: 'document_upload',
-    user: { name: 'Sarah Chen', avatar: null },
+    user: { name: 'MV Ghorbani', avatar: null },
     action: 'uploaded',
     object: 'Structural Plans v2.pdf',
-    target: 'Downtown Office Renovation',
+    target: '717 S Palmway Development',
     timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
     clickableObject: true,
     clickableTarget: true
@@ -148,7 +148,7 @@ const mockRecentActivities = [
     user: { name: 'System', avatar: null },
     action: 'approved',
     object: 'Permit #B-2025-1138',
-    target: 'Downtown Office Renovation',
+    target: '284 Lytton Project',
     timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
     clickableObject: true,
     clickableTarget: true
@@ -156,10 +156,10 @@ const mockRecentActivities = [
   {
     id: 3,
     type: 'comment',
-    user: { name: 'Mike Rivera', avatar: null },
+    user: { name: 'MV Ghorbani', avatar: null },
     action: 'left a comment on',
     object: 'RFI-004',
-    target: 'Residential Complex Phase 2',
+    target: '128 18th Ave Construction',
     timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
     clickableObject: true,
     clickableTarget: true
@@ -167,10 +167,10 @@ const mockRecentActivities = [
   {
     id: 4,
     type: 'task_completed',
-    user: { name: 'Jessica Park', avatar: null },
+    user: { name: 'MV Ghorbani', avatar: null },
     action: 'completed',
     object: 'Foundation Inspection',
-    target: 'Harbor View Apartments',
+    target: '717 S Palmway Development',
     timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // Yesterday
     clickableObject: false,
     clickableTarget: true

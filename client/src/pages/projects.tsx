@@ -10,45 +10,45 @@ import { Badge } from "../components/ui/badge";
 export default function Projects() {
   const [activeView, setActiveView] = useState('projects');
 
-  // Mock data - replace with real data from API
+  // Real project data
   const projects = [
     {
       id: '1',
-      name: 'Downtown Office Complex',
-      address: '123 Main St, Downtown',
+      name: '717 S Palmway Development',
+      address: '717 S Palmway',
       status: 'active',
       progress: 65,
       totalBudget: 2400000,
       spentBudget: 1560000,
       startDate: '2024-01-15',
       endDate: '2024-12-31',
-      manager: 'John Smith',
+      manager: 'MV Ghorbani',
       team: 12
     },
     {
       id: '2',
-      name: 'Residential Tower A',
-      address: '456 Oak Ave, Uptown',
+      name: '284 Lytton Project',
+      address: '284 Lytton',
       status: 'active',
       progress: 45,
       totalBudget: 3200000,
       spentBudget: 1440000,
       startDate: '2024-02-01',
       endDate: '2025-01-31',
-      manager: 'Sarah Johnson',
+      manager: 'MV Ghorbani',
       team: 18
     },
     {
       id: '3',
-      name: 'Shopping Center Renovation',
-      address: '789 Commerce Blvd',
+      name: '128 18th Ave Construction',
+      address: '128 18th Ave',
       status: 'active',
       progress: 80,
       totalBudget: 1800000,
       spentBudget: 1440000,
       startDate: '2024-03-01',
       endDate: '2024-10-31',
-      manager: 'Mike Davis',
+      manager: 'MV Ghorbani',
       team: 8
     }
   ];

@@ -247,7 +247,7 @@ export default function Budget() {
                     <AlertTriangle className="w-5 h-5 text-red-600 mt-1" />
                     <div>
                       <h3 className="font-semibold text-red-900 mb-1">Budget Exceeded</h3>
-                      <p className="text-sm text-red-800 mb-2">Downtown Office Renovation is $25,000 over budget in the Materials category.</p>
+                      <p className="text-sm text-red-800 mb-2">717 S Palmway Development is $25,000 over budget in the Materials category.</p>
                       <div className="flex items-center gap-2">
                         <Badge className="bg-red-600 text-white text-xs">Critical</Badge>
                         <span className="text-xs text-red-700">Requires immediate attention</span>
@@ -263,7 +263,7 @@ export default function Budget() {
                     <TrendingUp className="w-5 h-5 text-yellow-600 mt-1" />
                     <div>
                       <h3 className="font-semibold text-yellow-900 mb-1">Budget Warning</h3>
-                      <p className="text-sm text-yellow-800 mb-2">Harbor View Apartments has used 85% of allocated Labor budget.</p>
+                      <p className="text-sm text-yellow-800 mb-2">284 Lytton Project has used 85% of allocated Labor budget.</p>
                       <div className="flex items-center gap-2">
                         <Badge className="bg-yellow-600 text-white text-xs">Warning</Badge>
                         <span className="text-xs text-yellow-700">Monitor closely</span>

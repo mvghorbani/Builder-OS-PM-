@@ -279,7 +279,7 @@ export default function Documents() {
                       <div>
                         <h3 className="font-semibold text-gray-900">Site_Photos_Dec10_2024.zip</h3>
                         <div className="flex items-center gap-4 text-sm text-gray-600">
-                          <span>Harbor View Apartments</span>
+                          <span>284 Lytton Project</span>
                           <span>•</span>
                           <span>15.7 MB</span>
                           <span>•</span>
@@ -312,7 +312,7 @@ export default function Documents() {
                       <div>
                         <h3 className="font-semibold text-gray-900">Permit_Application_B2024-1456.pdf</h3>
                         <div className="flex items-center gap-4 text-sm text-gray-600">
-                          <span>Residential Complex Phase 2</span>
+                          <span>128 18th Ave Construction</span>
                           <span>•</span>
                           <span>890 KB</span>
                           <span>•</span>

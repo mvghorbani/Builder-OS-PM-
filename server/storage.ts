@@ -47,6 +47,7 @@ export interface IStorage {
   updateUserRole(id: string, role: string): Promise<User | undefined>;
   findUserByEmail(email: string): Promise<User | null>; // Added for clarity
   createUser(user: { email: string; firstName: string; lastName: string; profileImageUrl: string; role: string }): Promise<string>; // Added for Replit Auth
+  createUserWithPassword(user: { email: string; firstName: string; lastName: string; passwordHash: string; role: string }): Promise<User>; // Added for direct user creation
 
   // Property operations
   getProperties(): Promise<Property[]>;
@@ -211,6 +212,23 @@ export class DatabaseStorage implements IStorage {
     }
 
     return result[0].id;
+  }
+
+  async createUserWithPassword(user: { email: string; firstName: string; lastName: string; passwordHash: string; role: string }): Promise<User> {
+    const result = await db.insert(users).values({
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      passwordHash: user.passwordHash,
+      role: user.role,
+      profileImageUrl: '',
+    }).returning();
+
+    if (!result[0]) {
+      throw new Error("Failed to create user");
+    }
+
+    return result[0];
   }
 
   // Property operations

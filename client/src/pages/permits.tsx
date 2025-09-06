@@ -242,7 +242,7 @@ export default function Permits() {
                       <CheckCircle className="w-5 h-5 text-green-600 mt-1" />
                       <div>
                         <h3 className="font-semibold text-green-900 mb-1">Building Permit #B-2024-1456</h3>
-                        <p className="text-sm text-green-800 mb-2">Downtown Office Renovation - Structural modifications approved</p>
+                        <p className="text-sm text-green-800 mb-2">717 S Palmway Development - Structural modifications approved</p>
                         <div className="flex items-center gap-4 text-xs text-green-700">
                           <div className="flex items-center gap-1">
                             <Building className="w-3 h-3" />
@@ -267,7 +267,7 @@ export default function Permits() {
                       <Clock className="w-5 h-5 text-yellow-600 mt-1" />
                       <div>
                         <h3 className="font-semibold text-yellow-900 mb-1">Electrical Permit #E-2024-3789</h3>
-                        <p className="text-sm text-yellow-800 mb-2">Harbor View Apartments - Electrical system upgrade</p>
+                        <p className="text-sm text-yellow-800 mb-2">284 Lytton Project - Electrical system upgrade</p>
                         <div className="flex items-center gap-4 text-xs text-yellow-700">
                           <div className="flex items-center gap-1">
                             <Building className="w-3 h-3" />
@@ -292,7 +292,7 @@ export default function Permits() {
                       <AlertTriangle className="w-5 h-5 text-red-600 mt-1" />
                       <div>
                         <h3 className="font-semibold text-red-900 mb-1">Plumbing Permit #P-2024-2134</h3>
-                        <p className="text-sm text-red-800 mb-2">Residential Complex Phase 2 - Additional documentation required</p>
+                        <p className="text-sm text-red-800 mb-2">128 18th Ave Construction - Additional documentation required</p>
                         <div className="flex items-center gap-4 text-xs text-red-700">
                           <div className="flex items-center gap-1">
                             <Building className="w-3 h-3" />
@@ -344,7 +344,7 @@ export default function Permits() {
                     <Calendar className="w-5 h-5 text-green-600 mt-1" />
                     <div>
                       <h3 className="font-semibold text-green-900 mb-1">Electrical Rough-in</h3>
-                      <p className="text-sm text-green-800 mb-2">Harbor View Apartments</p>
+                      <p className="text-sm text-green-800 mb-2">284 Lytton Project</p>
                       <div className="space-y-1 text-xs text-green-700">
                         <div className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
@@ -352,7 +352,7 @@ export default function Permits() {
                         </div>
                         <div className="flex items-center gap-1">
                           <MapPin className="w-3 h-3" />
-                          456 Harbor View Dr, Oakland
+                          284 Lytton Ave, Palo Alto
                         </div>
                       </div>
                     </div>
@@ -366,7 +366,7 @@ export default function Permits() {
                     <Calendar className="w-5 h-5 text-purple-600 mt-1" />
                     <div>
                       <h3 className="font-semibold text-purple-900 mb-1">Framing Inspection</h3>
-                      <p className="text-sm text-purple-800 mb-2">Residential Complex Phase 2</p>
+                      <p className="text-sm text-purple-800 mb-2">128 18th Ave Construction</p>
                       <div className="space-y-1 text-xs text-purple-700">
                         <div className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
