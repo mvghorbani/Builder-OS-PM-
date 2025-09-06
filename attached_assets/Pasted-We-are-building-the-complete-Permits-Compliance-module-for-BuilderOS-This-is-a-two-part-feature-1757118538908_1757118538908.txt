@@ -1,0 +1,32 @@
+We are building the complete "Permits & Compliance" module for BuilderOS. This is a two-part feature. Please follow this detailed plan exactly.
+
+**Part 1: Build the AI-Powered Permit Discovery Engine**
+
+* **Backend Task:**
+    1.  Create a new, authenticated endpoint: `POST /api/v1/permits/lookup`.
+    2.  It must accept a JSON body with `projectAddress` and `scopeOfWork`.
+    3.  It must make a server-side call to the Gemini API (`gemini-2.5-flash-preview-05-20`) with Google Search grounding enabled, using the `GEMINI_API_KEY` secret.
+    4.  The system prompt for the Gemini call must be: "You are an expert compliance assistant for construction projects in South Florida. Given a property address and a scope of work, you MUST use Google Search to find the official municipal government permit requirements for that specific city. You must return a single, minified JSON object with the following schema, and nothing else: { \"permitName\": string, \"issuingAuthority\": string, \"formUrl\": string, \"notes\": string }."
+    5.  The endpoint must return the JSON object from the Gemini API directly to the client.
+
+* **Frontend Task:**
+    1.  Create the main "Permits & Compliance" component. Its primary UI element is a button: "🔎 Find Permit Requirements."
+    2.  Clicking this button opens a modal with a `textarea` for the "Description of Work."
+    3.  Submitting the modal form calls the `POST /api/v1/permits/lookup` endpoint.
+    4.  Display the results in a "Results Card" showing the Permit Name, Issuing Authority, a clickable link for the Form URL, and any Key Notes.
+    5.  This card must have an "+ Add to Project" button.
+
+**Part 2: Build the Permit Tracking Ledger**
+
+* **Backend Task:**
+    1.  Implement the following API endpoints as defined in our master plan: `GET /api/v1/projects/{projectId}/permits`, `POST /api/v1/projects/{projectId}/permits`, and `PUT /api/v1/permits/{permitId}`. These will perform CRUD operations on the `permits` table.
+
+* **Frontend Task:**
+    1.  Below the "Find Permit Requirements" feature, create the "Permit Ledger."
+    2.  When the component loads, it will call `GET /api/v1/projects/{projectId}/permits` to populate a table.
+    3.  The table columns must be: Permit Type, Number, Status, Applied Date, Issued Date, Expiry Date.
+    4.  The Status column MUST use color-coded badges.
+    5.  Any table row for a permit expiring within 30 days MUST have a distinct yellow background.
+    6.  Create a manual "+ Add Permit" button that opens a form to create a new permit via the `POST` endpoint.
+    7.  The "+ Add to Project" button from Part 1 should also open this same form, but pre-populate it with the data from the AI.
+    8.  Implement functionality to edit a permit's status, which will call the `PUT` endpoint.
