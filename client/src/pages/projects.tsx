@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Building2, Plus, Search, Filter, Calendar, DollarSign, Users, MapPin, ChevronDown, TrendingUp, Clock, Edit2, X, Check, GripVertical, Type, Palette } from "lucide-react";
 import { useLocation } from "wouter";
@@ -15,12 +14,12 @@ export default function Projects() {
   const [filterOpen, setFilterOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
-  
+
   // Editing states
   const [editingProject, setEditingProject] = useState<string | null>(null);
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<{[key: string]: any}>({});
-  
+
   // Refs for click outside detection
   const filterRef = useRef<HTMLDivElement>(null);
   const typographyRef = useRef<HTMLDivElement>(null);
@@ -67,7 +66,7 @@ export default function Projects() {
       "Playfair Display": "font-serif",
       "Open Sans": "font-sans"
     };
-    
+
     const sizeClasses = {
       "xs": "text-xs",
       "sm": "text-sm", 
@@ -75,7 +74,7 @@ export default function Projects() {
       "lg": "text-lg",
       "xl": "text-xl"
     };
-    
+
     return `${fontClasses[fontFamily as keyof typeof fontClasses]} ${sizeClasses[fontSize as keyof typeof sizeClasses]}`;
   };
 
@@ -168,12 +167,12 @@ export default function Projects() {
       // Remove from old position
       const oldIndex = newProjects.findIndex(p => p.id === reorderedItem.id);
       newProjects.splice(oldIndex, 1);
-      
+
       // Insert at new position (accounting for filtered items)
       const targetProject = items[result.destination.index === 0 ? 0 : result.destination.index - 1];
       const targetIndex = targetProject ? newProjects.findIndex(p => p.id === targetProject.id) : 0;
       const insertIndex = result.destination.index === 0 ? targetIndex : targetIndex + 1;
-      
+
       newProjects.splice(insertIndex, 0, reorderedProject);
       setProjects(newProjects);
     }
@@ -202,10 +201,10 @@ export default function Projects() {
     const matchesSearch = project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          project.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          project.manager.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     const matchesStatus = statusFilter === "all" || project.status === statusFilter;
     const matchesLocation = locationFilter === "all" || project.address.includes(locationFilter);
-    
+
     return matchesSearch && matchesStatus && matchesLocation;
   });
 
@@ -224,7 +223,7 @@ export default function Projects() {
   // Get project with nearest deadline
   const projectsWithDaysLeft = projects.map(p => ({...p, daysLeft: getDaysRemaining(p.endDate)}));
   const nearestDeadline = Math.min(...projectsWithDaysLeft.map(p => p.daysLeft));
-  
+
   // Calculate profitability (spent vs budget efficiency)
   const avgProfitability = projects.reduce((sum, p) => {
     const efficiency = (p.progress / (p.spentBudget / p.totalBudget)) * 100;
@@ -242,7 +241,7 @@ export default function Projects() {
           <div className="absolute bottom-1/4 left-1/2 w-40 h-40 bg-gradient-to-r from-blue-200/50 to-blue-300/50 rounded-full blur-3xl animate-pulse delay-2000"></div>
           <div className="absolute top-1/3 right-1/3 w-24 h-24 bg-gradient-to-r from-gray-50/30 to-blue-50/30 rounded-full blur-2xl animate-pulse delay-3000"></div>
         </div>
-        
+
         <div className="relative z-10 container mx-auto px-4 sm:px-6 py-6 sm:py-10">
           {/* Header with Glass Effect */}
           <header className="mb-8 sm:mb-12">
@@ -265,12 +264,12 @@ export default function Projects() {
                     Typography
                     <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${typographyOpen ? 'rotate-180' : ''}`} />
                   </button>
-                  
+
                   {typographyOpen && (
                     <div className="absolute top-12 right-0 z-50 bg-white/95 backdrop-blur-xl border border-gray-200/80 rounded-2xl shadow-2xl p-6 w-80">
                       <div className="space-y-4">
                         <h3 className="font-bold text-gray-900 mb-4">Typography Controls</h3>
-                        
+
                         {/* Font Family Selection */}
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">Font Family</label>
@@ -337,7 +336,7 @@ export default function Projects() {
                     Filter
                     <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${filterOpen ? 'rotate-180' : ''}`} />
                   </button>
-                  
+
                   {/* Filter Dropdown */}
                   {filterOpen && (
                     <div className="absolute top-full mt-2 right-0 bg-white/90 backdrop-blur-xl border border-gray-200 rounded-2xl p-4 shadow-2xl z-50 min-w-[280px]">
@@ -356,7 +355,7 @@ export default function Projects() {
                             <option value="completed">Completed</option>
                           </select>
                         </div>
-                        
+
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
                           <select 
@@ -371,7 +370,7 @@ export default function Projects() {
                             ))}
                           </select>
                         </div>
-                        
+
                         <button 
                           onClick={() => {
                             setStatusFilter("all");
@@ -387,7 +386,7 @@ export default function Projects() {
                     </div>
                   )}
                 </div>
-                
+
                 <button className="px-6 py-2.5 bg-gradient-to-b from-blue-500 via-blue-600 to-blue-700 hover:from-blue-400 hover:via-blue-500 hover:to-blue-600 text-white rounded-full transition-all duration-300 flex items-center gap-2 shadow-xl shadow-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/40 hover:scale-105 active:scale-95 border border-blue-400/30" data-testid="button-new-project">
                   <Plus className="w-4 h-4" />
                   New Project
@@ -460,11 +459,11 @@ export default function Projects() {
                           </div>
                 {/* Enhanced Glossy Border Effect */}
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-100/40 via-blue-200/30 to-blue-300/40 rounded-3xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                
+
                 {/* iOS Style Inner Highlight */}
                 <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent rounded-t-3xl"></div>
                 <div className="absolute top-0 left-0 bottom-0 w-px bg-gradient-to-b from-white/60 via-transparent to-transparent rounded-l-3xl"></div>
-                
+
                 <div className="relative z-10">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
@@ -503,7 +502,7 @@ export default function Projects() {
                           </div>
                         )}
                       </div>
-                      
+
                       {/* Editable Address with Google Maps */}
                       <div className="relative mb-3">
                         {editingProject === project.id && editingField === 'address' ? (
@@ -551,7 +550,7 @@ export default function Projects() {
                         )}
                       </div>
                     </div>
-                    
+
                     {/* Editable Status Badge */}
                     <div className="relative">
                       {editingProject === project.id && editingField === 'status' ? (
@@ -598,7 +597,7 @@ export default function Projects() {
                         >
                           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-300/60 via-blue-200/40 to-transparent rounded-full"></div>
                         </div>
-                        
+
                         {/* Professional Milestone Tooltip - Only on Progress Bar Hover */}
                         <div 
                           className="absolute top-5 bg-white/98 backdrop-blur-lg border border-gray-200/80 rounded-xl p-4 shadow-2xl z-20 opacity-0 group-hover/progress:opacity-100 transition-all duration-300 ease-out transform translate-y-1 group-hover/progress:translate-y-0 min-w-[200px]"
@@ -606,7 +605,7 @@ export default function Projects() {
                         >
                           {/* Arrow pointing to progress bar */}
                           <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-white/98 border-l border-t border-gray-200/80 rotate-45"></div>
-                          
+
                           {/* Professional Content */}
                           <div className={`text-center ${getTypographyClasses()}`}>
                             <div className="font-bold text-gray-900 mb-1">{customLabels.currentPhase}</div>
@@ -667,14 +666,14 @@ export default function Projects() {
                             })}
                           </div>
                         </div>
-                        
+
                         <div className="flex-1 mx-4 relative">
                           <div className="h-1 bg-gradient-to-r from-blue-300 via-blue-400 to-blue-500 rounded-full"></div>
                           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                             <div className="w-3 h-3 bg-blue-500 rounded-full border-2 border-white shadow-lg"></div>
                           </div>
                         </div>
-                        
+
                         <div className={`text-center ${getTypographyClasses()}`}>
                           <div className="text-blue-600 font-medium mb-1">{customLabels.endDate}</div>
                           <div className="font-semibold text-gray-900">
@@ -686,7 +685,7 @@ export default function Projects() {
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="mt-3 text-center">
                         <span className="text-xs text-blue-600 bg-blue-100/60 px-2 py-1 rounded-full">
                           {Math.ceil((new Date(project.endDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days remaining
@@ -702,7 +701,7 @@ export default function Projects() {
                         <Users className="w-4 h-4 mr-2 text-purple-600" />
                         <span className="font-bold">{customLabels.projectLead}</span>
                       </div>
-                      
+
                       {/* Editable Project Lead */}
                       <div className="relative">
                         {editingProject === project.id && editingField === 'manager' ? (
@@ -764,6 +763,7 @@ export default function Projects() {
                   </div>
                 </div>
                         </div>
+                        </div>
                       )}
                     </Draggable>
                   ))}
@@ -780,7 +780,7 @@ export default function Projects() {
               <div className="text-3xl font-bold text-gray-900 mb-2">{projects.length}</div>
               <div className="text-sm text-gray-600">Total Projects</div>
             </div>
-            
+
             <button 
               onClick={() => setLocation('/analytics')}
               className="bg-white/80 backdrop-blur-xl border border-gray-200/60 rounded-2xl p-6 text-center shadow-xl hover:bg-white/90 hover:shadow-2xl transition-all duration-300 hover:scale-105 relative overflow-hidden w-full"
