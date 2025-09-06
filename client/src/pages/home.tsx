@@ -79,12 +79,12 @@ const getRelativeTime = (dateString: string | Date) => {
   const date = new Date(dateString);
   const now = new Date();
   const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-  
+
   if (diffInSeconds < 60) return 'Just now';
   if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
   if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
   if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
-  
+
   return date.toLocaleDateString('en-US', { 
     month: 'short', 
     day: 'numeric',
@@ -106,7 +106,7 @@ const getActivityIcon = (type: string) => {
     'alert': AlertCircle,
     'default': ActivityIcon
   };
-  
+
   return iconMap[type as keyof typeof iconMap] || iconMap.default;
 };
 
@@ -124,7 +124,7 @@ const getActivityColor = (type: string) => {
     'alert': 'bg-gray-100 text-gray-600',
     'default': 'bg-gray-100 text-gray-600'
   };
-  
+
   return colorMap[type as keyof typeof colorMap] || colorMap.default;
 };
 
@@ -195,7 +195,7 @@ const PropertyCard = ({ property }: { property: Property }) => (
         {(property.status || 'active').charAt(0).toUpperCase() + (property.status || 'active').slice(1)}
       </div>
     </div>
-    
+
     <div className="space-y-4">
       <div>
         <div className="flex justify-between items-center mb-2">
@@ -211,7 +211,7 @@ const PropertyCard = ({ property }: { property: Property }) => (
           ></div>
         </div>
       </div>
-      
+
       <div className="grid grid-cols-2 gap-4">
         <div>
           <p className="text-sm text-gray-600 mb-1">Budget</p>
@@ -228,7 +228,7 @@ const PropertyCard = ({ property }: { property: Property }) => (
           <p className="font-bold text-gray-900 capitalize">{property.type}</p>
         </div>
       </div>
-      
+
       <div className="flex gap-3 pt-4 border-t border-gray-200">
         <button
           className="flex-1 text-xs font-medium py-2 px-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center"
@@ -274,7 +274,7 @@ const Dashboard = () => {
     if (typeof n === 'number' && Number.isFinite(n)) return `$${Math.round(n / 1000)}k`;
     return '—';
   };
-  
+
   const [newProjectName, setNewProjectName] = useState("");
   const [newProjectAddress, setNewProjectAddress] = useState("");
   const [newProjectCity, setNewProjectCity] = useState("");
@@ -491,7 +491,7 @@ const Dashboard = () => {
         {/* Projects Grid */}
         <section className="mb-8 sm:mb-12">
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6 sm:mb-8">Active Projects</h2>
-          
+
           {propertiesError && (
             <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl p-6 shadow-lg border border-red-200 mb-8 hover:shadow-inner hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 active:shadow-inner active:from-gray-100 active:via-gray-200 active:to-gray-300 transition-all duration-300 hover:translate-y-1 hover:scale-[0.98] active:translate-y-2 active:scale-[0.96] group">
               <p className="text-sm text-red-600 mb-4">Couldn't load projects.</p>
@@ -504,7 +504,7 @@ const Dashboard = () => {
               </Button>
             </div>
           )}
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8">
             {propertiesLoading ? (
               Array.from({ length: 3 }).map((_, i) => (
@@ -533,7 +533,7 @@ const Dashboard = () => {
                 {Array.isArray(properties) && properties.map((property: any) => (
                   <PropertyCard key={property.id} property={property} />
                 ))}
-                
+
                 {!propertiesLoading && Array.isArray(properties) && properties.length === 0 && (
                   <div className="col-span-full">
                     <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl p-12 shadow-lg border border-gray-100 text-center hover:shadow-inner hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 active:shadow-inner active:from-gray-100 active:via-gray-200 active:to-gray-300 transition-all duration-300 hover:translate-y-1 hover:scale-[0.98] active:translate-y-2 active:scale-[0.96] group">
@@ -546,7 +546,7 @@ const Dashboard = () => {
                       </p>
                       <Dialog>
                         <DialogTrigger asChild>
-                          <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg font-semibold">
+                          <Button size="lg" className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-3 text-lg font-semibold shadow-2xl hover:shadow-[0_15px_30px_-8px_rgba(59,130,246,0.5)] transition-all duration-500 hover:-translate-y-1 border-0 relative overflow-hidden group">
                             <FilePlus className="w-5 h-5 mr-2" />
                             Create Your First Project
                           </Button>
@@ -648,7 +648,7 @@ const Dashboard = () => {
                 </Button>
               </div>
             )}
-            
+
             <div className="space-y-4">
               {/* Show mock activities if no real activities, or mix them */}
               {(!Array.isArray(activities) || activities.length === 0) && !activitiesLoading && !activitiesError ? (
@@ -674,19 +674,20 @@ const Dashboard = () => {
                   {mockRecentActivities.map((activity) => {
                     const IconComponent = getActivityIcon(activity.type);
                     const iconColorClass = getActivityColor(activity.type);
-                    
+
                     return (
                       <div key={activity.id} className="flex items-start space-x-4 py-4 border-b border-gray-100 last:border-b-0 last:pb-0 hover:bg-gray-50 rounded-lg px-2 -mx-2 transition-colors duration-150" data-testid={`activity-${activity.id}`}>
                         {/* Activity Icon */}
-                        <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-blue-500 to-blue-600 shadow-md">
-                          <IconComponent className="w-5 h-5 text-white" />
+                        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-full flex items-center justify-center flex-shrink-0 shadow-2xl group-hover:shadow-lg transition-all duration-300 relative overflow-hidden group-hover:scale-110">
+                          <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          <IconComponent className="w-5 h-5 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
                         </div>
-                        
+
                         {/* User Avatar */}
                         <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0 text-xs font-medium text-gray-600">
                           {activity.user.name.split(' ').map(n => n[0]).join('')}
                         </div>
-                        
+
                         {/* Activity Content */}
                         <div className="flex-1 min-w-0">
                           <p className="text-sm text-gray-900 leading-relaxed">
@@ -728,7 +729,7 @@ const Dashboard = () => {
                       </div>
                     );
                   })}
-                  
+
                   {/* Show real activities if they exist */}
                   {Array.isArray(activities) && activities.length > 0 && activities
                     .slice()
@@ -742,8 +743,9 @@ const Dashboard = () => {
                     .slice(0, 2) // Show fewer real activities to make room for mock ones
                     .map((activity: any) => (
                     <div key={`real-${activity.id}`} className="flex items-start space-x-4 py-4 border-b border-gray-100 last:border-b-0 last:pb-0 hover:bg-gray-50 rounded-lg px-2 -mx-2 transition-colors duration-150" data-testid={`activity-${activity.id}`}>
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
-                        <Check className="w-5 h-5 text-white" />
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-full flex items-center justify-center flex-shrink-0 shadow-2xl group-hover:shadow-lg transition-all duration-300 relative overflow-hidden group-hover:scale-110">
+                        <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <Check className="w-5 h-5 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
                       </div>
                       <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0 text-xs font-medium text-gray-600">
                         U
