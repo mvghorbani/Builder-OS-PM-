@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
@@ -32,7 +32,7 @@ const upload = multer({
 });
 
 // Middleware to extract JWT from cookie and set in header
-const extractJWTFromCookie = (req: any, res: any, next: any) => {
+const extractJWTFromCookie = (req: Request, res: Response, next: NextFunction) => {
   const token = req.cookies?.auth_token;
   if (token && !req.headers.authorization) {
     req.headers.authorization = `Bearer ${token}`;
@@ -41,7 +41,7 @@ const extractJWTFromCookie = (req: any, res: any, next: any) => {
 };
 
 // JWT authentication middleware
-const authenticateJWT = (req: any, res: any, next: any) => {
+const authenticateJWT = (req: any, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ message: "Unauthorized" });
@@ -75,29 +75,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  // AI-Powered Permit Discovery Endpoint
-  app.post('/api/v1/permits/lookup', isAuthenticated, async (req: any, res) => {
-    try {
-      const { projectAddress, scopeOfWork } = req.body;
-      
-      if (!projectAddress || !scopeOfWork) {
-        return res.status(400).json({ 
-          message: "Both projectAddress and scopeOfWork are required" 
-        });
-      }
-
-      const prompt = `You are an expert compliance assistant for construction projects in South Florida. Given a property address and a scope of work, you MUST use Google Search to find the official municipal government permit requirements for that specific city. You must return a single, minified JSON object with the following schema, and nothing else: { "permitName": string, "issuingAuthority": string, "formUrl": string, "notes": string }.
-
-Property Address: ${projectAddress}
-Scope of Work: ${scopeOfWork}`;
-
-      const result = await geminiService.lookupPermitRequirements(prompt);
-      res.json(result);
-    } catch (error) {
-      console.error("Error in permit lookup:", error);
-      res.status(500).json({ message: "Failed to lookup permit requirements" });
-    }
-  });
+  // Removed duplicate - using the better implementation below at line 1028
 
   // Permit CRUD Endpoints for Tracking Ledger
   app.get('/api/v1/projects/:projectId/permits', isAuthenticated, async (req, res) => {
@@ -1024,19 +1002,31 @@ Scope of Work: ${scopeOfWork}`;
     }
   });
 
-  // AI-powered permit lookup endpoint
+  // AI-powered permit lookup endpoint using existing GEMINI_API_KEY
   app.post('/api/v1/permits/lookup', authenticateJWT, async (req: any, res) => {
     try {
-      const validatedData = permitLookupSchema.parse(req.body);
+      const { projectAddress, scopeOfWork } = req.body;
       
-      console.log('Permit lookup request:', validatedData);
+      if (!projectAddress || !scopeOfWork) {
+        return res.status(400).json({ 
+          message: "Both projectAddress and scopeOfWork are required" 
+        });
+      }
       
+      console.log('Permit lookup request:', { projectAddress, scopeOfWork });
+      
+      // Use your existing Gemini service with GEMINI_API_KEY
       const permitInfo = await geminiService.lookupPermitRequirements(
-        validatedData.projectAddress,
-        validatedData.scopeOfWork
+        projectAddress,
+        scopeOfWork
       );
 
-      await createActivity(req.user.id, null, 'permit_lookup', `AI permit lookup for ${validatedData.projectAddress}`, 'permit_lookup', null);
+      // Log activity
+      try {
+        await createActivity(req.user.id || req.user.claims?.sub, null, 'permit_lookup', `AI permit lookup for ${projectAddress}`, 'permit_lookup', null);
+      } catch (activityError) {
+        console.warn('Failed to create activity log:', activityError);
+      }
 
       res.json(permitInfo);
     } catch (error) {
