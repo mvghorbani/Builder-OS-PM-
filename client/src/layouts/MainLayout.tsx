@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { useLocation } from "wouter";
 import { 
   LayoutDashboard, BarChart3, Calendar, DollarSign, Users, FileCheck, FolderOpen, Building2 
 } from "lucide-react";
@@ -6,11 +7,10 @@ import { Button } from "@/components/ui/button";
 
 interface MainLayoutProps {
   children: ReactNode;
-  activeView: string;
-  onViewChange: (view: string) => void;
 }
 
-export function MainLayout({ children, activeView, onViewChange }: MainLayoutProps) {
+export function MainLayout({ children }: MainLayoutProps) {
+  const [location, setLocation] = useLocation();
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
     { id: 'projects', label: 'Projects', icon: Building2, href: '/projects' },
@@ -21,6 +21,8 @@ export function MainLayout({ children, activeView, onViewChange }: MainLayoutPro
     { id: 'permits', label: 'Permits', icon: FileCheck, href: '/permits' },
     { id: 'documents', label: 'Documents', icon: FolderOpen, href: '/documents' },
   ];
+
+  const isActive = (href: string) => location === href;
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -39,9 +41,9 @@ export function MainLayout({ children, activeView, onViewChange }: MainLayoutPro
             return (
               <Button
                 key={item.id}
-                variant={activeView === item.id ? 'default' : 'ghost'}
+                variant={isActive(item.href) ? 'default' : 'ghost'}
                 className="w-full justify-start h-10 rounded-lg"
-                onClick={() => onViewChange(item.id)}
+                onClick={() => setLocation(item.href)}
                 data-testid={`button-nav-${item.id}`}
               >
                 <IconComponent className="w-4 h-4 mr-3" />

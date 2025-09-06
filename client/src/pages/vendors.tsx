@@ -23,7 +23,6 @@ import {
 
 export default function Vendors() {
   const { user, isLoading } = useAuth();
-  const [activeView, setActiveView] = useState('vendors');
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -47,7 +46,7 @@ export default function Vendors() {
   }
 
   return (
-    <MainLayout activeView={activeView} onViewChange={setActiveView}>
+    <MainLayout>
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-10">
           {/* Header */}

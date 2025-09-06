@@ -22,7 +22,6 @@ import {
 
 export default function Analytics() {
   const { user, isLoading } = useAuth();
-  const [activeView, setActiveView] = useState('analytics');
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -46,7 +45,7 @@ export default function Analytics() {
   }
 
   return (
-    <MainLayout activeView={activeView} onViewChange={setActiveView}>
+    <MainLayout>
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-10">
           {/* Header */}

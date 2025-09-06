@@ -1070,7 +1070,6 @@ const Documents = () => (
 // Main Home Component
 export default function Home() {
   const { user, isLoading } = useAuth();
-  const [activeView, setActiveView] = useState('dashboard');
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -1093,22 +1092,9 @@ export default function Home() {
     return null;
   }
 
-  const renderActiveView = () => {
-    switch (activeView) {
-      case 'dashboard': return <Dashboard />;
-      case 'analytics': return <Analytics />;
-      case 'schedule': return <Schedule />;
-      case 'budget': return <Budget />;
-      case 'vendors': return <Vendors />;
-      case 'permits': return <Permits />;
-      case 'documents': return <Documents />;
-      default: return <Dashboard />;
-    }
-  };
-
   return (
-    <MainLayout activeView={activeView} onViewChange={setActiveView}>
-      {renderActiveView()}
+    <MainLayout>
+      <Dashboard />
     </MainLayout>
   );
 }
