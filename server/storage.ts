@@ -551,27 +551,41 @@ export class DatabaseStorage implements IStorage {
 
   // Document operations
   async getDocuments(propertyId?: string, milestoneId?: string): Promise<Document[]> {
-    let query = db.select().from(documents).where(eq(documents.isArchived, false));
-    
     if (propertyId && milestoneId) {
-      query = query.where(and(
-        eq(documents.propertyId, propertyId), 
-        eq(documents.milestoneId, milestoneId),
-        eq(documents.isArchived, false)
-      ));
+      return await db
+        .select()
+        .from(documents)
+        .where(and(
+          eq(documents.propertyId, propertyId), 
+          eq(documents.milestoneId, milestoneId),
+          eq(documents.isArchived, false)
+        ))
+        .orderBy(desc(documents.createdAt));
     } else if (propertyId) {
-      query = query.where(and(
-        eq(documents.propertyId, propertyId),
-        eq(documents.isArchived, false)
-      ));
+      return await db
+        .select()
+        .from(documents)
+        .where(and(
+          eq(documents.propertyId, propertyId),
+          eq(documents.isArchived, false)
+        ))
+        .orderBy(desc(documents.createdAt));
     } else if (milestoneId) {
-      query = query.where(and(
-        eq(documents.milestoneId, milestoneId),
-        eq(documents.isArchived, false)
-      ));
+      return await db
+        .select()
+        .from(documents)
+        .where(and(
+          eq(documents.milestoneId, milestoneId),
+          eq(documents.isArchived, false)
+        ))
+        .orderBy(desc(documents.createdAt));
     }
 
-    return await query.orderBy(desc(documents.createdAt));
+    return await db
+      .select()
+      .from(documents)
+      .where(eq(documents.isArchived, false))
+      .orderBy(desc(documents.createdAt));
   }
 
   async searchDocuments(query: string, filters?: {
@@ -584,8 +598,6 @@ export class DatabaseStorage implements IStorage {
     dateTo?: Date;
     uploadedBy?: string;
   }): Promise<Document[]> {
-    let dbQuery = db.select().from(documents);
-    
     const conditions = [eq(documents.isArchived, false)];
     
     // Text search in name, description, and tags
@@ -593,8 +605,7 @@ export class DatabaseStorage implements IStorage {
       conditions.push(
         or(
           ilike(documents.name, `%${query}%`),
-          ilike(documents.description, `%${query}%`),
-          sql`${documents.tags} && ARRAY[${query}]::text[]`
+          ilike(documents.description, `%${query}%`)
         )
       );
     }
@@ -604,16 +615,12 @@ export class DatabaseStorage implements IStorage {
       if (filters.propertyId) conditions.push(eq(documents.propertyId, filters.propertyId));
       if (filters.category) conditions.push(eq(documents.category, filters.category));
       if (filters.type) conditions.push(eq(documents.type, filters.type));
-      if (filters.status) conditions.push(eq(documents.status, filters.status));
       if (filters.uploadedBy) conditions.push(eq(documents.uploadedBy, filters.uploadedBy));
-      if (filters.tags && filters.tags.length > 0) {
-        conditions.push(sql`${documents.tags} && ARRAY[${filters.tags.join(',')}]::text[]`);
-      }
-      if (filters.dateFrom) conditions.push(sql`${documents.createdAt} >= ${filters.dateFrom}`);
-      if (filters.dateTo) conditions.push(sql`${documents.createdAt} <= ${filters.dateTo}`);
     }
     
-    return await dbQuery
+    return await db
+      .select()
+      .from(documents)
       .where(and(...conditions))
       .orderBy(desc(documents.createdAt));
   }
@@ -796,33 +803,41 @@ export class DatabaseStorage implements IStorage {
 
   // Document exports and backup
   async getDocumentsByCategory(category: string, propertyId?: string): Promise<Document[]> {
-    let query = db
+    if (propertyId) {
+      return await db
+        .select()
+        .from(documents)
+        .where(and(
+          eq(documents.category, category),
+          eq(documents.propertyId, propertyId),
+          eq(documents.isArchived, false)
+        ))
+        .orderBy(desc(documents.createdAt));
+    }
+    
+    return await db
       .select()
       .from(documents)
       .where(and(
         eq(documents.category, category),
         eq(documents.isArchived, false)
-      ));
-      
-    if (propertyId) {
-      query = query.where(and(
-        eq(documents.category, category),
-        eq(documents.propertyId, propertyId),
-        eq(documents.isArchived, false)
-      ));
-    }
-    
-    return await query.orderBy(desc(documents.createdAt));
+      ))
+      .orderBy(desc(documents.createdAt));
   }
 
   async getDocumentsForBackup(lastBackupDate?: Date): Promise<Document[]> {
-    let query = db.select().from(documents);
-    
     if (lastBackupDate) {
-      query = query.where(sql`${documents.updatedAt} > ${lastBackupDate}`);
+      return await db
+        .select()
+        .from(documents)
+        .where(sql`${documents.updatedAt} > ${lastBackupDate}`)
+        .orderBy(desc(documents.updatedAt));
     }
     
-    return await query.orderBy(desc(documents.updatedAt));
+    return await db
+      .select()
+      .from(documents)
+      .orderBy(desc(documents.updatedAt));
   }
 
   // Activity operations
