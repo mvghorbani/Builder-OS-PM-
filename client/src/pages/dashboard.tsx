@@ -1,5 +1,6 @@
 import { Building2, Wallet, Calendar, FileCheck, FilePlus, FileSearch, MessageSquarePlus, FileText, Upload, FileQuestion } from "lucide-react";
 import { useLocation } from "wouter";
+import { MainLayout } from "@/layouts/MainLayout";
 
 export default function Dashboard() {
   const [, setLocation] = useLocation();
@@ -12,7 +13,8 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <MainLayout>
+      <div className="container mx-auto px-4 py-8">
       <header className="mb-4 text-center">
         <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-sm text-gray-500">Project overview and quick actions</p>
@@ -137,6 +139,7 @@ export default function Dashboard() {
           <div className="text-[11px] text-gray-500">Start conversation</div>
         </button>
       </div>
-    </div>
+      </div>
+    </MainLayout>
   );
 }
