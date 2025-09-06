@@ -89,10 +89,20 @@ export default function Projects() {
       totalBudget: 2400000,
       spentBudget: 1560000,
       startDate: '2024-01-15',
-      endDate: '2024-12-31',
+      endDate: '2025-03-31',
       manager: 'MV Ghorbani',
       team: 12,
-      currentMilestone: 'Framing & Structural Work'
+      currentMilestone: 'Framing & Structural Work',
+      milestones: [
+        { name: 'Foundation & Site Prep', completed: true },
+        { name: 'Framing & Structural Work', completed: false, current: true },
+        { name: 'Electrical & Plumbing', completed: false },
+        { name: 'Interior Finishing', completed: false },
+        { name: 'Final Inspection', completed: false }
+      ],
+      projectedROI: 18,
+      budgetVariance: -2.5,
+      scheduleVariance: 5
     },
     {
       id: '2',
@@ -103,10 +113,20 @@ export default function Projects() {
       totalBudget: 3200000,
       spentBudget: 1440000,
       startDate: '2024-02-01',
-      endDate: '2025-01-31',
+      endDate: '2025-04-30',
       manager: 'MV Ghorbani',
       team: 18,
-      currentMilestone: 'Foundation & Site Prep'
+      currentMilestone: 'Foundation & Site Prep',
+      milestones: [
+        { name: 'Foundation & Site Prep', completed: false, current: true },
+        { name: 'Framing & Structural Work', completed: false },
+        { name: 'Electrical & Plumbing', completed: false },
+        { name: 'Interior Finishing', completed: false },
+        { name: 'Final Inspection', completed: false }
+      ],
+      projectedROI: 22,
+      budgetVariance: 3.2,
+      scheduleVariance: -8
     },
     {
       id: '3',
@@ -117,10 +137,20 @@ export default function Projects() {
       totalBudget: 1800000,
       spentBudget: 1440000,
       startDate: '2024-03-01',
-      endDate: '2024-10-31',
+      endDate: '2025-02-28',
       manager: 'MV Ghorbani',
       team: 8,
-      currentMilestone: 'Interior Finishing'
+      currentMilestone: 'Interior Finishing',
+      milestones: [
+        { name: 'Foundation & Site Prep', completed: true },
+        { name: 'Framing & Structural Work', completed: true },
+        { name: 'Electrical & Plumbing', completed: true },
+        { name: 'Interior Finishing', completed: false, current: true },
+        { name: 'Final Inspection', completed: false }
+      ],
+      projectedROI: 16,
+      budgetVariance: 0,
+      scheduleVariance: 12
     }
   ]);
 
@@ -223,6 +253,24 @@ export default function Projects() {
   // Get project with nearest deadline
   const projectsWithDaysLeft = projects.map(p => ({...p, daysLeft: getDaysRemaining(p.endDate)}));
   const nearestDeadline = Math.min(...projectsWithDaysLeft.map(p => p.daysLeft));
+
+  // Helper functions for project status
+  const getScheduleStatus = (scheduleVariance: number) => {
+    if (scheduleVariance <= 0) return { text: 'On Track', color: 'text-green-600' };
+    if (scheduleVariance <= 10) return { text: `${scheduleVariance} Days Delayed`, color: 'text-yellow-600' };
+    return { text: `${scheduleVariance} Days Delayed`, color: 'text-red-600' };
+  };
+
+  const getBudgetStatus = (budgetVariance: number) => {
+    if (Math.abs(budgetVariance) <= 2) return { text: 'On Budget', color: 'text-green-600' };
+    if (budgetVariance > 0) return { text: `${budgetVariance.toFixed(1)}% Over Budget`, color: 'text-red-600' };
+    return { text: `${Math.abs(budgetVariance).toFixed(1)}% Under Budget`, color: 'text-green-600' };
+  };
+
+  const calculateMilestoneProgress = (milestones: any[]) => {
+    const completed = milestones.filter(m => m.completed).length;
+    return Math.round((completed / milestones.length) * 100);
+  };
 
   // Calculate profitability (spent vs budget efficiency)
   const avgProfitability = projects.reduce((sum, p) => {
@@ -583,17 +631,17 @@ export default function Projects() {
                       )}
                     </div>
                   </div>
-                  {/* Progress with Hover Budget Info */}
+                  {/* Milestone Progress with Hover Info */}
                   <div className="mb-6">
                     <div className={`flex justify-between mb-2 ${getTypographyClasses()}`}>
-                      <span className="text-gray-600 font-bold">{customLabels.progress}</span>
-                      <span className="font-semibold text-gray-900">{project.progress}%</span>
+                      <span className="text-gray-600 font-bold">Milestone Completion</span>
+                      <span className="font-semibold text-gray-900">{calculateMilestoneProgress(project.milestones)}%</span>
                     </div>
                     <div className="relative">
                       <div className="w-full bg-gray-200/60 rounded-full h-3 overflow-hidden backdrop-blur-sm shadow-inner border border-gray-300/50 cursor-pointer group/progress">
                         <div 
                           className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 h-full rounded-full transition-all duration-700 shadow-lg relative"
-                          style={{ width: `${project.progress}%` }}
+                          style={{ width: `${calculateMilestoneProgress(project.milestones)}%` }}
                         >
                           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-300/60 via-blue-200/40 to-transparent rounded-full"></div>
                         </div>
@@ -608,12 +656,22 @@ export default function Projects() {
 
                           {/* Professional Content */}
                           <div className={`text-center ${getTypographyClasses()}`}>
-                            <div className="font-bold text-gray-900 mb-1">{customLabels.currentPhase}</div>
-                            <div className="text-gray-600 leading-relaxed">
+                            <div className="font-bold text-gray-900 mb-2">Current Phase</div>
+                            <div className="text-gray-600 leading-relaxed mb-3">
                               {project.currentMilestone}
                             </div>
+                            <div className="space-y-1 text-xs">
+                              {project.milestones.map((milestone, idx) => (
+                                <div key={idx} className="flex items-center gap-2">
+                                  <div className={`w-2 h-2 rounded-full ${milestone.completed ? 'bg-green-500' : milestone.current ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
+                                  <span className={milestone.completed ? 'text-green-700' : milestone.current ? 'text-blue-700' : 'text-gray-500'}>
+                                    {milestone.name}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
                             <div className="mt-2 pt-2 border-t border-gray-100">
-                              <div className="text-blue-600 font-medium">{project.progress}% Complete</div>
+                              <div className="text-blue-600 font-medium">{calculateMilestoneProgress(project.milestones)}% Complete</div>
                             </div>
                           </div>
                         </div>
@@ -675,7 +733,7 @@ export default function Projects() {
                         </div>
 
                         <div className={`text-center ${getTypographyClasses()}`}>
-                          <div className="text-blue-600 font-medium mb-1">{customLabels.endDate}</div>
+                          <div className="text-blue-600 font-medium mb-1">Target Completion</div>
                           <div className="font-semibold text-gray-900">
                             {new Date(project.endDate).toLocaleDateString('en-US', { 
                               month: 'short', 
@@ -689,6 +747,39 @@ export default function Projects() {
                       <div className="mt-3 text-center">
                         <span className="text-xs text-blue-600 bg-blue-100/60 px-2 py-1 rounded-full">
                           {Math.ceil((new Date(project.endDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days remaining
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* At a Glance Status Section */}
+                  <div className="mb-6">
+                    <div className={`flex items-center text-gray-600 mb-3 ${getTypographyClasses()}`}>
+                      <TrendingUp className="w-4 h-4 text-emerald-600 mr-2" />
+                      <span className="font-bold">At a Glance</span>
+                    </div>
+                    <div className="bg-gradient-to-r from-gray-50/80 to-emerald-50/80 rounded-xl p-4 border border-gray-100/60 backdrop-blur-sm space-y-3">
+                      {/* Schedule Status */}
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Schedule Status</span>
+                        <span className={`text-sm font-semibold ${getScheduleStatus(project.scheduleVariance).color}`}>
+                          {getScheduleStatus(project.scheduleVariance).text}
+                        </span>
+                      </div>
+
+                      {/* Budget Status */}
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Budget Status</span>
+                        <span className={`text-sm font-semibold ${getBudgetStatus(project.budgetVariance).color}`}>
+                          {getBudgetStatus(project.budgetVariance).text}
+                        </span>
+                      </div>
+
+                      {/* Projected ROI */}
+                      <div className="flex justify-between items-center pt-2 border-t border-gray-200/60">
+                        <span className="text-sm text-gray-600 font-medium">Projected ROI</span>
+                        <span className="text-lg font-bold text-emerald-600">
+                          {project.projectedROI}%
                         </span>
                       </div>
                     </div>
@@ -762,7 +853,6 @@ export default function Projects() {
                     </button>
                   </div>
                 </div>
-                        </div>
                         </div>
                       )}
                     </Draggable>
