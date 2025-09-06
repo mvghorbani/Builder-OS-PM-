@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -35,8 +37,8 @@
   --sidebar-accent-foreground: hsl(203.8863 88.2845% 53.1373%);
   --sidebar-border: hsl(205.0000 25.0000% 90.5882%);
   --sidebar-ring: hsl(202.8169 89.1213% 53.1373%);
-  --font-sans: Open Sans, sans-serif;
-  --font-serif: Georgia, serif;
+  --font-sans: "EB Garamond", Garamond, "Times New Roman", serif;
+  --font-serif: "EB Garamond", Garamond, "Times New Roman", serif;
   --font-mono: Menlo, monospace;
   --radius: 1.3rem;
   --shadow-2xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
@@ -84,8 +86,8 @@
   --sidebar-accent-foreground: hsl(203.7736 87.6033% 52.5490%);
   --sidebar-border: hsl(205.7143 15.7895% 26.0784%);
   --sidebar-ring: hsl(202.8169 89.1213% 53.1373%);
-  --font-sans: Open Sans, sans-serif;
-  --font-serif: Georgia, serif;
+  --font-sans: "EB Garamond", Garamond, "Times New Roman", serif;
+  --font-serif: "EB Garamond", Garamond, "Times New Roman", serif;
   --font-mono: Menlo, monospace;
   --radius: 1.3rem;
   --shadow-2xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
