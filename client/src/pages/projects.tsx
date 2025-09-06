@@ -32,8 +32,8 @@ export default function Projects() {
   const [customLabels, setCustomLabels] = useState({
     progress: "Progress",
     budgetOverview: "Budget Overview",
-    committed: "Committed",
-    totalAllocated: "Total Allocated",
+    committed: "Expenditure",
+    totalAllocated: "Budget",
     projectTimeline: "Project Timeline",
     projectLead: "Project Lead",
     startDate: "Start Date",
@@ -625,7 +625,7 @@ export default function Projects() {
                   {/* Budget Section */}
                   <div className="mb-6">
                     <div className={`flex items-center text-gray-600 mb-3 ${getTypographyClasses()}`}>
-                      <div className="w-2 h-2 bg-emerald-500 rounded-full mr-2"></div>
+                      <DollarSign className="w-4 h-4 text-emerald-600 mr-2" />
                       <span className="font-bold">{customLabels.budgetOverview}</span>
                     </div>
                     <div className="bg-gray-50/80 rounded-xl p-4 border border-gray-200/50">
@@ -652,7 +652,7 @@ export default function Projects() {
                   {/* Enhanced Timeline Display */}
                   <div className="mb-6">
                     <div className={`flex items-center text-gray-600 mb-3 ${getTypographyClasses()}`}>
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                      <Calendar className="w-4 h-4 text-blue-600 mr-2" />
                       <span className="font-bold">{customLabels.projectTimeline}</span>
                     </div>
                     <div className="bg-gradient-to-r from-blue-50/80 to-indigo-50/80 rounded-xl p-4 border border-blue-100/60 backdrop-blur-sm">
