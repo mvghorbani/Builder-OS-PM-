@@ -473,7 +473,7 @@ export default function Projects() {
                   {/* Progress with Hover Budget Info */}
                   <div className="mb-6">
                     <div className="flex justify-between text-sm mb-2">
-                      <span className="text-gray-600">Progress</span>
+                      <span className="text-gray-600 font-bold">Progress</span>
                       <span className="font-semibold text-gray-900">{project.progress}%</span>
                     </div>
                     <div className="relative">
@@ -512,15 +512,15 @@ export default function Projects() {
                   <div className="mb-6">
                     <div className="flex items-center text-sm text-gray-600 mb-3">
                       <div className="w-2 h-2 bg-emerald-500 rounded-full mr-2"></div>
-                      Budget Overview
+                      <span className="font-bold">Budget Overview</span>
                     </div>
                     <div className="bg-gray-50/80 rounded-xl p-4 border border-gray-200/50">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-gray-600">Spent</span>
+                        <span className="text-sm text-gray-600">Committed</span>
                         <span className="text-sm font-semibold text-emerald-600">{formatCurrency(project.spentBudget)}</span>
                       </div>
                       <div className="flex justify-between items-center mb-3">
-                        <span className="text-sm text-gray-600">Total Budget</span>
+                        <span className="text-sm text-gray-600">Total Allocated</span>
                         <span className="text-sm font-semibold text-gray-900">{formatCurrency(project.totalBudget)}</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
@@ -539,7 +539,7 @@ export default function Projects() {
                   <div className="mb-6">
                     <div className="flex items-center text-sm text-gray-600 mb-3">
                       <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
-                      Project Timeline
+                      <span className="font-bold">Project Timeline</span>
                     </div>
                     <div className="bg-gradient-to-r from-blue-50/80 to-indigo-50/80 rounded-xl p-4 border border-blue-100/60 backdrop-blur-sm">
                       <div className="flex items-center justify-between">
@@ -586,7 +586,7 @@ export default function Projects() {
                     <div className="flex items-center justify-between text-sm">
                       <div className="flex items-center text-gray-600">
                         <Users className="w-4 h-4 mr-2 text-purple-600" />
-                        Project Lead
+                        <span className="font-bold">Project Lead</span>
                       </div>
                       
                       {/* Editable Project Lead */}
