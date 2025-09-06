@@ -113,15 +113,15 @@ const getActivityIcon = (type: string) => {
 const getActivityColor = (type: string) => {
   const colorMap = {
     'document_upload': 'bg-blue-100 text-blue-600',
-    'permit_approved': 'bg-green-100 text-green-600',
-    'permit_pending': 'bg-yellow-100 text-yellow-600',
-    'comment': 'bg-teal-100 text-teal-600',
-    'task_completed': 'bg-green-100 text-green-600',
+    'permit_approved': 'bg-blue-100 text-blue-600',
+    'permit_pending': 'bg-gray-100 text-gray-600',
+    'comment': 'bg-gray-100 text-gray-600',
+    'task_completed': 'bg-blue-100 text-blue-600',
     'milestone_reached': 'bg-blue-100 text-blue-600',
-    'budget_updated': 'bg-yellow-100 text-yellow-600',
+    'budget_updated': 'bg-gray-100 text-gray-600',
     'rfi_submitted': 'bg-gray-100 text-gray-600',
-    'user_joined': 'bg-teal-100 text-teal-600',
-    'alert': 'bg-red-100 text-red-600',
+    'user_joined': 'bg-blue-100 text-blue-600',
+    'alert': 'bg-gray-100 text-gray-600',
     'default': 'bg-gray-100 text-gray-600'
   };
   
@@ -456,11 +456,11 @@ const Dashboard = () => {
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6 sm:mb-8">Quick Actions</h2>
           <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
             <button 
-              className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-200 hover:-translate-y-1 group text-center" 
+              className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl hover:from-gray-50 hover:to-gray-100 transition-all duration-300 hover:-translate-y-1 group text-center" 
               data-testid="button-daily-log"
               onClick={() => toast({ title: "Daily Log", description: "Daily log feature coming soon!" })}
             >
-              <div className="w-12 h-12 bg-yellow-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-yellow-700 transition-colors duration-200">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:from-blue-600 group-hover:to-blue-700 transition-all duration-300 shadow-lg">
                 <ClipboardCheck className="h-6 w-6 text-white" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Daily Log</h3>
@@ -468,39 +468,39 @@ const Dashboard = () => {
             </button>
 
             <button 
-              className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-200 hover:-translate-y-1 group text-center" 
+              className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl hover:from-gray-50 hover:to-gray-100 transition-all duration-300 hover:-translate-y-1 group text-center" 
               data-testid="button-upload-document"
               onClick={() => toast({ title: "Upload Document", description: "Document upload feature coming soon!" })}
             >
-              <div className="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-green-700 transition-colors duration-200">
+              <div className="w-12 h-12 bg-gradient-to-br from-gray-500 to-gray-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:from-gray-600 group-hover:to-gray-700 transition-all duration-300 shadow-lg">
                 <Upload className="h-6 w-6 text-white" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Upload</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Upload Document</h3>
               <p className="text-sm text-gray-600">Add project files</p>
             </button>
 
             <button 
-              className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-200 hover:-translate-y-1 group text-center" 
-              data-testid="button-create-project"
-              onClick={() => toast({ title: "Create", description: "Project creation feature coming soon!" })}
+              className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl hover:from-gray-50 hover:to-gray-100 transition-all duration-300 hover:-translate-y-1 group text-center" 
+              data-testid="button-create-rfq"
+              onClick={() => toast({ title: "Create RFQ", description: "RFQ creation feature coming soon!" })}
             >
-              <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-700 transition-colors duration-200">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-500 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:from-blue-500 group-hover:to-blue-600 transition-all duration-300 shadow-lg">
                 <FilePlus className="h-6 w-6 text-white" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Create</h3>
-              <p className="text-sm text-gray-600">Start new project</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Create RFQ</h3>
+              <p className="text-sm text-gray-600">Get bids for work</p>
             </button>
 
             <button 
-              className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-200 hover:-translate-y-1 group text-center" 
+              className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl hover:from-gray-50 hover:to-gray-100 transition-all duration-300 hover:-translate-y-1 group text-center" 
               data-testid="button-submit-rfi"
-              onClick={() => toast({ title: "Submit", description: "Submit documents or requests" })}
+              onClick={() => toast({ title: "Submit RFI", description: "RFI submission feature coming soon!" })}
             >
-              <div className="w-12 h-12 bg-teal-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-teal-700 transition-colors duration-200">
+              <div className="w-12 h-12 bg-gradient-to-br from-gray-400 to-gray-500 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:from-gray-500 group-hover:to-gray-600 transition-all duration-300 shadow-lg">
                 <HelpCircle className="h-6 w-6 text-white" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Submit</h3>
-              <p className="text-sm text-gray-600">Send requests & docs</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Submit RFI</h3>
+              <p className="text-sm text-gray-600">Request information</p>
             </button>
           </div>
         </section>
