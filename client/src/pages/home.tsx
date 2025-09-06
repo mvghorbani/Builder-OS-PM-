@@ -178,12 +178,12 @@ const mockRecentActivities = [
 
 const PropertyCard = ({ property }: { property: Property }) => (
   <div
-    className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-200 hover:-translate-y-1 cursor-pointer group"
+    className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 transition-all duration-300 hover:-translate-y-1 cursor-pointer group"
     data-testid={`card-property-${property.id}`}
   >
     <div className="flex items-start justify-between mb-6">
       <div className="flex-1 min-w-0">
-        <h3 className="text-xl font-bold text-gray-900 mb-1 truncate">{property.name || property.address}</h3>
+        <h3 className="text-xl font-bold text-gray-900 mb-1 truncate group-hover:text-blue-700 transition-colors duration-300">{property.name || property.address}</h3>
         <p className="text-sm text-gray-600">
           {property.city && property.state ? 
             `${property.city}, ${property.state}${property.zipCode ? ' ' + property.zipCode : ''}` : 
@@ -191,7 +191,9 @@ const PropertyCard = ({ property }: { property: Property }) => (
           }
         </p>
       </div>
-      <StatusBadge status={property.status || 'active'} />
+      <div className="px-3 py-1 bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 text-xs font-medium rounded-full border border-blue-200">
+        {(property.status || 'active').charAt(0).toUpperCase() + (property.status || 'active').slice(1)}
+      </div>
     </div>
     
     <div className="space-y-4">
@@ -204,7 +206,7 @@ const PropertyCard = ({ property }: { property: Property }) => (
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div 
-            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-300 shadow-sm"
             style={{ width: `${typeof property.progress === 'number' ? property.progress : 0}%` }}
           ></div>
         </div>
@@ -227,11 +229,9 @@ const PropertyCard = ({ property }: { property: Property }) => (
         </div>
       </div>
       
-      <div className="flex gap-3 pt-4 border-t border-gray-100">
-        <Button
-          size="sm"
-          variant="outline"
-          className="flex-1 text-xs font-medium hover:bg-blue-50 hover:border-blue-200 transition-colors duration-200"
+      <div className="flex gap-3 pt-4 border-t border-gray-200">
+        <button
+          className="flex-1 text-xs font-medium py-2 px-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center"
           onClick={(e) => {
             e.stopPropagation();
             exportProject(property.id, 'pdf').catch((error: any) => {
@@ -242,11 +242,9 @@ const PropertyCard = ({ property }: { property: Property }) => (
         >
           <FileDown className="w-3 h-3 mr-1" />
           PDF
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          className="flex-1 text-xs font-medium hover:bg-green-50 hover:border-green-200 transition-colors duration-200"
+        </button>
+        <button
+          className="flex-1 text-xs font-medium py-2 px-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-lg hover:from-gray-600 hover:to-gray-700 transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center"
           onClick={(e) => {
             e.stopPropagation();
             exportProject(property.id, 'excel').catch((error: any) => {
@@ -257,7 +255,7 @@ const PropertyCard = ({ property }: { property: Property }) => (
         >
           <Download className="w-3 h-3 mr-1" />
           Excel
-        </Button>
+        </button>
       </div>
     </div>
   </div>
@@ -372,27 +370,29 @@ const Dashboard = () => {
         {/* Stats Grid */}
         <div className="mb-8 sm:mb-12 grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {/* Active Projects */}
-          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-200">
+          <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 transition-all duration-300 hover:-translate-y-1 group">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-blue-50 rounded-xl">
-                <Building2 className="h-6 w-6 text-blue-600" />
+              <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg group-hover:from-blue-600 group-hover:to-blue-700 transition-all duration-300">
+                <Building2 className="h-6 w-6 text-white" />
               </div>
+              <div className="w-2 h-2 bg-gradient-to-br from-blue-400 to-blue-500 rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
             </div>
             <p className="text-sm font-medium text-gray-600 mb-1">Active Projects</p>
-            <p className="text-3xl font-bold text-gray-900" data-testid="text-stat-projects">
+            <p className="text-3xl font-bold text-gray-900 group-hover:text-blue-700 transition-colors duration-300" data-testid="text-stat-projects">
               {fmtInt(stats?.activeProjects)}
             </p>
           </div>
 
           {/* Budget */}
-          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-200">
+          <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 transition-all duration-300 hover:-translate-y-1 group">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-blue-50 rounded-xl">
-                <Wallet className="h-6 w-6 text-blue-600" />
+              <div className="p-3 bg-gradient-to-br from-gray-500 to-gray-600 rounded-xl shadow-lg group-hover:from-gray-600 group-hover:to-gray-700 transition-all duration-300">
+                <Wallet className="h-6 w-6 text-white" />
               </div>
+              <div className="w-2 h-2 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
             </div>
             <p className="text-sm font-medium text-gray-600 mb-1">Total Budget</p>
-            <p className="text-3xl font-bold text-gray-900" data-testid="text-stat-budget">
+            <p className="text-3xl font-bold text-gray-900 group-hover:text-gray-700 transition-colors duration-300" data-testid="text-stat-budget">
               {stats?.totalBudget && typeof stats.totalBudget === 'number' && stats.totalBudget >= 1000000
                 ? `$${(stats.totalBudget / 1000000).toFixed(1)}M`
                 : fmtUSDk(stats?.totalBudget)}
@@ -400,33 +400,22 @@ const Dashboard = () => {
           </div>
 
           {/* Schedule Health */}
-          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-200">
+          <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 transition-all duration-300 hover:-translate-y-1 group">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-green-50 rounded-xl">
-                <Calendar className="h-6 w-6 text-green-600" />
+              <div className="p-3 bg-gradient-to-br from-blue-400 to-blue-500 rounded-xl shadow-lg group-hover:from-blue-500 group-hover:to-blue-600 transition-all duration-300">
+                <Calendar className="h-6 w-6 text-white" />
               </div>
-              {Number.isFinite(stats?.avgScheduleAdherence) && stats!.avgScheduleAdherence >= 90 && (
-                <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-              )}
-              {Number.isFinite(stats?.avgScheduleAdherence) && stats!.avgScheduleAdherence < 90 && stats!.avgScheduleAdherence >= 70 && (
-                <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
-              )}
-              {Number.isFinite(stats?.avgScheduleAdherence) && stats!.avgScheduleAdherence < 70 && (
-                <div className="w-3 h-3 bg-red-400 rounded-full"></div>
-              )}
+              <div className="w-2 h-2 bg-gradient-to-br from-blue-300 to-blue-400 rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
             </div>
             <p className="text-sm font-medium text-gray-600 mb-1">Schedule Health</p>
             <div className="flex items-center">
-              <p className="text-3xl font-bold text-gray-900 mr-2" data-testid="text-stat-schedule">
+              <p className="text-3xl font-bold text-gray-900 mr-2 group-hover:text-blue-700 transition-colors duration-300" data-testid="text-stat-schedule">
                 {Number.isFinite(stats?.avgScheduleAdherence) && (stats?.scheduleSampleSize || 0) > 0
                   ? `${Math.max(0, Math.min(100, Number(stats!.avgScheduleAdherence))).toFixed(0)}%`
                   : '—'}
               </p>
               {Number.isFinite(stats?.avgScheduleAdherence) && (stats?.scheduleSampleSize || 0) > 0 && (
-                <span className={`text-sm font-medium ${
-                  stats!.avgScheduleAdherence >= 90 ? 'text-green-600' :
-                  stats!.avgScheduleAdherence >= 70 ? 'text-yellow-600' : 'text-red-600'
-                }`}>
+                <span className="text-sm font-medium text-gray-600">
                   {stats!.avgScheduleAdherence >= 90 ? 'On Track' :
                    stats!.avgScheduleAdherence >= 70 ? 'At Risk' : 'Delayed'}
                 </span>
@@ -435,17 +424,17 @@ const Dashboard = () => {
           </div>
 
           {/* Permits */}
-          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-200">
+          <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 transition-all duration-300 hover:-translate-y-1 group">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-yellow-50 rounded-xl">
-                <FileCheck className="h-6 w-6 text-yellow-600" />
+              <div className="p-3 bg-gradient-to-br from-gray-400 to-gray-500 rounded-xl shadow-lg group-hover:from-gray-500 group-hover:to-gray-600 transition-all duration-300">
+                <FileCheck className="h-6 w-6 text-white" />
               </div>
               {stats?.pendingPermits && Number(stats.pendingPermits) > 0 && (
-                <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                <div className="w-2 h-2 bg-gradient-to-br from-gray-300 to-gray-400 rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
               )}
             </div>
             <p className="text-sm font-medium text-gray-600 mb-1">Open Permits</p>
-            <p className="text-3xl font-bold text-gray-900" data-testid="text-stat-permits">
+            <p className="text-3xl font-bold text-gray-900 group-hover:text-gray-700 transition-colors duration-300" data-testid="text-stat-permits">
               {fmtInt(stats?.pendingPermits)}
             </p>
           </div>
@@ -673,11 +662,11 @@ const Dashboard = () => {
                 <div className="text-center py-12">
                   <div className="w-20 h-20 mx-auto mb-6 relative">
                     {/* Blueprint/Timeline Illustration */}
-                    <div className="w-full h-full bg-blue-50 rounded-2xl flex items-center justify-center">
-                      <ActivityIcon className="w-10 h-10 text-blue-600" />
+                    <div className="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300">
+                      <ActivityIcon className="w-10 h-10 text-white" />
                     </div>
-                    <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                      <Clock className="w-4 h-4 text-gray-500" />
+                    <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center shadow-md">
+                      <Clock className="w-4 h-4 text-gray-600" />
                     </div>
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">No recent activity</h3>
@@ -695,8 +684,8 @@ const Dashboard = () => {
                     return (
                       <div key={activity.id} className="flex items-start space-x-4 py-4 border-b border-gray-100 last:border-b-0 last:pb-0 hover:bg-gray-50 rounded-lg px-2 -mx-2 transition-colors duration-150" data-testid={`activity-${activity.id}`}>
                         {/* Activity Icon */}
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${iconColorClass}`}>
-                          <IconComponent className="w-5 h-5" />
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-blue-500 to-blue-600 shadow-md">
+                          <IconComponent className="w-5 h-5 text-white" />
                         </div>
                         
                         {/* User Avatar */}
@@ -759,8 +748,8 @@ const Dashboard = () => {
                     .slice(0, 2) // Show fewer real activities to make room for mock ones
                     .map((activity: any) => (
                     <div key={`real-${activity.id}`} className="flex items-start space-x-4 py-4 border-b border-gray-100 last:border-b-0 last:pb-0 hover:bg-gray-50 rounded-lg px-2 -mx-2 transition-colors duration-150" data-testid={`activity-${activity.id}`}>
-                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                        <Check className="w-5 h-5 text-green-600" />
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
+                        <Check className="w-5 h-5 text-white" />
                       </div>
                       <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0 text-xs font-medium text-gray-600">
                         U
@@ -782,11 +771,11 @@ const Dashboard = () => {
 
             <Button 
               variant="outline" 
-              className="w-full mt-6 bg-gray-50 hover:bg-gray-100 border-gray-200 transition-colors duration-200" 
+              className="w-full mt-6 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-0 transition-all duration-300 shadow-md hover:shadow-lg" 
               data-testid="button-view-all-activity"
               onClick={() => toast({ title: "View All Activity", description: "Full activity timeline coming soon!" })}
             >
-              <ActivityIcon className="w-4 h-4 mr-2" />
+              <ActivityIcon className="w-4 h-4 mr-2 text-white" />
               View All Activity
             </Button>
           </div>
