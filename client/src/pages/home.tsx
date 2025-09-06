@@ -370,8 +370,8 @@ const Dashboard = () => {
         {/* Stats Grid */}
         <div className="mb-8 sm:mb-12 grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {/* Active Projects */}
-          <button className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 hover:translate-y-1 hover:scale-[0.98] active:translate-y-2 active:scale-[0.96] group text-center">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-lg transition-all duration-300 relative overflow-hidden group-hover:scale-110">
+          <button className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 active:translate-y-1 active:scale-[0.98] group text-center">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95">
               <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <Building2 className="h-6 w-6 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
             </div>
@@ -382,8 +382,8 @@ const Dashboard = () => {
           </button>
 
           {/* Budget */}
-          <button className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 hover:translate-y-1 hover:scale-[0.98] active:translate-y-2 active:scale-[0.96] group text-center">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-lg transition-all duration-300 relative overflow-hidden group-hover:scale-110">
+          <button className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 active:translate-y-1 active:scale-[0.98] group text-center">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95">
               <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <Wallet className="h-6 w-6 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
             </div>
@@ -396,8 +396,8 @@ const Dashboard = () => {
           </button>
 
           {/* Schedule Health */}
-          <button className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 hover:translate-y-1 hover:scale-[0.98] active:translate-y-2 active:scale-[0.96] group text-center">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-lg transition-all duration-300 relative overflow-hidden group-hover:scale-110">
+          <button className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 active:translate-y-1 active:scale-[0.98] group text-center">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95">
               <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <Calendar className="h-6 w-6 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
             </div>
@@ -418,8 +418,8 @@ const Dashboard = () => {
           </button>
 
           {/* Permits */}
-          <button className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 hover:translate-y-1 hover:scale-[0.98] active:translate-y-2 active:scale-[0.96] group text-center">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-lg transition-all duration-300 relative overflow-hidden group-hover:scale-110">
+          <button className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 active:translate-y-1 active:scale-[0.98] group text-center">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95">
               <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <FileCheck className="h-6 w-6 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
             </div>
@@ -435,11 +435,11 @@ const Dashboard = () => {
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6 sm:mb-8">Quick Actions</h2>
           <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
             <button 
-              className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 hover:translate-y-1 hover:scale-[0.98] active:translate-y-2 active:scale-[0.96] group text-center" 
+              className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 active:translate-y-1 active:scale-[0.98] group text-center" 
               data-testid="button-daily-log"
               onClick={() => toast({ title: "Daily Log", description: "Daily log feature coming soon!" })}
             >
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-lg transition-all duration-300 relative overflow-hidden group-hover:scale-110">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95">
                 <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <ClipboardCheck className="h-6 w-6 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
               </div>
@@ -448,11 +448,11 @@ const Dashboard = () => {
             </button>
 
             <button 
-              className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 hover:translate-y-1 hover:scale-[0.98] active:translate-y-2 active:scale-[0.96] group text-center" 
+              className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 active:translate-y-1 active:scale-[0.98] group text-center" 
               data-testid="button-upload-document"
               onClick={() => toast({ title: "Upload Document", description: "Document upload feature coming soon!" })}
             >
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-lg transition-all duration-300 relative overflow-hidden group-hover:scale-110">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95">
                 <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <Upload className="h-6 w-6 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
               </div>
@@ -461,11 +461,11 @@ const Dashboard = () => {
             </button>
 
             <button 
-              className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 hover:translate-y-1 hover:scale-[0.98] active:translate-y-2 active:scale-[0.96] group text-center" 
+              className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 active:translate-y-1 active:scale-[0.98] group text-center" 
               data-testid="button-create-rfq"
               onClick={() => toast({ title: "Create RFQ", description: "RFQ creation feature coming soon!" })}
             >
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-lg transition-all duration-300 relative overflow-hidden group-hover:scale-110">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95">
                 <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <FilePlus className="h-6 w-6 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
               </div>
@@ -474,11 +474,11 @@ const Dashboard = () => {
             </button>
 
             <button 
-              className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 hover:translate-y-1 hover:scale-[0.98] active:translate-y-2 active:scale-[0.96] group text-center" 
+              className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:to-gray-100 active:shadow-inner active:from-gray-100 active:to-gray-200 transition-all duration-300 active:translate-y-1 active:scale-[0.98] group text-center" 
               data-testid="button-submit-rfi"
               onClick={() => toast({ title: "Submit RFI", description: "RFI submission feature coming soon!" })}
             >
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-lg transition-all duration-300 relative overflow-hidden group-hover:scale-110">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95">
                 <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <HelpCircle className="h-6 w-6 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
               </div>
@@ -676,9 +676,9 @@ const Dashboard = () => {
                     const iconColorClass = getActivityColor(activity.type);
 
                     return (
-                      <div key={activity.id} className="flex items-start space-x-4 py-4 border-b border-gray-100 last:border-b-0 last:pb-0 hover:bg-gray-50 rounded-lg px-2 -mx-2 transition-colors duration-150" data-testid={`activity-${activity.id}`}>
+                      <div key={activity.id} className="flex items-start space-x-4 py-4 border-b border-gray-100 last:border-b-0 last:pb-0 hover:bg-gray-50 rounded-lg px-2 -mx-2 transition-colors duration-150 group" data-testid={`activity-${activity.id}`}>
                         {/* Activity Icon */}
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-full flex items-center justify-center flex-shrink-0 shadow-2xl group-hover:shadow-lg transition-all duration-300 relative overflow-hidden group-hover:scale-110">
+                        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center flex-shrink-0 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95">
                           <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                           <IconComponent className="w-5 h-5 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
                         </div>
@@ -742,8 +742,8 @@ const Dashboard = () => {
                     })
                     .slice(0, 2) // Show fewer real activities to make room for mock ones
                     .map((activity: any) => (
-                    <div key={`real-${activity.id}`} className="flex items-start space-x-4 py-4 border-b border-gray-100 last:border-b-0 last:pb-0 hover:bg-gray-50 rounded-lg px-2 -mx-2 transition-colors duration-150" data-testid={`activity-${activity.id}`}>
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-full flex items-center justify-center flex-shrink-0 shadow-2xl group-hover:shadow-lg transition-all duration-300 relative overflow-hidden group-hover:scale-110">
+                    <div key={`real-${activity.id}`} className="flex items-start space-x-4 py-4 border-b border-gray-100 last:border-b-0 last:pb-0 hover:bg-gray-50 rounded-lg px-2 -mx-2 transition-colors duration-150 group" data-testid={`activity-${activity.id}`}>
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 group-hover:from-blue-200 group-hover:via-blue-300 group-hover:to-blue-400 rounded-xl flex items-center justify-center flex-shrink-0 shadow-2xl group-hover:shadow-inner transition-all duration-300 relative overflow-hidden group-active:scale-95">
                         <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         <Check className="w-5 h-5 text-white group-hover:text-blue-700 drop-shadow-lg relative z-10 transition-colors duration-300" />
                       </div>
@@ -767,7 +767,7 @@ const Dashboard = () => {
 
             <Button 
               variant="outline" 
-              className="w-full mt-6 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-0 transition-all duration-300 shadow-md hover:shadow-lg" 
+              className="w-full mt-6 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-0 transition-all duration-300 shadow-2xl hover:shadow-[0_15px_30px_-8px_rgba(59,130,246,0.5)] hover:-translate-y-1 active:translate-y-1 active:scale-[0.98] relative overflow-hidden group" 
               data-testid="button-view-all-activity"
               onClick={() => toast({ title: "View All Activity", description: "Full activity timeline coming soon!" })}
             >
