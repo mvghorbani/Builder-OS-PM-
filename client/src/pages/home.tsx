@@ -603,6 +603,7 @@ const Dashboard = () => {
             </Button>
           </div>
         </section>
+      </div>
     </div>
   );
 };
