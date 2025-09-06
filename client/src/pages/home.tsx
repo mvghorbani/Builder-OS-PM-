@@ -178,7 +178,7 @@ const mockRecentActivities = [
 
 const PropertyCard = ({ property }: { property: Property }) => (
   <div
-    className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 transition-all duration-300 hover:-translate-y-1 cursor-pointer group"
+    className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 active:shadow-inner active:from-gray-100 active:via-gray-200 active:to-gray-300 transition-all duration-300 hover:translate-y-1 hover:scale-[0.98] active:translate-y-2 active:scale-[0.96] cursor-pointer group"
     data-testid={`card-property-${property.id}`}
   >
     <div className="flex items-start justify-between mb-6">
@@ -373,7 +373,8 @@ const Dashboard = () => {
           <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 transition-all duration-300 hover:-translate-y-1 group">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg group-hover:from-blue-600 group-hover:to-blue-700 transition-all duration-300">
-                <Building2 className="h-6 w-6 text-white" />
+                <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <Building2 className="h-6 w-6 text-white relative z-10" />
               </div>
               <div className="w-2 h-2 bg-gradient-to-br from-blue-400 to-blue-500 rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
             </div>
@@ -387,7 +388,8 @@ const Dashboard = () => {
           <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 transition-all duration-300 hover:-translate-y-1 group">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-gradient-to-br from-gray-500 to-gray-600 rounded-xl shadow-lg group-hover:from-gray-600 group-hover:to-gray-700 transition-all duration-300">
-                <Wallet className="h-6 w-6 text-white" />
+                <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <Wallet className="h-6 w-6 text-white relative z-10" />
               </div>
               <div className="w-2 h-2 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
             </div>
@@ -403,7 +405,8 @@ const Dashboard = () => {
           <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 transition-all duration-300 hover:-translate-y-1 group">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-gradient-to-br from-blue-400 to-blue-500 rounded-xl shadow-lg group-hover:from-blue-500 group-hover:to-blue-600 transition-all duration-300">
-                <Calendar className="h-6 w-6 text-white" />
+                <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <Calendar className="h-6 w-6 text-white relative z-10" />
               </div>
               <div className="w-2 h-2 bg-gradient-to-br from-blue-300 to-blue-400 rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
             </div>
@@ -426,8 +429,9 @@ const Dashboard = () => {
           {/* Permits */}
           <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 transition-all duration-300 hover:-translate-y-1 group">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-gradient-to-br from-gray-400 to-gray-500 rounded-xl shadow-lg group-hover:from-gray-500 group-hover:to-gray-600 transition-all duration-300">
-                <FileCheck className="h-6 w-6 text-white" />
+              <div className="p-3 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-xl shadow-2xl group-hover:from-blue-600 group-hover:via-blue-700 group-hover:to-blue-800 group-hover:shadow-inner group-hover:shadow-blue-800/30 transition-all duration-300 relative overflow-hidden group-hover:scale-95">
+                <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <FileCheck className="h-6 w-6 text-white relative z-10" />
               </div>
               {stats?.pendingPermits && Number(stats.pendingPermits) > 0 && (
                 <div className="w-2 h-2 bg-gradient-to-br from-gray-300 to-gray-400 rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -503,7 +507,7 @@ const Dashboard = () => {
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6 sm:mb-8">Active Projects</h2>
           
           {propertiesError && (
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-red-200 mb-8">
+            <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl p-6 shadow-lg border border-red-200 mb-8 hover:shadow-inner hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 active:shadow-inner active:from-gray-100 active:via-gray-200 active:to-gray-300 transition-all duration-300 hover:translate-y-1 hover:scale-[0.98] active:translate-y-2 active:scale-[0.96] group">
               <p className="text-sm text-red-600 mb-4">Couldn't load projects.</p>
               <Button 
                 size="sm" 
@@ -518,7 +522,7 @@ const Dashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8">
             {propertiesLoading ? (
               Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 animate-pulse">
+                <div key={i} className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl p-6 shadow-lg border border-gray-100 animate-pulse hover:shadow-inner hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 active:shadow-inner active:from-gray-100 active:via-gray-200 active:to-gray-300 transition-all duration-300 hover:translate-y-1 hover:scale-[0.98] active:translate-y-2 active:scale-[0.96] group">
                   <div className="flex items-start justify-between mb-6">
                     <div className="flex-1">
                       <div className="h-6 bg-gray-200 rounded mb-2 w-3/4"></div>
@@ -546,7 +550,7 @@ const Dashboard = () => {
                 
                 {!propertiesLoading && Array.isArray(properties) && properties.length === 0 && (
                   <div className="col-span-full">
-                    <div className="bg-white rounded-2xl p-12 shadow-lg border border-gray-100 text-center">
+                    <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl p-12 shadow-lg border border-gray-100 text-center hover:shadow-inner hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 active:shadow-inner active:from-gray-100 active:via-gray-200 active:to-gray-300 transition-all duration-300 hover:translate-y-1 hover:scale-[0.98] active:translate-y-2 active:scale-[0.96] group">
                       <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
                         <Building2 className="w-12 h-12 text-blue-600" />
                       </div>
@@ -645,7 +649,7 @@ const Dashboard = () => {
         {/* Recent Activity */}
         <section className="mb-8 sm:mb-12">
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6 sm:mb-8">Recent Activity</h2>
-          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+          <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-inner hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 active:shadow-inner active:from-gray-100 active:via-gray-200 active:to-gray-300 transition-all duration-300 hover:translate-y-1 hover:scale-[0.98] active:translate-y-2 active:scale-[0.96] group">
             {activitiesError && (
               <div className="mb-6">
                 <p className="text-sm text-red-600 mb-4">Couldn't load activities.</p>
