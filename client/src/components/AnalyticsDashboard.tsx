@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,6 +32,10 @@ import {
   Brain,
   Lightbulb,
 } from "lucide-react";
+import axios from "axios";
+
+// Set baseURL once for Replit dev proxying
+axios.defaults.baseURL = "";
 
 // Types for analytics data
 interface GanttData {
@@ -115,135 +119,40 @@ const AnalyticsDashboard = () => {
   const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.Month);
   const { toast } = useToast();
 
-  // Data queries
+  // Data queries with performance optimizations
   const { data: ganttData, isLoading: ganttLoading, error: ganttError } = useQuery<GanttData>({
     queryKey: ['/api/v1/analytics/gantt'],
-    queryFn: async () => {
-      try {
-        // For now, return mock data since API endpoints don't exist yet
-        throw new Error("API not implemented");
-      } catch (error) {
-        // Mock data for development
-        return {
-          projects: [
-            {
-              id: '1',
-              name: 'Downtown Office Complex',
-              startDate: '2024-01-01',
-              endDate: '2024-12-31',
-              progress: 65,
-              status: 'on-track' as const,
-              milestones: [
-                { id: '1-1', name: 'Foundation Complete', date: '2024-03-15', status: 'complete' as const },
-                { id: '1-2', name: 'Frame Construction', date: '2024-06-30', status: 'complete' as const },
-                { id: '1-3', name: 'Interior Finishing', date: '2024-09-15', status: 'pending' as const },
-                { id: '1-4', name: 'Final Inspection', date: '2024-11-30', status: 'pending' as const },
-              ]
-            },
-            {
-              id: '2',
-              name: 'Residential Tower A',
-              startDate: '2024-02-01',
-              endDate: '2025-01-31',
-              progress: 45,
-              status: 'at-risk' as const,
-              milestones: [
-                { id: '2-1', name: 'Site Preparation', date: '2024-03-01', status: 'complete' as const },
-                { id: '2-2', name: 'Foundation Pour', date: '2024-05-15', status: 'overdue' as const },
-                { id: '2-3', name: 'Structural Work', date: '2024-08-30', status: 'pending' as const },
-              ]
-            },
-            {
-              id: '3',
-              name: 'Shopping Center Renovation',
-              startDate: '2024-03-01',
-              endDate: '2024-10-31',
-              progress: 80,
-              status: 'on-track' as const,
-              milestones: [
-                { id: '3-1', name: 'Demolition', date: '2024-04-15', status: 'complete' as const },
-                { id: '3-2', name: 'New Construction', date: '2024-07-31', status: 'complete' as const },
-                { id: '3-3', name: 'Tenant Fit-out', date: '2024-09-30', status: 'pending' as const },
-              ]
-            }
-          ]
-        };
-      }
-    },
+    queryFn: async () => (await axios.get('/api/v1/analytics/gantt')).data,
+    staleTime: 60_000,  // 1 min
+    gcTime: 5 * 60_000, // 5 min
+    retry: 1,
   });
 
   const { data: financialData, isLoading: financialLoading } = useQuery<FinancialData>({
     queryKey: ['/api/v1/analytics/financials'],
-    queryFn: async () => {
-      try {
-        throw new Error("API not implemented");
-      } catch (error) {
-        // Mock data for development
-        return {
-          budgetVariance: [
-            { category: 'Labor', planned: 500000, actual: 520000, variance: 20000 },
-            { category: 'Materials', planned: 800000, actual: 750000, variance: -50000 },
-            { category: 'Equipment', planned: 200000, actual: 230000, variance: 30000 },
-            { category: 'Permits', planned: 50000, actual: 45000, variance: -5000 },
-            { category: 'Overhead', planned: 100000, actual: 115000, variance: 15000 },
-          ],
-          cashFlow: [
-            { date: '2024-09-01', projected: 150000, actual: 145000 },
-            { date: '2024-09-15', projected: 220000, actual: 210000 },
-            { date: '2024-10-01', projected: 280000, actual: 0 },
-            { date: '2024-10-15', projected: 350000, actual: 0 },
-            { date: '2024-11-01', projected: 420000, actual: 0 },
-            { date: '2024-11-15', projected: 480000, actual: 0 },
-            { date: '2024-12-01', projected: 520000, actual: 0 },
-          ]
-        };
-      }
-    },
+    queryFn: async () => (await axios.get('/api/v1/analytics/financials')).data,
+    staleTime: 60_000,  // 1 min
+    gcTime: 5 * 60_000, // 5 min
+    retry: 1,
   });
 
   const { data: aiInsights, isLoading: aiLoading } = useQuery<AIInsights>({
     queryKey: ['/api/v1/analytics/ai-insights'],
-    queryFn: async () => {
-      try {
-        throw new Error("API not implemented");
-      } catch (error) {
-        // Mock data for development
-        return {
-          riskScores: [
-            {
-              projectId: '2',
-              projectName: 'Residential Tower A',
-              riskScore: 85,
-              riskFactors: ['Weather delays', 'Material shortages', 'Permit issues'],
-            },
-            {
-              projectId: '1',
-              projectName: 'Downtown Office Complex',
-              riskScore: 35,
-              riskFactors: ['Minor scheduling conflicts'],
-            },
-            {
-              projectId: '3',
-              projectName: 'Shopping Center Renovation',
-              riskScore: 20,
-              riskFactors: ['On track'],
-            },
-          ]
-        };
-      }
-    },
+    queryFn: async () => (await axios.get('/api/v1/analytics/ai-insights')).data,
+    staleTime: 60_000,  // 1 min
+    gcTime: 5 * 60_000, // 5 min
+    retry: 1,
   });
+
+  // Memoize expensive computation
+  const ganttTasks = useMemo(
+    () => (ganttData ? convertToGanttTasks(ganttData.projects) : []),
+    [ganttData]
+  );
 
   const recommendationMutation = useMutation({
     mutationFn: async ({ projectId, riskFactors }: { projectId: string; riskFactors: string[] }) => {
-      try {
-        throw new Error("API not implemented");
-      } catch (error) {
-        // Mock recommendation for development
-        return {
-          recommendation: `Based on the risk factors for this project, we recommend: 1) Implement weather contingency plans with indoor work alternatives, 2) Establish backup material suppliers to mitigate shortages, 3) Expedite permit processing through dedicated liaison, 4) Consider schedule buffer of 2-3 weeks for critical path activities.`
-        };
-      }
+      return (await axios.post('/api/v1/analytics/ai-recommendation', { projectId, riskFactors })).data;
     },
     onSuccess: (data, variables) => {
       // Update the aiInsights data to include the recommendation
@@ -370,7 +279,7 @@ const AnalyticsDashboard = () => {
                   {/* Gantt Chart */}
                   <div className="w-full overflow-x-auto">
                     <Gantt
-                      tasks={convertToGanttTasks(ganttData.projects)}
+                      tasks={ganttTasks}
                       viewMode={viewMode}
                       listCellWidth=""
                       columnWidth={viewMode === ViewMode.Month ? 300 : viewMode === ViewMode.Week ? 100 : 50}
