@@ -86,25 +86,25 @@ const PropertyCard = ({ property, onSelect }: { property: Property; onSelect: (p
         <div>
           <div className="flex justify-between text-sm mb-1">
             <span className="text-gray-600">Progress</span>
-            <span className="font-medium text-gray-900">{property.progress}%</span>
+            <span className="font-medium text-gray-900">
+              {typeof property.progress === 'number' ? `${property.progress}%` : '—'}
+            </span>
           </div>
-          <Progress value={property.progress} className="h-2" />
+          <Progress value={typeof property.progress === 'number' ? property.progress : 0} className="h-2" />
         </div>
         
-        <div className="grid grid-cols-3 gap-4 text-sm">
+        <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <p className="text-gray-500">Budget</p>
             <p className="font-medium text-gray-900">
-              {Number(property.totalBudget ?? 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+              {typeof property.totalBudget === 'number'
+                ? property.totalBudget.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+                : '—'}
             </p>
           </div>
           <div>
             <p className="text-gray-500">Type</p>
             <p className="font-medium text-gray-900">{property.type}</p>
-          </div>
-          <div>
-            <p className="text-gray-500">Manager</p>
-            <p className="font-medium text-gray-900">PM</p>
           </div>
         </div>
       </div>
