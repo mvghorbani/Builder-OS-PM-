@@ -349,12 +349,12 @@ const Dashboard = () => {
 
           <Button 
             variant="ghost" 
-            className="group h-auto p-4 bg-purple-50 hover:bg-purple-100 justify-start rounded-xl" 
+            className="group h-auto p-4 bg-blue-50 hover:bg-blue-100 justify-start rounded-xl" 
             data-testid="button-submit-rfi"
             onClick={() => toast({ title: "Submit RFI", description: "RFI submission feature coming soon!" })}
           >
-            <div className="mx-auto mb-1 grid h-8 w-8 place-items-center rounded-lg bg-purple-50">
-              <HelpCircle className="h-4 w-4 text-purple-600" />
+            <div className="mx-auto mb-1 grid h-8 w-8 place-items-center rounded-lg bg-blue-50">
+              <HelpCircle className="h-4 w-4 text-blue-600" />
             </div>
             <div className="text-sm font-medium">Submit RFI</div>
             <div className="text-[11px] text-gray-500">Request information</div>
@@ -385,80 +385,6 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
             ))}
-          </div>
-        )}
-        {stats && typeof stats === 'object' && 'activeProjects' in stats && !statsLoading && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="rounded-xl border-0 shadow-sm">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Active Projects</p>
-                    <p className="text-3xl font-bold text-gray-900" data-testid="text-stat-projects">
-                      {fmtInt(stats?.activeProjects)}
-                    </p>
-                  </div>
-                  <div className="p-3 bg-blue-50 rounded-lg">
-                    <Building2 className="text-blue-600 text-xl" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="rounded-xl border-0 shadow-sm">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Total Budget</p>
-                    <p className="text-3xl font-bold text-gray-900" data-testid="text-stat-budget">
-                      {fmtUSDk(stats?.totalBudget)}
-                    </p>
-                  </div>
-                  <div className="p-3 bg-green-50 rounded-lg">
-                    <Wallet className="text-green-600 text-xl" />
-                  </div>
-                </div>
-                {typeof stats?.spentBudget === 'number' && (
-                  <div className="flex items-center mt-4 text-sm">
-                    <span className="text-gray-600">{fmtUSDk(stats.spentBudget)} spent</span>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card className="rounded-xl border-0 shadow-sm">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Schedule</p>
-                    <p className="text-3xl font-bold text-gray-900" data-testid="text-stat-schedule">
-                      {Number.isFinite(stats?.avgScheduleAdherence) && (stats?.scheduleSampleSize || 0) > 0
-                        ? `${Math.max(0, Math.min(100, Number(stats!.avgScheduleAdherence))).toFixed(0)}%`
-                        : '—'}
-                    </p>
-                  </div>
-                  <div className="p-3 bg-amber-50 rounded-lg">
-                    <Calendar className="text-amber-600 text-xl" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="rounded-xl border-0 shadow-sm">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Permits Pending</p>
-                    <p className="text-3xl font-bold text-gray-900" data-testid="text-stat-permits">
-                      {fmtInt(stats?.pendingPermits)}
-                    </p>
-                  </div>
-                  <div className="p-3 bg-red-50 rounded-lg">
-                    <FileCheck className="text-red-600 text-xl" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </div>
         )}
 
@@ -505,68 +431,6 @@ const Dashboard = () => {
             )}
           </div>
         </div>
-
-        {/* Quick Actions */}
-        <Card className="rounded-xl border-0 shadow-sm">
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Button 
-                variant="ghost" 
-                className="group h-auto p-4 bg-blue-50 hover:bg-blue-100 justify-start rounded-xl" 
-                data-testid="button-create-rfq"
-                onClick={() => toast({ title: "Create RFQ", description: "RFQ creation feature coming soon!" })}
-              >
-                <div className="mx-auto mb-1 grid h-8 w-8 place-items-center rounded-lg bg-blue-50">
-                  <FilePlus className="h-4 w-4 text-blue-600" />
-                </div>
-                <div className="text-sm font-medium">Create RFQ</div>
-                <div className="text-[11px] text-gray-500">Get bids for work</div>
-              </Button>
-
-              <Button 
-                variant="ghost" 
-                className="group h-auto p-4 bg-green-50 hover:bg-green-100 justify-start rounded-xl" 
-                data-testid="button-upload-document"
-                onClick={() => toast({ title: "Upload Document", description: "Document upload feature coming soon!" })}
-              >
-                <div className="mx-auto mb-1 grid h-8 w-8 place-items-center rounded-lg bg-green-50">
-                  <Upload className="h-4 w-4 text-green-600" />
-                </div>
-                <div className="text-sm font-medium">Upload Document</div>
-                <div className="text-[11px] text-gray-500">Add project files</div>
-              </Button>
-
-              <Button 
-                variant="ghost" 
-                className="group h-auto p-4 bg-amber-50 hover:bg-amber-100 justify-start rounded-xl" 
-                data-testid="button-daily-log"
-                onClick={() => toast({ title: "Daily Log", description: "Daily log feature coming soon!" })}
-              >
-                <div className="mx-auto mb-1 grid h-8 w-8 place-items-center rounded-lg bg-amber-50">
-                  <ClipboardCheck className="h-4 w-4 text-amber-600" />
-                </div>
-                <div className="text-sm font-medium">Daily Log</div>
-                <div className="text-[11px] text-gray-500">Record site activity</div>
-              </Button>
-
-              <Button 
-                variant="ghost" 
-                className="group h-auto p-4 bg-purple-50 hover:bg-purple-100 justify-start rounded-xl" 
-                data-testid="button-submit-rfi"
-                onClick={() => toast({ title: "Submit RFI", description: "RFI submission feature coming soon!" })}
-              >
-                <div className="mx-auto mb-1 grid h-8 w-8 place-items-center rounded-lg bg-purple-50">
-                  <HelpCircle className="h-4 w-4 text-purple-600" />
-                </div>
-                <div className="text-sm font-medium">Submit RFI</div>
-                <div className="text-[11px] text-gray-500">Request information</div>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Recent Activity */}
         <Card className="rounded-xl border-0 shadow-sm">
