@@ -11,64 +11,68 @@ export default function QuickActions() {
       <Button
         type="button"
         variant="ghost"
-        className="h-auto p-5 bg-gradient-to-br from-white via-gray-50 to-gray-100 hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 rounded-xl flex flex-col items-center text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-gray-100"
+        className="h-auto p-5 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 rounded-xl flex flex-col items-center text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 shadow-2xl hover:shadow-[0_20px_40px_-12px_rgba(59,130,246,0.6)] transition-all duration-500 hover:-translate-y-2 border-0 relative overflow-hidden group"
         data-testid="button-upload-document"
         onClick={() => toast({ title: "Upload Document", description: "Document upload feature coming soon!" })}
         aria-label="Upload Document"
       >
-        <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg mb-2 shadow-md">
-          <Upload className="h-4 w-4 text-white" aria-hidden="true" />
+        <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+        <div className="p-2.5 bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-sm rounded-lg mb-2 shadow-inner relative z-10">
+          <Upload className="h-4 w-4 text-white drop-shadow-lg" aria-hidden="true" />
         </div>
-        <p className="font-medium text-gray-900">Upload Document</p>
-        <p className="text-[11px] text-gray-600">Add project files</p>
+        <p className="font-medium text-white drop-shadow-lg relative z-10">Upload Document</p>
+        <p className="text-[11px] text-white/90 drop-shadow relative z-10">Add project files</p>
       </Button>
 
       {/* Daily Log */}
       <Button
         type="button"
         variant="ghost"
-        className="h-auto p-5 bg-gradient-to-br from-white via-gray-50 to-gray-100 hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 rounded-xl flex flex-col items-center text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-gray-100"
+        className="h-auto p-5 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 rounded-xl flex flex-col items-center text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 shadow-2xl hover:shadow-[0_20px_40px_-12px_rgba(59,130,246,0.6)] transition-all duration-500 hover:-translate-y-2 border-0 relative overflow-hidden group"
         data-testid="button-daily-log"
         onClick={() => toast({ title: "Daily Log", description: "Daily log feature coming soon!" })}
         aria-label="Daily Log"
       >
-        <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg mb-2 shadow-md">
-          <ClipboardCheck className="h-4 w-4 text-white" aria-hidden="true" />
+        <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+        <div className="p-2.5 bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-sm rounded-lg mb-2 shadow-inner relative z-10">
+          <ClipboardCheck className="h-4 w-4 text-white drop-shadow-lg" aria-hidden="true" />
         </div>
-        <p className="font-medium text-gray-900">Daily Log</p>
-        <p className="text-[11px] text-gray-600">Record site activity</p>
+        <p className="font-medium text-white drop-shadow-lg relative z-10">Daily Log</p>
+        <p className="text-[11px] text-white/90 drop-shadow relative z-10">Record site activity</p>
       </Button>
 
       {/* Create RFQ */}
       <Button
         type="button"
         variant="ghost"
-        className="h-auto p-5 bg-gradient-to-br from-white via-gray-50 to-gray-100 hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 rounded-xl flex flex-col items-center text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-gray-100"
+        className="h-auto p-5 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 rounded-xl flex flex-col items-center text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 shadow-2xl hover:shadow-[0_20px_40px_-12px_rgba(59,130,246,0.6)] transition-all duration-500 hover:-translate-y-2 border-0 relative overflow-hidden group"
         data-testid="button-create-rfq"
         onClick={() => toast({ title: "Create RFQ", description: "RFQ creation feature coming soon!" })}
         aria-label="Create RFQ"
       >
-        <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg mb-2 shadow-md">
-          <Plus className="h-4 w-4 text-white" aria-hidden="true" />
+        <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+        <div className="p-2.5 bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-sm rounded-lg mb-2 shadow-inner relative z-10">
+          <Plus className="h-4 w-4 text-white drop-shadow-lg" aria-hidden="true" />
         </div>
-        <p className="font-medium text-gray-900">Create RFQ</p>
-        <p className="text-[11px] text-gray-600">Get bids for work</p>
+        <p className="font-medium text-white drop-shadow-lg relative z-10">Create RFQ</p>
+        <p className="text-[11px] text-white/90 drop-shadow relative z-10">Get bids for work</p>
       </Button>
 
       {/* Submit RFI (blue, not purple) */}
       <Button
         type="button"
         variant="ghost"
-        className="h-auto p-5 bg-gradient-to-br from-white via-gray-50 to-gray-100 hover:from-gray-50 hover:via-gray-100 hover:to-gray-150 rounded-xl flex flex-col items-center text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-gray-100"
+        className="h-auto p-5 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 rounded-xl flex flex-col items-center text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 shadow-2xl hover:shadow-[0_20px_40px_-12px_rgba(59,130,246,0.6)] transition-all duration-500 hover:-translate-y-2 border-0 relative overflow-hidden group"
         data-testid="button-submit-rfi"
         onClick={() => toast({ title: "Submit RFI", description: "RFI submission feature coming soon!" })}
         aria-label="Submit RFI"
       >
-        <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg mb-2 shadow-md">
-          <HelpCircle className="h-4 w-4 text-white" aria-hidden="true" />
+        <div className="absolute inset-0 bg-gradient-to-r from-white/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+        <div className="p-2.5 bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-sm rounded-lg mb-2 shadow-inner relative z-10">
+          <HelpCircle className="h-4 w-4 text-white drop-shadow-lg" aria-hidden="true" />
         </div>
-        <p className="font-medium text-gray-900">Submit RFI</p>
-        <p className="text-[11px] text-gray-600">Request information</p>
+        <p className="font-medium text-white drop-shadow-lg relative z-10">Submit RFI</p>
+        <p className="text-[11px] text-white/90 drop-shadow relative z-10">Request information</p>
       </Button>
     </div>
   );
