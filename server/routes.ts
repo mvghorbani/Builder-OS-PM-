@@ -1,7 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth, isAuthenticated, requireAuth } from "./replitAuth";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
 import {
@@ -38,7 +38,7 @@ const authenticateJWT = (req: any, res: Response, next: NextFunction) => {
   // Try to get token from Authorization header first, then from cookie
   const authHeader = req.headers.authorization;
   const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : req.cookies?.auth_token;
-  
+
   if (!token) {
     return res.status(401).json({ message: "Unauthorized" });
   }
@@ -122,14 +122,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/admin/login', async (req, res) => {
     try {
       const { email } = req.body;
-      
+
       if (!email) {
         return res.status(400).json({ message: "Email is required" });
       }
 
       // Find or create user
       let user = await storage.findUserByEmail(email);
-      
+
       if (!user) {
         // Create new admin user
         user = await storage.upsertUser({
@@ -321,7 +321,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  
+
 
   // JWT logout endpoint  
   app.post('/api/v1/auth/logout', (req, res) => {
@@ -330,7 +330,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get projects endpoint
-  app.get('/api/v1/projects', authenticateJWT, async (req: any, res) => {
+  app.get('/api/v1/projects', requireAuth, async (req: any, res) => {
     try {
       const projects = await storage.getPropertiesByPmId(req.user.id);
       res.status(200).json(projects);
@@ -341,7 +341,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create milestone endpoint
-  app.post('/api/v1/projects/:projectId/milestones', authenticateJWT, async (req: any, res) => {
+  app.post('/api/v1/projects/:projectId/milestones', requireAuth, async (req: any, res) => {
     try {
       const { name, milestone_type, planned_end } = req.body;
       const projectId = req.params.projectId;
@@ -391,7 +391,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update milestone endpoint
-  app.put('/api/v1/milestones/:milestoneId', authenticateJWT, async (req: any, res) => {
+  app.put('/api/v1/milestones/:milestoneId', requireAuth, async (req: any, res) => {
     try {
       const { status, actual_end } = req.body;
       const milestoneId = req.params.milestoneId;
@@ -449,7 +449,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create company (vendor) endpoint
-  app.post('/api/v1/companies', authenticateJWT, async (req: any, res) => {
+  app.post('/api/v1/companies', requireAuth, async (req: any, res) => {
     try {
       const { name, type } = req.body;
 
@@ -476,7 +476,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create budget line endpoint
-  app.post('/api/v1/projects/:projectId/budget_lines', authenticateJWT, async (req: any, res) => {
+  app.post('/api/v1/projects/:projectId/budget_lines', requireAuth, async (req: any, res) => {
     try {
       const { category, scope_description, budgeted_amount, vendor_id } = req.body;
       const projectId = req.params.projectId;
@@ -537,7 +537,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Document upload endpoint
-  app.post('/api/v1/milestones/:milestoneId/documents', authenticateJWT, upload.single('file'), async (req: any, res) => {
+  app.post('/api/v1/milestones/:milestoneId/documents', requireAuth, upload.single('file'), async (req: any, res) => {
     try {
       const milestoneId = req.params.milestoneId;
       const file = req.file;
@@ -590,7 +590,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create project endpoint
-  app.post('/api/v1/projects', authenticateJWT, async (req: any, res) => {
+  app.post('/api/v1/projects', requireAuth, async (req: any, res) => {
     try {
       const { address, project_type } = req.body;
 
@@ -639,15 +639,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   await setupAuth(app);
 
   // Auth routes
-  app.get('/api/auth/user', authenticateJWT, async (req: any, res) => {
+  app.get('/api/auth/user', requireAuth, async (req: any, res) => {
     try {
       const userId = req.user.id; // JWT contains user.id directly
       const user = await storage.getUser(userId);
-      
+
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
-      
+
       res.json(user);
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -692,7 +692,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   };
 
   // Property routes
-  app.get('/api/properties', isAuthenticated, async (req, res) => {
+  app.get('/api/properties', requireAuth, async (req, res) => {
     try {
       const properties = await storage.getProperties();
       res.json(properties);
@@ -702,7 +702,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/properties/:id', isAuthenticated, async (req, res) => {
+  app.get('/api/properties/:id', requireAuth, async (req, res) => {
     try {
       const property = await storage.getProperty(req.params.id);
       if (!property) {
@@ -715,7 +715,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/properties', isAuthenticated, async (req: any, res) => {
+  app.post('/api/properties', requireAuth, async (req: any, res) => {
     try {
       const validatedData = insertPropertySchema.parse(req.body);
       const property = await storage.createProperty(validatedData);
@@ -730,7 +730,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch('/api/properties/:id', isAuthenticated, async (req: any, res) => {
+  app.patch('/api/properties/:id', requireAuth, async (req: any, res) => {
     try {
       const oldProperty = await storage.getProperty(req.params.id);
       if (!oldProperty) {
@@ -750,7 +750,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/properties/:id', isAuthenticated, async (req: any, res) => {
+  app.delete('/api/properties/:id', requireAuth, async (req: any, res) => {
     try {
       const property = await storage.getProperty(req.params.id);
       if (!property) {
@@ -772,7 +772,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Milestone routes
-  app.get('/api/properties/:propertyId/milestones', isAuthenticated, async (req, res) => {
+  app.get('/api/properties/:propertyId/milestones', requireAuth, async (req, res) => {
     try {
       const milestones = await storage.getMilestones(req.params.propertyId);
       res.json(milestones);
@@ -782,7 +782,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/properties/:propertyId/milestones', isAuthenticated, async (req: any, res) => {
+  app.post('/api/properties/:propertyId/milestones', requireAuth, async (req: any, res) => {
     try {
       const validatedData = insertMilestoneSchema.parse({
         ...req.body,
@@ -800,7 +800,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch('/api/milestones/:id', isAuthenticated, async (req: any, res) => {
+  app.patch('/api/milestones/:id', requireAuth, async (req: any, res) => {
     try {
       const oldMilestone = await storage.getMilestone(req.params.id);
       if (!oldMilestone) {
@@ -824,7 +824,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Vendor routes
-  app.get('/api/vendors', isAuthenticated, async (req, res) => {
+  app.get('/api/vendors', requireAuth, async (req, res) => {
     try {
       const vendors = await storage.getVendors();
       res.json(vendors);
@@ -834,7 +834,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/vendors', isAuthenticated, async (req: any, res) => {
+  app.post('/api/vendors', requireAuth, async (req: any, res) => {
     try {
       const validatedData = insertVendorSchema.parse(req.body);
       const vendor = await storage.createVendor(validatedData);
@@ -849,7 +849,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Budget routes
-  app.get('/api/properties/:propertyId/budget', isAuthenticated, async (req, res) => {
+  app.get('/api/properties/:propertyId/budget', requireAuth, async (req, res) => {
     try {
       const budgetLines = await storage.getBudgetLines(req.params.propertyId);
       res.json(budgetLines);
@@ -859,7 +859,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/properties/:propertyId/budget', isAuthenticated, async (req: any, res) => {
+  app.post('/api/properties/:propertyId/budget', requireAuth, async (req: any, res) => {
     try {
       const validatedData = insertBudgetLineSchema.parse({
         ...req.body,
@@ -878,7 +878,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // RFQ routes
-  app.get('/api/rfqs', isAuthenticated, async (req, res) => {
+  app.get('/api/rfqs', requireAuth, async (req, res) => {
     try {
       const propertyId = req.query.propertyId as string;
       const rfqs = await storage.getRFQs(propertyId);
@@ -889,7 +889,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/rfqs', isAuthenticated, async (req: any, res) => {
+  app.post('/api/rfqs', requireAuth, async (req: any, res) => {
     try {
       const validatedData = insertRFQSchema.parse({
         ...req.body,
@@ -908,7 +908,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Bid routes
-  app.get('/api/rfqs/:rfqId/bids', isAuthenticated, async (req, res) => {
+  app.get('/api/rfqs/:rfqId/bids', requireAuth, async (req, res) => {
     try {
       const bids = await storage.getBids(req.params.rfqId);
       res.json(bids);
@@ -918,7 +918,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/rfqs/:rfqId/bids', isAuthenticated, async (req: any, res) => {
+  app.post('/api/rfqs/:rfqId/bids', requireAuth, async (req: any, res) => {
     try {
       const validatedData = insertBidSchema.parse({
         ...req.body,
@@ -935,7 +935,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch('/api/bids/:id/award', isAuthenticated, async (req: any, res) => {
+  app.patch('/api/bids/:id/award', requireAuth, async (req: any, res) => {
     try {
       const bid = await storage.awardBid(req.params.id);
       if (!bid) {
@@ -952,7 +952,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Permit routes
-  app.get('/api/properties/:propertyId/permits', isAuthenticated, async (req, res) => {
+  app.get('/api/properties/:propertyId/permits', requireAuth, async (req, res) => {
     try {
       const permits = await storage.getPermits(req.params.propertyId);
       res.json(permits);
@@ -962,7 +962,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/properties/:propertyId/permits', isAuthenticated, async (req: any, res) => {
+  app.post('/api/properties/:propertyId/permits', requireAuth, async (req: any, res) => {
     try {
       const validatedData = insertPermitSchema.parse({
         ...req.body,
@@ -980,7 +980,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/permits/:permitId', isAuthenticated, async (req: any, res) => {
+  app.put('/api/permits/:permitId', requireAuth, async (req: any, res) => {
     try {
       const permitId = req.params.permitId;
       const updatedPermit = await storage.updatePermit(permitId, req.body);
@@ -996,18 +996,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // AI-powered permit lookup endpoint using existing GEMINI_API_KEY
-  app.post('/api/v1/permits/lookup', authenticateJWT, async (req: any, res) => {
+  app.post('/api/v1/permits/lookup', requireAuth, async (req: any, res) => {
     try {
       const { projectAddress, scopeOfWork } = req.body;
-      
+
       if (!projectAddress || !scopeOfWork) {
         return res.status(400).json({ 
           message: "Both projectAddress and scopeOfWork are required" 
         });
       }
-      
+
       console.log('Permit lookup request:', { projectAddress, scopeOfWork });
-      
+
       // Use your existing Gemini service with GEMINI_API_KEY
       const permitInfo = await geminiService.lookupPermitRequirements(
         projectAddress,
@@ -1032,7 +1032,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Risk routes
-  app.get('/api/properties/:propertyId/risks', isAuthenticated, async (req, res) => {
+  app.get('/api/properties/:propertyId/risks', requireAuth, async (req, res) => {
     try {
       const risks = await storage.getRisks(req.params.propertyId);
       res.json(risks);
@@ -1042,7 +1042,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/properties/:propertyId/risks', isAuthenticated, async (req: any, res) => {
+  app.post('/api/properties/:propertyId/risks', requireAuth, async (req: any, res) => {
     try {
       const validatedData = insertRiskSchema.parse({
         ...req.body,
@@ -1061,7 +1061,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Document routes
-  app.get('/api/documents', isAuthenticated, async (req, res) => {
+  app.get('/api/documents', requireAuth, async (req, res) => {
     try {
       const propertyId = req.query.propertyId as string;
       const milestoneId = req.query.milestoneId as string;
@@ -1073,7 +1073,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/documents', isAuthenticated, async (req: any, res) => {
+  app.post('/api/documents', requireAuth, async (req: any, res) => {
     try {
       const validatedData = insertDocumentSchema.parse({
         ...req.body,
@@ -1095,7 +1095,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Activity routes
-  app.get('/api/activities', isAuthenticated, async (req, res) => {
+  app.get('/api/activities', requireAuth, async (req, res) => {
     try {
       const propertyId = req.query.propertyId as string;
       const limit = parseInt(req.query.limit as string) || 50;
@@ -1108,7 +1108,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Object storage routes for protected file uploading
-  app.get("/objects/:objectPath(*)", isAuthenticated, async (req: any, res) => {
+  app.get("/objects/:objectPath(*)", requireAuth, async (req: any, res) => {
     const userId = req.user?.claims?.sub;
     const objectStorageService = new ObjectStorageService();
     try {
@@ -1131,7 +1131,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/objects/upload", isAuthenticated, async (req, res) => {
+  app.post("/api/objects/upload", requireAuth, async (req, res) => {
     const objectStorageService = new ObjectStorageService();
     try {
       const uploadURL = await objectStorageService.getObjectEntityUploadURL();
@@ -1142,7 +1142,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/objects", isAuthenticated, async (req: any, res) => {
+  app.put("/api/objects", requireAuth, async (req: any, res) => {
     if (!req.body.documentURL) {
       return res.status(400).json({ error: "documentURL is required" });
     }
@@ -1169,7 +1169,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Analytics endpoints for dashboard
-  app.get("/api/v1/analytics/gantt", isAuthenticated, (_req, res) => {
+  app.get("/api/v1/analytics/gantt", requireAuth, (_req, res) => {
     res.json({
       projects: [
         {
@@ -1216,7 +1216,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  app.get("/api/v1/analytics/financials", isAuthenticated, (_req, res) => {
+  app.get("/api/v1/analytics/financials", requireAuth, (_req, res) => {
     res.json({
       budgetVariance: [
         { category: 'Labor', planned: 500000, actual: 520000, variance: 20000 },
@@ -1237,7 +1237,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  app.get("/api/v1/analytics/ai-insights", isAuthenticated, (_req, res) => {
+  app.get("/api/v1/analytics/ai-insights", requireAuth, (_req, res) => {
     res.json({
       riskScores: [
         {
@@ -1262,14 +1262,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  app.post("/api/v1/analytics/ai-recommendation", isAuthenticated, (_req, res) => {
+  app.post("/api/v1/analytics/ai-recommendation", requireAuth, (_req, res) => {
     res.json({
       recommendation: "Based on the risk factors for this project, we recommend: 1) Implement weather contingency plans with indoor work alternatives, 2) Establish backup material suppliers to mitigate shortages, 3) Expedite permit processing through dedicated liaison, 4) Consider schedule buffer of 2-3 weeks for critical path activities."
     });
   });
 
   // Statistics and dashboard data
-  app.get('/api/dashboard/stats', isAuthenticated, async (req, res) => {
+  app.get('/api/dashboard/stats', requireAuth, async (req, res) => {
     try {
       const properties = await storage.getProperties();
       const totalBudget = properties.reduce((sum, p) => sum + parseFloat(p.totalBudget), 0);

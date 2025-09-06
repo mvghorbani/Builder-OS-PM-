@@ -1,10 +1,43 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
+import { setupVite, serveStatic } from "./vite";
+import cookieParser from "cookie-parser";
+import session from "express-session";
+import passport from "passport";
+import createMemoryStore from "memorystore";
+import { configurePassport } from "./replitAuth";
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+const MemoryStore = createMemoryStore(session);
+
+// cookies first
+app.use(cookieParser(process.env.SESSION_SECRET || "dev-secret"));
+
+// session next (MemoryStore fine for dev on Replit)
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "dev-secret",
+    resave: false,
+    saveUninitialized: false,
+    store: new MemoryStore({ checkPeriod: 24 * 60 * 60 * 1000 }), // prune daily
+    cookie: {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: false, // Replit dev: false ; set true behind HTTPS in prod
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    },
+  })
+);
+
+// passport MUST be after session
+app.use(passport.initialize());
+app.use(passport.session());
+
+// configure strategies/serialize/deserialize
+configurePassport(passport);
 
 app.use((req, res, next) => {
   const start = Date.now();

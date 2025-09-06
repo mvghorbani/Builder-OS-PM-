@@ -3,10 +3,57 @@ import { Strategy, type VerifyFunction } from "openid-client/passport";
 
 import passport from "passport";
 import session from "express-session";
-import type { Express, RequestHandler } from "express";
+import type { Express, RequestHandler, Request, Response, NextFunction } from "express";
+import type { PassportStatic } from "passport";
 import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
 import { storage } from "./storage";
+
+/** Call this from server/index.ts once */
+export function configurePassport(passport: PassportStatic) {
+  // If you already had strategies, keep them. For now, just serialize whole user.
+  passport.serializeUser((user: any, done) => {
+    done(null, user);
+  });
+  passport.deserializeUser((obj: any, done) => {
+    done(null, obj);
+  });
+
+  // TODO: add your real strategy (Replit auth, Google, etc.)
+}
+
+/** Defensive helper: works with Passport *or* plain session */
+export function requireAuth(req: Request, res: Response, next: NextFunction) {
+  // If passport is present and a user is authed
+  const hasPassportAuth =
+    typeof (req as any).isAuthenticated === "function" &&
+    (req as any).isAuthenticated();
+
+  // Or we set a user on the session (dev mode / custom login)
+  const sessUser = (req.session as any)?.user;
+  const user = hasPassportAuth ? (req as any).user : sessUser;
+
+  if (user && (!user.expires_at || Date.now() < new Date(user.expires_at).getTime())) {
+    // attach to req for downstream handlers
+    (req as any).user = user;
+    return next();
+  }
+
+  return res.status(401).json({ message: "Unauthorized" });
+}
+
+/** Dev login to unblock local building (remove in prod) */
+export function devLogin(req: Request, res: Response) {
+  const user = {
+    id: "dev-user",
+    email: "dev@example.com",
+    name: "Dev User",
+    // one-week session
+    expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+  };
+  (req.session as any).user = user;
+  return res.json(user);
+}
 
 if (!process.env.REPLIT_DOMAINS) {
   throw new Error("Environment variable REPLIT_DOMAINS not provided");
