@@ -397,32 +397,6 @@ const Dashboard = () => {
           </div>
         </section>
 
-      {/* Content */}
-      <div className="space-y-8">
-        {/* Error States */}
-        {statsError && (
-          <Card className="rounded-xl border-0 shadow-sm p-6">
-            <p className="text-sm text-red-600">Couldn't load dashboard stats.</p>
-            <Button size="sm" className="mt-2" onClick={() => queryClient.invalidateQueries({ queryKey: ['/api/dashboard/stats'] })}>
-              Retry
-            </Button>
-          </Card>
-        )}
-
-        {/* Stats Cards */}
-        {statsLoading && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {Array.from({length: 4}).map((_, i) => (
-              <Card key={i} className="rounded-xl border-0 shadow-sm">
-                <CardContent className="p-6">
-                  <div className="h-6 w-24 bg-gray-200 rounded mb-4"></div>
-                  <div className="h-8 w-32 bg-gray-200 rounded"></div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-
         {/* Projects Grid */}
         <section className="mb-8 sm:mb-12">
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6 sm:mb-8">Active Projects</h2>
@@ -629,7 +603,6 @@ const Dashboard = () => {
             </Button>
           </div>
         </section>
-      </div>
     </div>
   );
 };
