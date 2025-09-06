@@ -21,6 +21,7 @@ import {
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import multer from "multer";
+import cookieParser from "cookie-parser";
 import { geminiService } from "./geminiService";
 
 // Configure multer for file uploads
@@ -33,9 +34,13 @@ const upload = multer({
 
 // Middleware to extract JWT from cookie and set in header
 const extractJWTFromCookie = (req: Request, res: Response, next: NextFunction) => {
-  const token = req.cookies?.auth_token;
-  if (token && !req.headers.authorization) {
-    req.headers.authorization = `Bearer ${token}`;
+  try {
+    const token = req.cookies?.auth_token;
+    if (token && !req.headers.authorization) {
+      req.headers.authorization = `Bearer ${token}`;
+    }
+  } catch (error) {
+    console.warn('Error extracting JWT from cookie:', error);
   }
   next();
 };
@@ -61,8 +66,7 @@ const authenticateJWT = (req: any, res: Response, next: NextFunction) => {
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Add cookie parser
-  const cookieParser = await import('cookie-parser');
-  app.use(cookieParser.default());
+  app.use(cookieParser());
 
   // Apply JWT extraction middleware globally
   app.use(extractJWTFromCookie);
@@ -148,10 +152,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
         // Update role separately
         await storage.updateUserRole(user.id, "admin");
-        user = await storage.getUser(user.id);
+        user = await storage.getUser(user.id) || null;
       } else {
         // Update existing user to admin role
-        user = await storage.updateUserRole(user.id, "admin");
+        user = await storage.updateUserRole(user.id, "admin") || null;
       }
 
       if (!user) {
@@ -609,6 +613,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const projectData = {
+        name: address, // Use address as name for now
         address,
         type: project_type,
         pmId: req.user.id,
@@ -993,7 +998,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updatedPermit = await storage.updatePermit(permitId, req.body);
 
       await createAuditLog(req, 'update', 'permit', permitId, null, updatedPermit);
-      await createActivity(req.user.claims.sub, null, 'permit_updated', `Updated permit status`, 'permit', permitId);
+      await createActivity(req.user.claims.sub, updatedPermit?.propertyId || '', 'permit_updated', `Updated permit status`, 'permit', permitId);
 
       res.json(updatedPermit);
     } catch (error) {
@@ -1023,7 +1028,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Log activity
       try {
-        await createActivity(req.user.id || req.user.claims?.sub, null, 'permit_lookup', `AI permit lookup for ${projectAddress}`, 'permit_lookup', null);
+        await createActivity(req.user.id || req.user.claims?.sub, '', 'permit_lookup', `AI permit lookup for ${projectAddress}`, 'permit_lookup', undefined);
       } catch (activityError) {
         console.warn('Failed to create activity log:', activityError);
       }
