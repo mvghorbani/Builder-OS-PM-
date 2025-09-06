@@ -69,85 +69,90 @@ const getWhen = (a: Activity) => {
 };
 
 const PropertyCard = ({ property }: { property: Property }) => (
-  <Card
-    className="rounded-xl border-0 shadow-sm"
+  <div
+    className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-200 hover:-translate-y-1 cursor-pointer group"
     data-testid={`card-property-${property.id}`}
   >
-    <CardContent className="p-6">
-      <div className="flex items-start justify-between mb-4">
-        <div>
-          <h3 className="font-semibold text-lg text-gray-900">{property.name || property.address}</h3>
-          <p className="text-sm text-gray-500 mt-1">
-            {property.city && property.state ? 
-              `${property.city}, ${property.state}${property.zipCode ? ' ' + property.zipCode : ''}` : 
-              property.type
-            }
-          </p>
+    <div className="flex items-start justify-between mb-6">
+      <div className="flex-1 min-w-0">
+        <h3 className="text-xl font-bold text-gray-900 mb-1 truncate">{property.name || property.address}</h3>
+        <p className="text-sm text-gray-600">
+          {property.city && property.state ? 
+            `${property.city}, ${property.state}${property.zipCode ? ' ' + property.zipCode : ''}` : 
+            property.type
+          }
+        </p>
+      </div>
+      <StatusBadge status={property.status || 'active'} />
+    </div>
+    
+    <div className="space-y-4">
+      <div>
+        <div className="flex justify-between items-center mb-2">
+          <span className="text-sm font-medium text-gray-600">Completion</span>
+          <span className="text-sm font-bold text-gray-900">
+            {typeof property.progress === 'number' ? `${property.progress}%` : '—'}
+          </span>
         </div>
-        <StatusBadge status={property.status || 'active'} />
+        <div className="w-full bg-gray-200 rounded-full h-2">
+          <div 
+            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            style={{ width: `${typeof property.progress === 'number' ? property.progress : 0}%` }}
+          ></div>
+        </div>
       </div>
       
-      <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-4">
         <div>
-          <div className="flex justify-between text-sm mb-1">
-            <span className="text-gray-600">Progress</span>
-            <span className="font-medium text-gray-900">
-              {typeof property.progress === 'number' ? `${property.progress}%` : '—'}
-            </span>
-          </div>
-          <Progress value={typeof property.progress === 'number' ? property.progress : 0} className="h-2" />
-        </div>
-        
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <p className="text-gray-500">Budget</p>
-            <p className="font-medium text-gray-900">
-              {property.totalBudget 
-                ? parseFloat(property.totalBudget.toString()).toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+          <p className="text-sm text-gray-600 mb-1">Budget</p>
+          <p className="font-bold text-gray-900">
+            {property.totalBudget && parseFloat(property.totalBudget.toString()) >= 1000000
+              ? `$${(parseFloat(property.totalBudget.toString()) / 1000000).toFixed(1)}M`
+              : property.totalBudget 
+                ? `$${Math.round(parseFloat(property.totalBudget.toString()) / 1000)}k`
                 : '—'}
-            </p>
-          </div>
-          <div>
-            <p className="text-gray-500">Type</p>
-            <p className="font-medium text-gray-900">{property.type}</p>
-          </div>
+          </p>
         </div>
-        
-        <div className="flex gap-2 mt-4 pt-4 border-t border-gray-100">
-          <Button
-            size="sm"
-            variant="outline"
-            className="flex-1 text-xs"
-            onClick={(e) => {
-              e.stopPropagation();
-              exportProject(property.id, 'pdf').catch((error: any) => {
-                console.error('PDF export failed:', error);
-              });
-            }}
-            data-testid={`button-export-pdf-${property.id}`}
-          >
-            <FileDown className="w-3 h-3 mr-1" />
-            PDF
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            className="flex-1 text-xs"
-            onClick={(e) => {
-              e.stopPropagation();
-              exportProject(property.id, 'excel').catch((error: any) => {
-                console.error('Excel export failed:', error);
-              });
-            }}
-            data-testid={`button-export-excel-${property.id}`}
-          >
-            <Download className="w-3 h-3 mr-1" />
-            Excel
-          </Button>
+        <div>
+          <p className="text-sm text-gray-600 mb-1">Type</p>
+          <p className="font-bold text-gray-900 capitalize">{property.type}</p>
         </div>
       </div>
-    </CardContent>
-  </Card>
+      
+      <div className="flex gap-3 pt-4 border-t border-gray-100">
+        <Button
+          size="sm"
+          variant="outline"
+          className="flex-1 text-xs font-medium hover:bg-blue-50 hover:border-blue-200 transition-colors duration-200"
+          onClick={(e) => {
+            e.stopPropagation();
+            exportProject(property.id, 'pdf').catch((error: any) => {
+              console.error('PDF export failed:', error);
+            });
+          }}
+          data-testid={`button-export-pdf-${property.id}`}
+        >
+          <FileDown className="w-3 h-3 mr-1" />
+          PDF
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          className="flex-1 text-xs font-medium hover:bg-green-50 hover:border-green-200 transition-colors duration-200"
+          onClick={(e) => {
+            e.stopPropagation();
+            exportProject(property.id, 'excel').catch((error: any) => {
+              console.error('Excel export failed:', error);
+            });
+          }}
+          data-testid={`button-export-excel-${property.id}`}
+        >
+          <Download className="w-3 h-3 mr-1" />
+          Excel
+        </Button>
+      </div>
+    </div>
+  </div>
 );
 
 // Dashboard Component
@@ -248,119 +253,149 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Header */}
-      <header className="mb-8 text-center">
-        <h1 className="text-2xl font-bold tracking-tight">Project Dashboard</h1>
-        <p className="text-sm text-gray-500">Overview and quick actions</p>
-      </header>
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-10">
+        {/* Header */}
+        <header className="mb-8 sm:mb-12">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">Project Dashboard</h1>
+          <p className="text-base sm:text-lg text-gray-600">Overview and quick actions</p>
+        </header>
 
-      {/* Stats Grid */}
-      <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Active Projects */}
-        <div className="rounded-2xl border border-black/5 bg-white p-4 text-center">
-          <div className="mx-auto mb-2 grid h-10 w-10 place-items-center rounded-xl bg-blue-50">
-            <Building2 className="h-5 w-5 text-blue-600" />
-          </div>
-          <div className="text-xs uppercase tracking-wide text-gray-500">Active Projects</div>
-          <div className="mt-1 text-2xl font-bold" data-testid="text-stat-projects">
-            {fmtInt(stats?.activeProjects)}
-          </div>
-        </div>
-
-        {/* Budget */}
-        <div className="rounded-2xl border border-black/5 bg-white p-4 text-center">
-          <div className="mx-auto mb-2 grid h-10 w-10 place-items-center rounded-xl bg-blue-50">
-            <Wallet className="h-5 w-5 text-blue-600" />
-          </div>
-          <div className="text-xs uppercase tracking-wide text-gray-500">Total Budget</div>
-          <div className="mt-1 text-2xl font-bold" data-testid="text-stat-budget">
-            {fmtUSDk(stats?.totalBudget)}
-          </div>
-        </div>
-
-        {/* Schedule */}
-        <div className="rounded-2xl border border-black/5 bg-white p-4 text-center">
-          <div className="mx-auto mb-2 grid h-10 w-10 place-items-center rounded-xl bg-green-50">
-            <Calendar className="h-5 w-5 text-green-600" />
-          </div>
-          <div className="text-xs uppercase tracking-wide text-gray-500">Schedule Health</div>
-          <div className="mt-1 text-2xl font-bold" data-testid="text-stat-schedule">
-            {Number.isFinite(stats?.avgScheduleAdherence) && (stats?.scheduleSampleSize || 0) > 0
-              ? `${Math.max(0, Math.min(100, Number(stats!.avgScheduleAdherence))).toFixed(0)}%`
-              : '—'}
-          </div>
-        </div>
-
-        {/* Permits */}
-        <div className="rounded-2xl border border-black/5 bg-white p-4 text-center">
-          <div className="mx-auto mb-2 grid h-10 w-10 place-items-center rounded-xl bg-yellow-50">
-            <FileCheck className="h-5 w-5 text-yellow-600" />
-          </div>
-          <div className="text-xs uppercase tracking-wide text-gray-500">Open Permits</div>
-          <div className="mt-1 text-2xl font-bold" data-testid="text-stat-permits">
-            {fmtInt(stats?.pendingPermits)}
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <section className="mb-8">
-        <h2 className="mb-4 text-center text-2xl font-bold tracking-tight">Quick Actions</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <Button 
-            variant="ghost" 
-            className="group h-auto p-4 bg-blue-50 hover:bg-blue-100 justify-start rounded-xl" 
-            data-testid="button-create-rfq"
-            onClick={() => toast({ title: "Create RFQ", description: "RFQ creation feature coming soon!" })}
-          >
-            <div className="mx-auto mb-1 grid h-8 w-8 place-items-center rounded-lg bg-blue-50">
-              <FilePlus className="h-4 w-4 text-blue-600" />
+        {/* Stats Grid */}
+        <div className="mb-8 sm:mb-12 grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Active Projects */}
+          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-200">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-blue-50 rounded-xl">
+                <Building2 className="h-6 w-6 text-blue-600" />
+              </div>
             </div>
-            <div className="text-sm font-medium">Create RFQ</div>
-            <div className="text-[11px] text-gray-500">Get bids for work</div>
-          </Button>
+            <p className="text-sm font-medium text-gray-600 mb-1">Active Projects</p>
+            <p className="text-3xl font-bold text-gray-900" data-testid="text-stat-projects">
+              {fmtInt(stats?.activeProjects)}
+            </p>
+          </div>
 
-          <Button 
-            variant="ghost" 
-            className="group h-auto p-4 bg-green-50 hover:bg-green-100 justify-start rounded-xl" 
-            data-testid="button-upload-document"
-            onClick={() => toast({ title: "Upload Document", description: "Document upload feature coming soon!" })}
-          >
-            <div className="mx-auto mb-1 grid h-8 w-8 place-items-center rounded-lg bg-green-50">
-              <Upload className="h-4 w-4 text-green-600" />
+          {/* Budget */}
+          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-200">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-blue-50 rounded-xl">
+                <Wallet className="h-6 w-6 text-blue-600" />
+              </div>
             </div>
-            <div className="text-sm font-medium">Upload Document</div>
-            <div className="text-[11px] text-gray-500">Add project files</div>
-          </Button>
+            <p className="text-sm font-medium text-gray-600 mb-1">Total Budget</p>
+            <p className="text-3xl font-bold text-gray-900" data-testid="text-stat-budget">
+              {stats?.totalBudget && typeof stats.totalBudget === 'number' && stats.totalBudget >= 1000000
+                ? `$${(stats.totalBudget / 1000000).toFixed(1)}M`
+                : fmtUSDk(stats?.totalBudget)}
+            </p>
+          </div>
 
-          <Button 
-            variant="ghost" 
-            className="group h-auto p-4 bg-amber-50 hover:bg-amber-100 justify-start rounded-xl" 
-            data-testid="button-daily-log"
-            onClick={() => toast({ title: "Daily Log", description: "Daily log feature coming soon!" })}
-          >
-            <div className="mx-auto mb-1 grid h-8 w-8 place-items-center rounded-lg bg-amber-50">
-              <ClipboardCheck className="h-4 w-4 text-amber-600" />
+          {/* Schedule Health */}
+          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-200">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-green-50 rounded-xl">
+                <Calendar className="h-6 w-6 text-green-600" />
+              </div>
+              {Number.isFinite(stats?.avgScheduleAdherence) && stats!.avgScheduleAdherence >= 90 && (
+                <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+              )}
+              {Number.isFinite(stats?.avgScheduleAdherence) && stats!.avgScheduleAdherence < 90 && stats!.avgScheduleAdherence >= 70 && (
+                <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
+              )}
+              {Number.isFinite(stats?.avgScheduleAdherence) && stats!.avgScheduleAdherence < 70 && (
+                <div className="w-3 h-3 bg-red-400 rounded-full"></div>
+              )}
             </div>
-            <div className="text-sm font-medium">Daily Log</div>
-            <div className="text-[11px] text-gray-500">Record site activity</div>
-          </Button>
+            <p className="text-sm font-medium text-gray-600 mb-1">Schedule Health</p>
+            <div className="flex items-center">
+              <p className="text-3xl font-bold text-gray-900 mr-2" data-testid="text-stat-schedule">
+                {Number.isFinite(stats?.avgScheduleAdherence) && (stats?.scheduleSampleSize || 0) > 0
+                  ? `${Math.max(0, Math.min(100, Number(stats!.avgScheduleAdherence))).toFixed(0)}%`
+                  : '—'}
+              </p>
+              {Number.isFinite(stats?.avgScheduleAdherence) && (stats?.scheduleSampleSize || 0) > 0 && (
+                <span className={`text-sm font-medium ${
+                  stats!.avgScheduleAdherence >= 90 ? 'text-green-600' :
+                  stats!.avgScheduleAdherence >= 70 ? 'text-yellow-600' : 'text-red-600'
+                }`}>
+                  {stats!.avgScheduleAdherence >= 90 ? 'On Track' :
+                   stats!.avgScheduleAdherence >= 70 ? 'At Risk' : 'Delayed'}
+                </span>
+              )}
+            </div>
+          </div>
 
-          <Button 
-            variant="ghost" 
-            className="group h-auto p-4 bg-blue-50 hover:bg-blue-100 justify-start rounded-xl" 
-            data-testid="button-submit-rfi"
-            onClick={() => toast({ title: "Submit RFI", description: "RFI submission feature coming soon!" })}
-          >
-            <div className="mx-auto mb-1 grid h-8 w-8 place-items-center rounded-lg bg-blue-50">
-              <HelpCircle className="h-4 w-4 text-blue-600" />
+          {/* Permits */}
+          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-200">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-yellow-50 rounded-xl">
+                <FileCheck className="h-6 w-6 text-yellow-600" />
+              </div>
+              {stats?.pendingPermits && Number(stats.pendingPermits) > 0 && (
+                <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
+              )}
             </div>
-            <div className="text-sm font-medium">Submit RFI</div>
-            <div className="text-[11px] text-gray-500">Request information</div>
-          </Button>
+            <p className="text-sm font-medium text-gray-600 mb-1">Open Permits</p>
+            <p className="text-3xl font-bold text-gray-900" data-testid="text-stat-permits">
+              {fmtInt(stats?.pendingPermits)}
+            </p>
+          </div>
         </div>
-      </section>
+
+        {/* Quick Actions */}
+        <section className="mb-8 sm:mb-12">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6 sm:mb-8">Quick Actions</h2>
+          <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <button 
+              className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-200 hover:-translate-y-1 group text-center" 
+              data-testid="button-create-rfq"
+              onClick={() => toast({ title: "Create RFQ", description: "RFQ creation feature coming soon!" })}
+            >
+              <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-700 transition-colors duration-200">
+                <FilePlus className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Create RFQ</h3>
+              <p className="text-sm text-gray-600">Get bids for work</p>
+            </button>
+
+            <button 
+              className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-200 hover:-translate-y-1 group text-center" 
+              data-testid="button-upload-document"
+              onClick={() => toast({ title: "Upload Document", description: "Document upload feature coming soon!" })}
+            >
+              <div className="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-green-700 transition-colors duration-200">
+                <Upload className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Upload Document</h3>
+              <p className="text-sm text-gray-600">Add project files</p>
+            </button>
+
+            <button 
+              className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-200 hover:-translate-y-1 group text-center" 
+              data-testid="button-daily-log"
+              onClick={() => toast({ title: "Daily Log", description: "Daily log feature coming soon!" })}
+            >
+              <div className="w-12 h-12 bg-yellow-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-yellow-700 transition-colors duration-200">
+                <ClipboardCheck className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Daily Log</h3>
+              <p className="text-sm text-gray-600">Record site activity</p>
+            </button>
+
+            <button 
+              className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-200 hover:-translate-y-1 group text-center" 
+              data-testid="button-submit-rfi"
+              onClick={() => toast({ title: "Submit RFI", description: "RFI submission feature coming soon!" })}
+            >
+              <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-700 transition-colors duration-200">
+                <HelpCircle className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Submit RFI</h3>
+              <p className="text-sm text-gray-600">Request information</p>
+            </button>
+          </div>
+        </section>
 
       {/* Content */}
       <div className="space-y-8">
@@ -389,64 +424,167 @@ const Dashboard = () => {
         )}
 
         {/* Projects Grid */}
-        <div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Active Projects</h2>
+        <section className="mb-8 sm:mb-12">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6 sm:mb-8">Active Projects</h2>
+          
           {propertiesError && (
-            <Card className="rounded-xl border-0 shadow-sm p-6 mb-6">
-              <p className="text-sm text-red-600">Couldn't load projects.</p>
-              <Button size="sm" className="mt-2" onClick={() => queryClient.invalidateQueries({ queryKey: ['/api/properties'] })}>
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-red-200 mb-8">
+              <p className="text-sm text-red-600 mb-4">Couldn't load projects.</p>
+              <Button 
+                size="sm" 
+                className="bg-red-600 hover:bg-red-700 text-white" 
+                onClick={() => queryClient.invalidateQueries({ queryKey: ['/api/properties'] })}
+              >
                 Retry
               </Button>
-            </Card>
+            </div>
           )}
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8">
             {propertiesLoading ? (
               Array.from({ length: 3 }).map((_, i) => (
-                <Card key={i} className="animate-pulse rounded-xl border-0 shadow-sm">
-                  <CardContent className="p-6">
-                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded mb-4 w-2/3"></div>
-                    <div className="h-2 bg-gray-200 rounded mb-6"></div>
-                    <div className="grid grid-cols-3 gap-4 mb-6">
-                      <div className="h-8 bg-gray-200 rounded"></div>
-                      <div className="h-8 bg-gray-200 rounded"></div>
-                      <div className="h-8 bg-gray-200 rounded"></div>
+                <div key={i} className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 animate-pulse">
+                  <div className="flex items-start justify-between mb-6">
+                    <div className="flex-1">
+                      <div className="h-6 bg-gray-200 rounded mb-2 w-3/4"></div>
+                      <div className="h-4 bg-gray-200 rounded w-1/2"></div>
                     </div>
-                  </CardContent>
-                </Card>
+                    <div className="h-6 bg-gray-200 rounded w-16"></div>
+                  </div>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                      <div className="h-2 bg-gray-200 rounded"></div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="h-12 bg-gray-200 rounded"></div>
+                      <div className="h-12 bg-gray-200 rounded"></div>
+                    </div>
+                  </div>
+                </div>
               ))
             ) : (
               <>
                 {Array.isArray(properties) && properties.map((property: any) => (
                   <PropertyCard key={property.id} property={property} />
                 ))}
+                
                 {!propertiesLoading && Array.isArray(properties) && properties.length === 0 && (
-                  <Card className="rounded-xl border-0 shadow-sm">
-                    <CardContent className="p-8 text-center text-gray-600">
-                      No projects yet. Use <span className="font-medium">New Project</span> to create your first one.
-                    </CardContent>
-                  </Card>
+                  <div className="col-span-full">
+                    <div className="bg-white rounded-2xl p-12 shadow-lg border border-gray-100 text-center">
+                      <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <Building2 className="w-12 h-12 text-blue-600" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-gray-900 mb-4">No projects yet</h3>
+                      <p className="text-gray-600 mb-8 max-w-md mx-auto">
+                        Get started by creating your first construction project. Track progress, manage budgets, and stay on schedule.
+                      </p>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg font-semibold">
+                            <FilePlus className="w-5 h-5 mr-2" />
+                            Create Your First Project
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-md">
+                          <DialogHeader>
+                            <DialogTitle>Create New Project</DialogTitle>
+                            <DialogDescription>
+                              Enter the details for your new construction project.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <form onSubmit={handleCreateProject} className="space-y-4">
+                            <div>
+                              <Label htmlFor="name">Project Name</Label>
+                              <Input
+                                id="name"
+                                value={newProjectName}
+                                onChange={(e) => setNewProjectName(e.target.value)}
+                                placeholder="Downtown Office Renovation"
+                                required
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="address">Address</Label>
+                              <Input
+                                id="address"
+                                value={newProjectAddress}
+                                onChange={(e) => setNewProjectAddress(e.target.value)}
+                                placeholder="123 Main Street"
+                                required
+                              />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <Label htmlFor="city">City</Label>
+                                <Input
+                                  id="city"
+                                  value={newProjectCity}
+                                  onChange={(e) => setNewProjectCity(e.target.value)}
+                                  placeholder="New York"
+                                  required
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor="state">State</Label>
+                                <Input
+                                  id="state"
+                                  value={newProjectState}
+                                  onChange={(e) => setNewProjectState(e.target.value)}
+                                  placeholder="NY"
+                                  maxLength={2}
+                                  required
+                                />
+                              </div>
+                            </div>
+                            <div>
+                              <Label htmlFor="zip">ZIP Code</Label>
+                              <Input
+                                id="zip"
+                                value={newProjectZip}
+                                onChange={(e) => setNewProjectZip(e.target.value)}
+                                placeholder="10001"
+                                maxLength={10}
+                              />
+                            </div>
+                            <DialogFooter>
+                              <Button 
+                                type="submit" 
+                                disabled={createProjectMutation.isPending}
+                                className="bg-blue-600 hover:bg-blue-700"
+                              >
+                                {createProjectMutation.isPending ? 'Creating...' : 'Create Project'}
+                              </Button>
+                            </DialogFooter>
+                          </form>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  </div>
                 )}
               </>
             )}
           </div>
-        </div>
+        </section>
 
         {/* Recent Activity */}
-        <Card className="rounded-xl border-0 shadow-sm">
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <section className="mb-8 sm:mb-12">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6 sm:mb-8">Recent Activity</h2>
+          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
             {activitiesError && (
-              <div className="mb-4">
-                <p className="text-sm text-red-600">Couldn't load activities.</p>
-                <Button size="sm" className="mt-2" onClick={() => queryClient.invalidateQueries({ queryKey: ['/api/activities'] })}>
+              <div className="mb-6">
+                <p className="text-sm text-red-600 mb-4">Couldn't load activities.</p>
+                <Button 
+                  size="sm" 
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                  onClick={() => queryClient.invalidateQueries({ queryKey: ['/api/activities'] })}
+                >
                   Retry
                 </Button>
               </div>
             )}
-            <div className="space-y-4">
+            
+            <div className="space-y-6">
               {Array.isArray(activities) && activities
                 .slice() // copy
                 .sort((a: Activity, b: Activity) => {
@@ -458,33 +596,39 @@ const Dashboard = () => {
                 })
                 .slice(0, 4)
                 .map((activity: any) => (
-                <div key={activity.id} className="flex items-start space-x-4" data-testid={`activity-${activity.id}`}>
-                  <div className="p-2 bg-green-100 rounded-full">
-                    <Check className="text-green-600 text-sm" />
+                <div key={activity.id} className="flex items-start space-x-4 pb-6 border-b border-gray-100 last:border-b-0 last:pb-0" data-testid={`activity-${activity.id}`}>
+                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Check className="w-5 h-5 text-green-600" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-gray-900">
-                      <span className="font-medium">{activity.description}</span>
+                    <p className="text-base text-gray-900 mb-1">
+                      <span className="font-semibold">{activity.description}</span>
                     </p>
-                    <p className="text-xs text-gray-500">{getWhen(activity)}</p>
+                    <p className="text-sm text-gray-600">{getWhen(activity)}</p>
                   </div>
                 </div>
               ))}
+              
               {!activitiesLoading && Array.isArray(activities) && activities.length === 0 && (
-                <div className="text-center text-gray-600">No activity yet.</div>
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Bell className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <p className="text-gray-600">No recent activity.</p>
+                </div>
               )}
             </div>
 
             <Button 
-              variant="ghost" 
-              className="w-full mt-4" 
+              variant="outline" 
+              className="w-full mt-6 bg-gray-50 hover:bg-gray-100 border-gray-200" 
               data-testid="button-view-all-activity"
               onClick={() => toast({ title: "View All Activity", description: "Full activity view coming soon!" })}
             >
               View All Activity
             </Button>
-          </CardContent>
-        </Card>
+          </div>
+        </section>
       </div>
     </div>
   );
