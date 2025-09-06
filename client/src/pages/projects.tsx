@@ -72,14 +72,14 @@ export default function Projects() {
 
   return (
     <MainLayout>
-      <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
-        {/* iOS Blue Floating Orbs Background */}
+      <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-gray-50 via-blue-50 to-white">
+        {/* Light iOS Blue Floating Orbs Background */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-r from-blue-500/40 to-blue-600/40 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute top-3/4 right-1/4 w-48 h-48 bg-gradient-to-r from-blue-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
-          <div className="absolute top-1/2 left-3/4 w-32 h-32 bg-gradient-to-r from-blue-300/25 to-blue-400/25 rounded-full blur-2xl animate-pulse delay-500"></div>
-          <div className="absolute bottom-1/4 left-1/2 w-40 h-40 bg-gradient-to-r from-blue-600/35 to-blue-700/35 rounded-full blur-3xl animate-pulse delay-2000"></div>
-          <div className="absolute top-1/3 right-1/3 w-24 h-24 bg-gradient-to-r from-blue-200/20 to-blue-300/20 rounded-full blur-2xl animate-pulse delay-3000"></div>
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-r from-blue-100/60 to-blue-200/60 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute top-3/4 right-1/4 w-48 h-48 bg-gradient-to-r from-blue-50/50 to-blue-100/50 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-1/2 left-3/4 w-32 h-32 bg-gradient-to-r from-gray-100/40 to-blue-50/40 rounded-full blur-2xl animate-pulse delay-500"></div>
+          <div className="absolute bottom-1/4 left-1/2 w-40 h-40 bg-gradient-to-r from-blue-200/50 to-blue-300/50 rounded-full blur-3xl animate-pulse delay-2000"></div>
+          <div className="absolute top-1/3 right-1/3 w-24 h-24 bg-gradient-to-r from-gray-50/30 to-blue-50/30 rounded-full blur-2xl animate-pulse delay-3000"></div>
         </div>
         
         <div className="relative z-10 container mx-auto px-4 sm:px-6 py-6 sm:py-10">
@@ -87,13 +87,13 @@ export default function Projects() {
           <header className="mb-8 sm:mb-12">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2 bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
+                <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2 bg-gradient-to-r from-gray-900 to-blue-900 bg-clip-text text-transparent">
                   Active Projects
                 </h1>
-                <p className="text-base sm:text-lg text-gray-300">Manage and track all construction projects</p>
+                <p className="text-base sm:text-lg text-gray-600">Manage and track all construction projects</p>
               </div>
               <div className="flex items-center space-x-3">
-                <button className="px-6 py-2.5 bg-white/15 backdrop-blur-md border border-white/30 rounded-full text-white hover:bg-white/25 transition-all duration-300 flex items-center gap-2 shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95">
+                <button className="px-6 py-2.5 bg-white/70 backdrop-blur-md border border-gray-200 rounded-full text-gray-700 hover:bg-white/90 hover:text-gray-900 transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95">
                   <Filter className="w-4 h-4" />
                   Filter
                 </button>
@@ -108,11 +108,11 @@ export default function Projects() {
           {/* Glass Search Bar */}
           <div className="mb-8 flex flex-col sm:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-300" />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="text"
                 placeholder="Search projects by name, address, or manager..."
-                className="w-full pl-12 pr-4 py-4 bg-white/15 backdrop-blur-md border border-white/30 rounded-2xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-400/50 focus:bg-white/20 transition-all duration-300 shadow-xl hover:shadow-2xl"
+                className="w-full pl-12 pr-4 py-4 bg-white/70 backdrop-blur-md border border-gray-200 rounded-2xl text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-400/50 focus:bg-white/90 transition-all duration-300 shadow-lg hover:shadow-xl"
               />
             </div>
           </div>
@@ -122,26 +122,26 @@ export default function Projects() {
             {projects.map((project, index) => (
               <div 
                 key={project.id} 
-                className="group relative bg-white/15 backdrop-blur-xl border border-white/30 rounded-3xl p-6 hover:bg-white/20 hover:border-white/40 transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl shadow-xl hover:shadow-blue-500/20"
+                className="group relative bg-white/80 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-6 hover:bg-white/90 hover:border-gray-300/60 transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl shadow-xl hover:shadow-blue-500/10"
                 style={{
                   animationDelay: `${index * 150}ms`
                 }}
               >
                 {/* Enhanced Glossy Border Effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/30 via-blue-600/20 to-blue-700/30 rounded-3xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-100/40 via-blue-200/30 to-blue-300/40 rounded-3xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 
                 {/* iOS Style Inner Highlight */}
-                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent rounded-t-3xl"></div>
-                <div className="absolute top-0 left-0 bottom-0 w-px bg-gradient-to-b from-white/40 via-transparent to-transparent rounded-l-3xl"></div>
+                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent rounded-t-3xl"></div>
+                <div className="absolute top-0 left-0 bottom-0 w-px bg-gradient-to-b from-white/60 via-transparent to-transparent rounded-l-3xl"></div>
                 
                 <div className="relative z-10">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
-                      <h3 className="text-xl font-bold text-white mb-2 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-300 group-hover:to-purple-300 group-hover:bg-clip-text transition-all duration-300">
+                      <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-blue-800 group-hover:bg-clip-text transition-all duration-300">
                         {project.name}
                       </h3>
-                      <div className="flex items-center text-gray-300 mb-3">
-                        <MapPin className="w-4 h-4 mr-2 text-gray-400" />
+                      <div className="flex items-center text-gray-600 mb-3">
+                        <MapPin className="w-4 h-4 mr-2 text-gray-500" />
                         {project.address}
                       </div>
                     </div>
@@ -152,10 +152,10 @@ export default function Projects() {
                   {/* Progress with Glass Design */}
                   <div className="mb-6">
                     <div className="flex justify-between text-sm mb-3">
-                      <span className="text-gray-300">Progress</span>
-                      <span className="font-semibold text-white">{project.progress}%</span>
+                      <span className="text-gray-600">Progress</span>
+                      <span className="font-semibold text-gray-900">{project.progress}%</span>
                     </div>
-                    <div className="w-full bg-white/20 rounded-full h-3 overflow-hidden backdrop-blur-sm shadow-inner border border-white/30">
+                    <div className="w-full bg-gray-200/60 rounded-full h-3 overflow-hidden backdrop-blur-sm shadow-inner border border-gray-300/50">
                       <div 
                         className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 h-full rounded-full transition-all duration-700 shadow-lg relative"
                         style={{ width: `${project.progress}%` }}
@@ -167,24 +167,24 @@ export default function Projects() {
 
                   {/* Budget with Glass Design */}
                   <div className="mb-6">
-                    <div className="flex items-center text-sm text-gray-300 mb-2">
-                      <DollarSign className="w-4 h-4 mr-2 text-green-400" />
+                    <div className="flex items-center text-sm text-gray-600 mb-2">
+                      <DollarSign className="w-4 h-4 mr-2 text-green-600" />
                       Budget
                     </div>
-                    <div className="text-lg font-bold text-white">
-                      <span className="text-green-400">{formatCurrency(project.spentBudget)}</span>
-                      <span className="text-gray-400 mx-2">/</span>
+                    <div className="text-lg font-bold text-gray-900">
+                      <span className="text-green-600">{formatCurrency(project.spentBudget)}</span>
+                      <span className="text-gray-500 mx-2">/</span>
                       <span>{formatCurrency(project.totalBudget)}</span>
                     </div>
                   </div>
 
                   {/* Timeline with Glass Design */}
                   <div className="mb-6">
-                    <div className="flex items-center text-sm text-gray-300 mb-2">
-                      <Calendar className="w-4 h-4 mr-2 text-blue-400" />
+                    <div className="flex items-center text-sm text-gray-600 mb-2">
+                      <Calendar className="w-4 h-4 mr-2 text-blue-600" />
                       Timeline
                     </div>
-                    <div className="text-sm text-gray-200">
+                    <div className="text-sm text-gray-700">
                       {new Date(project.startDate).toLocaleDateString()} - {new Date(project.endDate).toLocaleDateString()}
                     </div>
                   </div>
@@ -192,18 +192,18 @@ export default function Projects() {
                   {/* Team with Glass Design */}
                   <div className="mb-6">
                     <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center text-gray-300">
-                        <Users className="w-4 h-4 mr-2 text-purple-400" />
+                      <div className="flex items-center text-gray-600">
+                        <Users className="w-4 h-4 mr-2 text-purple-600" />
                         Team: {project.team} members
                       </div>
-                      <span className="text-white font-semibold">{project.manager}</span>
+                      <span className="text-gray-900 font-semibold">{project.manager}</span>
                     </div>
                   </div>
 
                   {/* Glass Action Buttons */}
                   <div className="flex space-x-3 mt-6">
-                    <button className="flex-1 px-4 py-2.5 bg-white/20 backdrop-blur-md border border-white/40 rounded-xl text-white hover:bg-white/30 transition-all duration-300 text-sm font-medium shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 relative overflow-hidden">
-                      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent"></div>
+                    <button className="flex-1 px-4 py-2.5 bg-white/80 backdrop-blur-md border border-gray-300/60 rounded-xl text-gray-700 hover:bg-white/90 hover:text-gray-900 transition-all duration-300 text-sm font-medium shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 relative overflow-hidden">
+                      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent"></div>
                       View Details
                     </button>
                     <button className="flex-1 px-4 py-2.5 bg-gradient-to-b from-blue-500 via-blue-600 to-blue-700 hover:from-blue-400 hover:via-blue-500 hover:to-blue-600 text-white rounded-xl transition-all duration-300 text-sm font-semibold shadow-xl shadow-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/40 hover:scale-105 active:scale-95 border border-blue-400/30 relative overflow-hidden">
@@ -218,34 +218,34 @@ export default function Projects() {
 
           {/* iOS-Style Glossy Summary Stats */}
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="bg-white/20 backdrop-blur-xl border border-white/40 rounded-2xl p-6 text-center shadow-xl hover:bg-white/25 hover:shadow-2xl transition-all duration-300 hover:scale-105 relative overflow-hidden">
-              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent"></div>
-              <div className="text-3xl font-bold text-white mb-2">{projects.length}</div>
-              <div className="text-sm text-gray-300">Total Projects</div>
+            <div className="bg-white/80 backdrop-blur-xl border border-gray-200/60 rounded-2xl p-6 text-center shadow-xl hover:bg-white/90 hover:shadow-2xl transition-all duration-300 hover:scale-105 relative overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent"></div>
+              <div className="text-3xl font-bold text-gray-900 mb-2">{projects.length}</div>
+              <div className="text-sm text-gray-600">Total Projects</div>
             </div>
             
-            <div className="bg-white/20 backdrop-blur-xl border border-white/40 rounded-2xl p-6 text-center shadow-xl hover:bg-white/25 hover:shadow-2xl transition-all duration-300 hover:scale-105 relative overflow-hidden">
-              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent"></div>
-              <div className="text-3xl font-bold bg-gradient-to-b from-emerald-400 via-emerald-500 to-emerald-600 bg-clip-text text-transparent mb-2">
+            <div className="bg-white/80 backdrop-blur-xl border border-gray-200/60 rounded-2xl p-6 text-center shadow-xl hover:bg-white/90 hover:shadow-2xl transition-all duration-300 hover:scale-105 relative overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent"></div>
+              <div className="text-3xl font-bold bg-gradient-to-b from-emerald-600 via-emerald-700 to-emerald-800 bg-clip-text text-transparent mb-2">
                 {formatCurrency(projects.reduce((sum, p) => sum + p.totalBudget, 0))}
               </div>
-              <div className="text-sm text-gray-300">Total Budget</div>
+              <div className="text-sm text-gray-600">Total Budget</div>
             </div>
 
-            <div className="bg-white/20 backdrop-blur-xl border border-white/40 rounded-2xl p-6 text-center shadow-xl hover:bg-white/25 hover:shadow-2xl transition-all duration-300 hover:scale-105 relative overflow-hidden">
-              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent"></div>
-              <div className="text-3xl font-bold bg-gradient-to-b from-blue-500 via-blue-600 to-blue-700 bg-clip-text text-transparent mb-2">
+            <div className="bg-white/80 backdrop-blur-xl border border-gray-200/60 rounded-2xl p-6 text-center shadow-xl hover:bg-white/90 hover:shadow-2xl transition-all duration-300 hover:scale-105 relative overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent"></div>
+              <div className="text-3xl font-bold bg-gradient-to-b from-blue-600 via-blue-700 to-blue-800 bg-clip-text text-transparent mb-2">
                 {Math.round(projects.reduce((sum, p) => sum + p.progress, 0) / projects.length)}%
               </div>
-              <div className="text-sm text-gray-300">Average Progress</div>
+              <div className="text-sm text-gray-600">Average Progress</div>
             </div>
 
-            <div className="bg-white/20 backdrop-blur-xl border border-white/40 rounded-2xl p-6 text-center shadow-xl hover:bg-white/25 hover:shadow-2xl transition-all duration-300 hover:scale-105 relative overflow-hidden">
-              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent"></div>
-              <div className="text-3xl font-bold bg-gradient-to-b from-orange-400 via-orange-500 to-orange-600 bg-clip-text text-transparent mb-2">
+            <div className="bg-white/80 backdrop-blur-xl border border-gray-200/60 rounded-2xl p-6 text-center shadow-xl hover:bg-white/90 hover:shadow-2xl transition-all duration-300 hover:scale-105 relative overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent"></div>
+              <div className="text-3xl font-bold bg-gradient-to-b from-orange-600 via-orange-700 to-orange-800 bg-clip-text text-transparent mb-2">
                 {projects.reduce((sum, p) => sum + p.team, 0)}
               </div>
-              <div className="text-sm text-gray-300">Team Members</div>
+              <div className="text-sm text-gray-600">Team Members</div>
             </div>
           </div>
         </div>
