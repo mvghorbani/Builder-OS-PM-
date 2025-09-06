@@ -179,8 +179,8 @@ export default function Analytics() {
 
   return (
     <MainLayout>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50/30 via-white/50 to-gray-50/30" style={{
-        background: 'linear-gradient(135deg, #f8fafc 0%, #e0f2fe 25%, #ffffff 50%, #f1f5f9 75%, #e2e8f0 100%)'
+      <div className="min-h-screen relative" style={{
+        background: 'radial-gradient(ellipse at top left, #dbeafe 0%, #f0f9ff 30%, #ffffff 60%, #f8fafc 90%, #e2e8f0 100%)'
       }}>
         <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-10">
           {/* Header */}
@@ -206,10 +206,12 @@ export default function Analytics() {
           {/* Quick Stats */}
           {analytics && (
             <div className="mb-8 sm:mb-12 grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl shadow-xl p-6 hover:bg-white/25 transition-all duration-300">
+              <div className="relative bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 hover:from-white/50 hover:via-white/30 hover:to-white/20 transition-all duration-300" style={{
+                boxShadow: '0 8px 32px rgba(31, 38, 135, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(255, 255, 255, 0.2)'
+              }}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-700 mb-1 font-serif">Performance Score</p>
+                    <p className="text-sm text-gray-800 mb-1 font-serif">Performance Score</p>
                     <p className="text-3xl font-bold text-gray-900">{analytics.performanceScore}%</p>
                     <p className="text-xs text-blue-600 mt-1 font-medium">
                       {analytics.performanceScore >= 85 ? '↑ Excellent' : analytics.performanceScore >= 70 ? '→ Good' : '↓ Needs improvement'}
@@ -221,10 +223,12 @@ export default function Analytics() {
                 </div>
               </div>
 
-              <div className="bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl shadow-xl p-6 hover:bg-white/25 transition-all duration-300">
+              <div className="relative bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 hover:from-white/50 hover:via-white/30 hover:to-white/20 transition-all duration-300" style={{
+                boxShadow: '0 8px 32px rgba(31, 38, 135, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(255, 255, 255, 0.2)'
+              }}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-700 mb-1 font-serif">Budget Efficiency</p>
+                    <p className="text-sm text-gray-800 mb-1 font-serif">Budget Efficiency</p>
                     <p className="text-3xl font-bold text-gray-900">{analytics.averageBudgetEfficiency}%</p>
                     <p className="text-xs text-blue-600 mt-1 font-medium">
                       {analytics.averageBudgetEfficiency >= 95 ? 'Excellent' : analytics.averageBudgetEfficiency >= 85 ? 'Good' : 'Monitor closely'}
@@ -236,10 +240,12 @@ export default function Analytics() {
                 </div>
               </div>
 
-              <div className="bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl shadow-xl p-6 hover:bg-white/25 transition-all duration-300">
+              <div className="relative bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 hover:from-white/50 hover:via-white/30 hover:to-white/20 transition-all duration-300" style={{
+                boxShadow: '0 8px 32px rgba(31, 38, 135, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(255, 255, 255, 0.2)'
+              }}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-700 mb-1 font-serif">Schedule Adherence</p>
+                    <p className="text-sm text-gray-800 mb-1 font-serif">Schedule Adherence</p>
                     <p className="text-3xl font-bold text-gray-900">{analytics.averageScheduleAdherence}%</p>
                     <p className="text-xs text-blue-600 mt-1 font-medium">
                       {analytics.averageScheduleAdherence >= 90 ? 'On track' : analytics.averageScheduleAdherence >= 75 ? 'Minor delays' : 'Needs attention'}
@@ -251,10 +257,12 @@ export default function Analytics() {
                 </div>
               </div>
 
-              <div className="bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl shadow-xl p-6 hover:bg-white/25 transition-all duration-300">
+              <div className="relative bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 hover:from-white/50 hover:via-white/30 hover:to-white/20 transition-all duration-300" style={{
+                boxShadow: '0 8px 32px rgba(31, 38, 135, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(255, 255, 255, 0.2)'
+              }}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-700 mb-1 font-serif">Risk Alerts</p>
+                    <p className="text-sm text-gray-800 mb-1 font-serif">Risk Alerts</p>
                     <p className="text-3xl font-bold text-gray-900">{analytics.totalRiskAlerts}</p>
                     <p className="text-xs text-blue-600 mt-1 font-medium">
                       {analytics.totalRiskAlerts === 0 ? 'All clear' : analytics.totalRiskAlerts <= 2 ? 'Monitor' : 'Requires review'}
@@ -271,7 +279,9 @@ export default function Analytics() {
           {/* Analytics Modules */}
           <div className="grid gap-6 sm:gap-8 lg:grid-cols-2 xl:grid-cols-3">
             {/* Project Performance */}
-            <div className="bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl shadow-xl p-6 hover:bg-white/25 transition-all duration-300">
+            <div className="relative bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 hover:from-white/50 hover:via-white/30 hover:to-white/20 transition-all duration-300" style={{
+              boxShadow: '0 8px 32px rgba(31, 38, 135, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(255, 255, 255, 0.2)'
+            }}>
               <div className="mb-4">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
@@ -279,15 +289,19 @@ export default function Analytics() {
                   </div>
                   <h3 className="text-lg font-bold text-gray-900 font-serif">Project Performance</h3>
                 </div>
-                <p className="text-gray-700 mb-6">Track completion rates, milestone achievements, and overall project health.</p>
-                <button className="w-full py-3 bg-white/20 backdrop-blur-xl border border-white/30 hover:bg-white/30 text-blue-600 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300">
+                <p className="text-gray-800 mb-6">Track completion rates, milestone achievements, and overall project health.</p>
+                <button className="w-full py-3 relative bg-gradient-to-br from-white/30 via-white/15 to-white/5 backdrop-blur-xl border border-white/30 hover:from-white/40 hover:via-white/25 hover:to-white/15 text-blue-600 rounded-xl font-medium transition-all duration-300" style={{
+                  boxShadow: '0 4px 16px rgba(31, 38, 135, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6)'
+                }}>
                   View Performance Dashboard
                 </button>
               </div>
             </div>
 
             {/* Financial Analytics */}
-            <div className="bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl shadow-xl p-6 hover:bg-white/25 transition-all duration-300">
+            <div className="relative bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 hover:from-white/50 hover:via-white/30 hover:to-white/20 transition-all duration-300" style={{
+              boxShadow: '0 8px 32px rgba(31, 38, 135, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(255, 255, 255, 0.2)'
+            }}>
               <div className="mb-4">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
@@ -295,15 +309,19 @@ export default function Analytics() {
                   </div>
                   <h3 className="text-lg font-bold text-gray-900 font-serif">Financial Analytics</h3>
                 </div>
-                <p className="text-gray-700 mb-6">Budget variance analysis, cost forecasting, and financial performance metrics.</p>
-                <button className="w-full py-3 bg-white/20 backdrop-blur-xl border border-white/30 hover:bg-white/30 text-blue-600 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300">
+                <p className="text-gray-800 mb-6">Budget variance analysis, cost forecasting, and financial performance metrics.</p>
+                <button className="w-full py-3 relative bg-gradient-to-br from-white/30 via-white/15 to-white/5 backdrop-blur-xl border border-white/30 hover:from-white/40 hover:via-white/25 hover:to-white/15 text-blue-600 rounded-xl font-medium transition-all duration-300" style={{
+                  boxShadow: '0 4px 16px rgba(31, 38, 135, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6)'
+                }}>
                   View Financial Reports
                 </button>
               </div>
             </div>
 
             {/* Resource Utilization */}
-            <div className="bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl shadow-xl p-6 hover:bg-white/25 transition-all duration-300">
+            <div className="relative bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 hover:from-white/50 hover:via-white/30 hover:to-white/20 transition-all duration-300" style={{
+              boxShadow: '0 8px 32px rgba(31, 38, 135, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(255, 255, 255, 0.2)'
+            }}>
               <div className="mb-4">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
@@ -311,15 +329,19 @@ export default function Analytics() {
                   </div>
                   <h3 className="text-lg font-bold text-gray-900 font-serif">Resource Utilization</h3>
                 </div>
-                <p className="text-gray-700 mb-6">Labor efficiency, equipment usage, and material consumption analysis.</p>
-                <button className="w-full py-3 bg-white/20 backdrop-blur-xl border border-white/30 hover:bg-white/30 text-blue-600 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300">
+                <p className="text-gray-800 mb-6">Labor efficiency, equipment usage, and material consumption analysis.</p>
+                <button className="w-full py-3 relative bg-gradient-to-br from-white/30 via-white/15 to-white/5 backdrop-blur-xl border border-white/30 hover:from-white/40 hover:via-white/25 hover:to-white/15 text-blue-600 rounded-xl font-medium transition-all duration-300" style={{
+                  boxShadow: '0 4px 16px rgba(31, 38, 135, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6)'
+                }}>
                   View Resource Analytics
                 </button>
               </div>
             </div>
 
             {/* Risk Assessment */}
-            <div className="bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl shadow-xl p-6 hover:bg-white/25 transition-all duration-300">
+            <div className="relative bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 hover:from-white/50 hover:via-white/30 hover:to-white/20 transition-all duration-300" style={{
+              boxShadow: '0 8px 32px rgba(31, 38, 135, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(255, 255, 255, 0.2)'
+            }}>
               <div className="mb-4">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
@@ -327,15 +349,19 @@ export default function Analytics() {
                   </div>
                   <h3 className="text-lg font-bold text-gray-900 font-serif">Risk Assessment</h3>
                 </div>
-                <p className="text-gray-700 mb-6">AI-powered risk identification, impact analysis, and mitigation strategies.</p>
-                <button className="w-full py-3 bg-white/20 backdrop-blur-xl border border-white/30 hover:bg-white/30 text-blue-600 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300">
+                <p className="text-gray-800 mb-6">AI-powered risk identification, impact analysis, and mitigation strategies.</p>
+                <button className="w-full py-3 relative bg-gradient-to-br from-white/30 via-white/15 to-white/5 backdrop-blur-xl border border-white/30 hover:from-white/40 hover:via-white/25 hover:to-white/15 text-blue-600 rounded-xl font-medium transition-all duration-300" style={{
+                  boxShadow: '0 4px 16px rgba(31, 38, 135, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6)'
+                }}>
                   View Risk Dashboard
                 </button>
               </div>
             </div>
 
             {/* Timeline Analytics */}
-            <div className="bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl shadow-xl p-6 hover:bg-white/25 transition-all duration-300">
+            <div className="relative bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 hover:from-white/50 hover:via-white/30 hover:to-white/20 transition-all duration-300" style={{
+              boxShadow: '0 8px 32px rgba(31, 38, 135, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(255, 255, 255, 0.2)'
+            }}>
               <div className="mb-4">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
@@ -343,15 +369,19 @@ export default function Analytics() {
                   </div>
                   <h3 className="text-lg font-bold text-gray-900 font-serif">Timeline Analytics</h3>
                 </div>
-                <p className="text-gray-700 mb-6">Schedule variance, critical path analysis, and completion forecasts.</p>
-                <button className="w-full py-3 bg-white/20 backdrop-blur-xl border border-white/30 hover:bg-white/30 text-blue-600 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300">
+                <p className="text-gray-800 mb-6">Schedule variance, critical path analysis, and completion forecasts.</p>
+                <button className="w-full py-3 relative bg-gradient-to-br from-white/30 via-white/15 to-white/5 backdrop-blur-xl border border-white/30 hover:from-white/40 hover:via-white/25 hover:to-white/15 text-blue-600 rounded-xl font-medium transition-all duration-300" style={{
+                  boxShadow: '0 4px 16px rgba(31, 38, 135, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6)'
+                }}>
                   View Timeline Reports
                 </button>
               </div>
             </div>
 
             {/* Custom Reports */}
-            <div className="bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl shadow-xl p-6 hover:bg-white/25 transition-all duration-300">
+            <div className="relative bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 hover:from-white/50 hover:via-white/30 hover:to-white/20 transition-all duration-300" style={{
+              boxShadow: '0 8px 32px rgba(31, 38, 135, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(255, 255, 255, 0.2)'
+            }}>
               <div className="mb-4">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
@@ -359,8 +389,10 @@ export default function Analytics() {
                   </div>
                   <h3 className="text-lg font-bold text-gray-900 font-serif">Custom Reports</h3>
                 </div>
-                <p className="text-gray-700 mb-6">Build custom analytics dashboards and generate tailored reports.</p>
-                <button className="w-full py-3 bg-white/20 backdrop-blur-xl border border-white/30 hover:bg-white/30 text-blue-600 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300">
+                <p className="text-gray-800 mb-6">Build custom analytics dashboards and generate tailored reports.</p>
+                <button className="w-full py-3 relative bg-gradient-to-br from-white/30 via-white/15 to-white/5 backdrop-blur-xl border border-white/30 hover:from-white/40 hover:via-white/25 hover:to-white/15 text-blue-600 rounded-xl font-medium transition-all duration-300" style={{
+                  boxShadow: '0 4px 16px rgba(31, 38, 135, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6)'
+                }}>
                   Create Custom Report
                 </button>
               </div>
@@ -373,14 +405,16 @@ export default function Analytics() {
             <div className="space-y-4">
               {analytics && (
                 <>
-                  <div className="bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl shadow-xl p-6 hover:bg-white/25 transition-all duration-300">
+                  <div className="relative bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 hover:from-white/50 hover:via-white/30 hover:to-white/20 transition-all duration-300" style={{
+                    boxShadow: '0 8px 32px rgba(31, 38, 135, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(255, 255, 255, 0.2)'
+                  }}>
                     <div className="flex items-start gap-4">
                       <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
                         <Brain className="w-5 h-5 text-blue-600" />
                       </div>
                       <div>
                         <h3 className="font-bold text-gray-900 mb-2 font-serif">Budget Analysis</h3>
-                        <p className="text-sm text-gray-700">
+                        <p className="text-sm text-gray-800">
                           Portfolio of {analytics.totalProjects} projects with {formatCurrency(analytics.totalBudget)} total budget. 
                           Current expenditure efficiency at {analytics.averageBudgetEfficiency}%.
                         </p>
@@ -389,14 +423,16 @@ export default function Analytics() {
                   </div>
 
                   {analytics.totalRiskAlerts > 0 && (
-                    <div className="bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl shadow-xl p-6 hover:bg-white/25 transition-all duration-300">
+                    <div className="relative bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 hover:from-white/50 hover:via-white/30 hover:to-white/20 transition-all duration-300" style={{
+                      boxShadow: '0 8px 32px rgba(31, 38, 135, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(255, 255, 255, 0.2)'
+                    }}>
                       <div className="flex items-start gap-4">
                         <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
                           <AlertTriangle className="w-5 h-5 text-blue-600" />
                         </div>
                         <div>
                           <h3 className="font-bold text-gray-900 mb-2 font-serif">Risk Monitoring</h3>
-                          <p className="text-sm text-gray-700">
+                          <p className="text-sm text-gray-800">
                             {analytics.totalRiskAlerts} project{analytics.totalRiskAlerts > 1 ? 's' : ''} requiring attention. 
                             Review risk assessment for proactive management.
                           </p>
@@ -405,14 +441,16 @@ export default function Analytics() {
                     </div>
                   )}
 
-                  <div className="bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl shadow-xl p-6 hover:bg-white/25 transition-all duration-300">
+                  <div className="relative bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 hover:from-white/50 hover:via-white/30 hover:to-white/20 transition-all duration-300" style={{
+                    boxShadow: '0 8px 32px rgba(31, 38, 135, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(255, 255, 255, 0.2)'
+                  }}>
                     <div className="flex items-start gap-4">
                       <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
                         <TrendingUp className="w-5 h-5 text-blue-600" />
                       </div>
                       <div>
                         <h3 className="font-bold text-gray-900 mb-2 font-serif">Performance Overview</h3>
-                        <p className="text-sm text-gray-700">
+                        <p className="text-sm text-gray-800">
                           {analytics.activeProjects} active projects with {analytics.averageProgress}% average completion. 
                           Schedule adherence at {analytics.averageScheduleAdherence}%.
                         </p>
