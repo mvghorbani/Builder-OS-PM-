@@ -217,9 +217,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { expiresIn: '24h' }
       );
 
+      // Set JWT as httpOnly cookie
+      res.cookie('auth_token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+      });
+
       // Return success response
       res.status(200).json({
-        token,
+        message: "Login successful",
         user: {
           id: user.id,
           email: user.email,

@@ -22,9 +22,7 @@ export default function LoginForm() {
         password
       });
 
-      // Save JWT token to localStorage
-      const { token } = response.data;
-      localStorage.setItem('token', token);
+      // JWT token is now set as a cookie by the server
 
       // Show success message
       toast({
