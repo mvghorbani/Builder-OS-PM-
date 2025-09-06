@@ -1,7 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated, requireAuth } from "./replitAuth";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
 import {
@@ -70,7 +70,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Removed duplicate - using the better implementation below at line 1028
 
   // Permit CRUD Endpoints for Tracking Ledger
-  app.get('/api/v1/projects/:projectId/permits', isAuthenticated, async (req, res) => {
+  app.get('/api/v1/projects/:projectId/permits', authenticateJWT, async (req, res) => {
     try {
       const permits = await storage.getPermits(req.params.projectId);
       res.json(permits);
@@ -80,7 +80,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/v1/projects/:projectId/permits', isAuthenticated, async (req: any, res) => {
+  app.post('/api/v1/projects/:projectId/permits', authenticateJWT, async (req: any, res) => {
     try {
       const validatedData = insertPermitSchema.parse({
         ...req.body,
@@ -89,7 +89,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const permit = await storage.createPermit(validatedData);
 
       await createAuditLog(req, 'create', 'permit', permit.id, null, permit);
-      await createActivity(req.user.claims.sub, req.params.projectId, 'created', `Created permit ${permit.type}`, 'permit', permit.id);
+      await createActivity(req.user.id, req.params.projectId, 'created', `Created permit ${permit.type}`, 'permit', permit.id);
 
       res.status(201).json(permit);
     } catch (error) {
@@ -98,7 +98,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/v1/permits/:permitId', isAuthenticated, async (req: any, res) => {
+  app.put('/api/v1/permits/:permitId', authenticateJWT, async (req: any, res) => {
     try {
       const oldPermit = await storage.getPermit(req.params.permitId);
       if (!oldPermit) {
@@ -109,7 +109,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const permit = await storage.updatePermit(req.params.permitId, validatedData);
 
       await createAuditLog(req, 'update', 'permit', req.params.permitId, oldPermit, permit);
-      await createActivity(req.user.claims.sub, oldPermit.propertyId, 'updated', `Updated permit ${permit?.type}`, 'permit', req.params.permitId);
+      await createActivity(req.user.id, oldPermit.propertyId, 'updated', `Updated permit ${permit?.type}`, 'permit', req.params.permitId);
 
       res.json(permit);
     } catch (error) {
@@ -254,7 +254,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get projects endpoint
-  app.get('/api/v1/projects', requireAuth, async (req: any, res) => {
+  app.get('/api/v1/projects', authenticateJWT, async (req: any, res) => {
     try {
       const projects = await storage.getPropertiesByPmId(req.user.id);
       res.status(200).json(projects);
@@ -265,7 +265,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create milestone endpoint
-  app.post('/api/v1/projects/:projectId/milestones', requireAuth, async (req: any, res) => {
+  app.post('/api/v1/projects/:projectId/milestones', authenticateJWT, async (req: any, res) => {
     try {
       const { name, milestone_type, planned_end } = req.body;
       const projectId = req.params.projectId;
@@ -315,7 +315,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update milestone endpoint
-  app.put('/api/v1/milestones/:milestoneId', requireAuth, async (req: any, res) => {
+  app.put('/api/v1/milestones/:milestoneId', authenticateJWT, async (req: any, res) => {
     try {
       const { status, actual_end } = req.body;
       const milestoneId = req.params.milestoneId;
@@ -373,7 +373,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create company (vendor) endpoint
-  app.post('/api/v1/companies', requireAuth, async (req: any, res) => {
+  app.post('/api/v1/companies', authenticateJWT, async (req: any, res) => {
     try {
       const { name, type } = req.body;
 
@@ -400,7 +400,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create budget line endpoint
-  app.post('/api/v1/projects/:projectId/budget_lines', requireAuth, async (req: any, res) => {
+  app.post('/api/v1/projects/:projectId/budget_lines', authenticateJWT, async (req: any, res) => {
     try {
       const { category, scope_description, budgeted_amount, vendor_id } = req.body;
       const projectId = req.params.projectId;
@@ -461,7 +461,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Document upload endpoint
-  app.post('/api/v1/milestones/:milestoneId/documents', requireAuth, upload.single('file'), async (req: any, res) => {
+  app.post('/api/v1/milestones/:milestoneId/documents', authenticateJWT, upload.single('file'), async (req: any, res) => {
     try {
       const milestoneId = req.params.milestoneId;
       const file = req.file;
@@ -514,7 +514,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create project endpoint
-  app.post('/api/v1/projects', requireAuth, async (req: any, res) => {
+  app.post('/api/v1/projects', authenticateJWT, async (req: any, res) => {
     try {
       const { address, project_type } = req.body;
 
@@ -581,10 +581,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Helper function for audit logging
   const createAuditLog = async (req: any, action: string, entityType: string, entityId: string, oldValues?: any, newValues?: any) => {
-    if (req.user?.claims?.sub) {
+    if (req.user?.id) {
       try {
         await storage.createAuditLog({
-          userId: req.user.claims.sub,
+          userId: req.user.id,
           action: action as any,
           entityType,
           entityId,
@@ -616,7 +616,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   };
 
   // Property routes
-  app.get('/api/properties', requireAuth, async (req, res) => {
+  app.get('/api/properties', authenticateJWT, async (req, res) => {
     try {
       const properties = await storage.getProperties();
       res.json(properties);
@@ -626,7 +626,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/properties/:id', requireAuth, async (req, res) => {
+  app.get('/api/properties/:id', authenticateJWT, async (req, res) => {
     try {
       const property = await storage.getProperty(req.params.id);
       if (!property) {
@@ -639,13 +639,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/properties', requireAuth, async (req: any, res) => {
+  app.post('/api/properties', authenticateJWT, async (req: any, res) => {
     try {
       const validatedData = insertPropertySchema.parse(req.body);
       const property = await storage.createProperty(validatedData);
 
       await createAuditLog(req, 'create', 'property', property.id, null, property);
-      await createActivity(req.user.claims.sub, property.id, 'created', `Created property ${property.address}`, 'property', property.id);
+      await createActivity(req.user.id, property.id, 'created', `Created property ${property.address}`, 'property', property.id);
 
       res.status(201).json(property);
     } catch (error) {
@@ -654,7 +654,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch('/api/properties/:id', requireAuth, async (req: any, res) => {
+  app.patch('/api/properties/:id', authenticateJWT, async (req: any, res) => {
     try {
       const oldProperty = await storage.getProperty(req.params.id);
       if (!oldProperty) {
@@ -665,7 +665,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const property = await storage.updateProperty(req.params.id, validatedData);
 
       await createAuditLog(req, 'update', 'property', req.params.id, oldProperty, property);
-      await createActivity(req.user.claims.sub, req.params.id, 'updated', `Updated property ${property?.address}`, 'property', req.params.id);
+      await createActivity(req.user.id, req.params.id, 'updated', `Updated property ${property?.address}`, 'property', req.params.id);
 
       res.json(property);
     } catch (error) {
@@ -674,7 +674,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/properties/:id', requireAuth, async (req: any, res) => {
+  app.delete('/api/properties/:id', authenticateJWT, async (req: any, res) => {
     try {
       const property = await storage.getProperty(req.params.id);
       if (!property) {
@@ -696,7 +696,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Milestone routes
-  app.get('/api/properties/:propertyId/milestones', requireAuth, async (req, res) => {
+  app.get('/api/properties/:propertyId/milestones', authenticateJWT, async (req, res) => {
     try {
       const milestones = await storage.getMilestones(req.params.propertyId);
       res.json(milestones);
@@ -706,7 +706,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/properties/:propertyId/milestones', requireAuth, async (req: any, res) => {
+  app.post('/api/properties/:propertyId/milestones', authenticateJWT, async (req: any, res) => {
     try {
       const validatedData = insertMilestoneSchema.parse({
         ...req.body,
@@ -715,7 +715,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const milestone = await storage.createMilestone(validatedData);
 
       await createAuditLog(req, 'create', 'milestone', milestone.id, null, milestone);
-      await createActivity(req.user.claims.sub, req.params.propertyId, 'milestone_created', `Created milestone ${milestone.name}`, 'milestone', milestone.id);
+      await createActivity(req.user.id, req.params.propertyId, 'milestone_created', `Created milestone ${milestone.name}`, 'milestone', milestone.id);
 
       res.status(201).json(milestone);
     } catch (error) {
@@ -724,7 +724,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch('/api/milestones/:id', requireAuth, async (req: any, res) => {
+  app.patch('/api/milestones/:id', authenticateJWT, async (req: any, res) => {
     try {
       const oldMilestone = await storage.getMilestone(req.params.id);
       if (!oldMilestone) {
@@ -737,7 +737,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await createAuditLog(req, 'update', 'milestone', req.params.id, oldMilestone, milestone);
 
       if (milestone && milestone.status === 'complete' && oldMilestone.status !== 'complete') {
-        await createActivity(req.user.claims.sub, milestone.propertyId, 'milestone_completed', `Completed milestone ${milestone.name}`, 'milestone', milestone.id);
+        await createActivity(req.user.id, milestone.propertyId, 'milestone_completed', `Completed milestone ${milestone.name}`, 'milestone', milestone.id);
       }
 
       res.json(milestone);
@@ -748,7 +748,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Vendor routes
-  app.get('/api/vendors', requireAuth, async (req, res) => {
+  app.get('/api/vendors', authenticateJWT, async (req, res) => {
     try {
       const vendors = await storage.getVendors();
       res.json(vendors);
@@ -758,7 +758,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/vendors', requireAuth, async (req: any, res) => {
+  app.post('/api/vendors', authenticateJWT, async (req: any, res) => {
     try {
       const validatedData = insertVendorSchema.parse(req.body);
       const vendor = await storage.createVendor(validatedData);
@@ -773,7 +773,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Budget routes
-  app.get('/api/properties/:propertyId/budget', requireAuth, async (req, res) => {
+  app.get('/api/properties/:propertyId/budget', authenticateJWT, async (req, res) => {
     try {
       const budgetLines = await storage.getBudgetLines(req.params.propertyId);
       res.json(budgetLines);
@@ -783,7 +783,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/properties/:propertyId/budget', requireAuth, async (req: any, res) => {
+  app.post('/api/properties/:propertyId/budget', authenticateJWT, async (req: any, res) => {
     try {
       const validatedData = insertBudgetLineSchema.parse({
         ...req.body,
@@ -792,7 +792,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const budgetLine = await storage.createBudgetLine(validatedData);
 
       await createAuditLog(req, 'create', 'budget_line', budgetLine.id, null, budgetLine);
-      await createActivity(req.user.claims.sub, req.params.propertyId, 'budget_added', `Added budget line ${budgetLine.scope}`, 'budget_line', budgetLine.id);
+      await createActivity(req.user.id, req.params.propertyId, 'budget_added', `Added budget line ${budgetLine.scope}`, 'budget_line', budgetLine.id);
 
       res.status(201).json(budgetLine);
     } catch (error) {
@@ -802,7 +802,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // RFQ routes
-  app.get('/api/rfqs', requireAuth, async (req, res) => {
+  app.get('/api/rfqs', authenticateJWT, async (req, res) => {
     try {
       const propertyId = req.query.propertyId as string;
       const rfqs = await storage.getRFQs(propertyId);
@@ -813,16 +813,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/rfqs', requireAuth, async (req: any, res) => {
+  app.post('/api/rfqs', authenticateJWT, async (req: any, res) => {
     try {
       const validatedData = insertRFQSchema.parse({
         ...req.body,
-        createdBy: req.user.claims.sub,
+        createdBy: req.user.id,
       });
       const rfq = await storage.createRFQ(validatedData);
 
       await createAuditLog(req, 'create', 'rfq', rfq.id, null, rfq);
-      await createActivity(req.user.claims.sub, rfq.propertyId, 'rfq_created', `Created RFQ ${rfq.title}`, 'rfq', rfq.id);
+      await createActivity(req.user.id, rfq.propertyId, 'rfq_created', `Created RFQ ${rfq.title}`, 'rfq', rfq.id);
 
       res.status(201).json(rfq);
     } catch (error) {
@@ -832,7 +832,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Bid routes
-  app.get('/api/rfqs/:rfqId/bids', requireAuth, async (req, res) => {
+  app.get('/api/rfqs/:rfqId/bids', authenticateJWT, async (req, res) => {
     try {
       const bids = await storage.getBids(req.params.rfqId);
       res.json(bids);
@@ -842,7 +842,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/rfqs/:rfqId/bids', requireAuth, async (req: any, res) => {
+  app.post('/api/rfqs/:rfqId/bids', authenticateJWT, async (req: any, res) => {
     try {
       const validatedData = insertBidSchema.parse({
         ...req.body,
@@ -859,7 +859,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch('/api/bids/:id/award', requireAuth, async (req: any, res) => {
+  app.patch('/api/bids/:id/award', authenticateJWT, async (req: any, res) => {
     try {
       const bid = await storage.awardBid(req.params.id);
       if (!bid) {
@@ -876,7 +876,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Permit routes
-  app.get('/api/properties/:propertyId/permits', requireAuth, async (req, res) => {
+  app.get('/api/properties/:propertyId/permits', authenticateJWT, async (req, res) => {
     try {
       const permits = await storage.getPermits(req.params.propertyId);
       res.json(permits);
@@ -886,7 +886,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/properties/:propertyId/permits', requireAuth, async (req: any, res) => {
+  app.post('/api/properties/:propertyId/permits', authenticateJWT, async (req: any, res) => {
     try {
       const validatedData = insertPermitSchema.parse({
         ...req.body,
@@ -895,7 +895,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const permit = await storage.createPermit(validatedData);
 
       await createAuditLog(req, 'create', 'permit', permit.id, null, permit);
-      await createActivity(req.user.claims.sub, req.params.propertyId, 'permit_created', `Created ${permit.type} permit`, 'permit', permit.id);
+      await createActivity(req.user.id, req.params.propertyId, 'permit_created', `Created ${permit.type} permit`, 'permit', permit.id);
 
       res.status(201).json(permit);
     } catch (error) {
@@ -904,13 +904,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/permits/:permitId', requireAuth, async (req: any, res) => {
+  app.put('/api/permits/:permitId', authenticateJWT, async (req: any, res) => {
     try {
       const permitId = req.params.permitId;
       const updatedPermit = await storage.updatePermit(permitId, req.body);
 
       await createAuditLog(req, 'update', 'permit', permitId, null, updatedPermit);
-      await createActivity(req.user.claims.sub, updatedPermit?.propertyId || '', 'permit_updated', `Updated permit status`, 'permit', permitId);
+      await createActivity(req.user.id, updatedPermit?.propertyId || '', 'permit_updated', `Updated permit status`, 'permit', permitId);
 
       res.json(updatedPermit);
     } catch (error) {
@@ -920,7 +920,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // AI-powered permit lookup endpoint using existing GEMINI_API_KEY
-  app.post('/api/v1/permits/lookup', requireAuth, async (req: any, res) => {
+  app.post('/api/v1/permits/lookup', authenticateJWT, async (req: any, res) => {
     try {
       const { projectAddress, scopeOfWork } = req.body;
 
@@ -956,7 +956,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Risk routes
-  app.get('/api/properties/:propertyId/risks', requireAuth, async (req, res) => {
+  app.get('/api/properties/:propertyId/risks', authenticateJWT, async (req, res) => {
     try {
       const risks = await storage.getRisks(req.params.propertyId);
       res.json(risks);
@@ -966,7 +966,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/properties/:propertyId/risks', requireAuth, async (req: any, res) => {
+  app.post('/api/properties/:propertyId/risks', authenticateJWT, async (req: any, res) => {
     try {
       const validatedData = insertRiskSchema.parse({
         ...req.body,
@@ -975,7 +975,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const risk = await storage.createRisk(validatedData);
 
       await createAuditLog(req, 'create', 'risk', risk.id, null, risk);
-      await createActivity(req.user.claims.sub, req.params.propertyId, 'risk_created', `Created ${risk.type}: ${risk.description}`, 'risk', risk.id);
+      await createActivity(req.user.id, req.params.propertyId, 'risk_created', `Created ${risk.type}: ${risk.description}`, 'risk', risk.id);
 
       res.status(201).json(risk);
     } catch (error) {
@@ -985,7 +985,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Document routes
-  app.get('/api/documents', requireAuth, async (req, res) => {
+  app.get('/api/documents', authenticateJWT, async (req, res) => {
     try {
       const propertyId = req.query.propertyId as string;
       const milestoneId = req.query.milestoneId as string;
@@ -997,18 +997,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/documents', requireAuth, async (req: any, res) => {
+  app.post('/api/documents', authenticateJWT, async (req: any, res) => {
     try {
       const validatedData = insertDocumentSchema.parse({
         ...req.body,
-        uploadedBy: req.user.claims.sub,
+        uploadedBy: req.user.id,
       });
       const document = await storage.createDocument(validatedData);
 
       await createAuditLog(req, 'create', 'document', document.id, null, document);
 
       if (document.propertyId) {
-        await createActivity(req.user.claims.sub, document.propertyId, 'document_uploaded', `Uploaded ${document.name}`, 'document', document.id);
+        await createActivity(req.user.id, document.propertyId, 'document_uploaded', `Uploaded ${document.name}`, 'document', document.id);
       }
 
       res.status(201).json(document);
@@ -1019,7 +1019,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Activity routes
-  app.get('/api/activities', requireAuth, async (req, res) => {
+  app.get('/api/activities', authenticateJWT, async (req, res) => {
     try {
       const propertyId = req.query.propertyId as string;
       const limit = parseInt(req.query.limit as string) || 50;
@@ -1032,8 +1032,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Object storage routes for protected file uploading
-  app.get("/objects/:objectPath(*)", requireAuth, async (req: any, res) => {
-    const userId = req.user?.claims?.sub;
+  app.get("/objects/:objectPath(*)", authenticateJWT, async (req: any, res) => {
+    const userId = req.user?.id;
     const objectStorageService = new ObjectStorageService();
     try {
       const objectFile = await objectStorageService.getObjectEntityFile(req.path);
@@ -1055,7 +1055,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/objects/upload", requireAuth, async (req, res) => {
+  app.post("/api/objects/upload", authenticateJWT, async (req, res) => {
     const objectStorageService = new ObjectStorageService();
     try {
       const uploadURL = await objectStorageService.getObjectEntityUploadURL();
@@ -1066,12 +1066,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/objects", requireAuth, async (req: any, res) => {
+  app.put("/api/objects", authenticateJWT, async (req: any, res) => {
     if (!req.body.documentURL) {
       return res.status(400).json({ error: "documentURL is required" });
     }
 
-    const userId = req.user?.claims?.sub;
+    const userId = req.user?.id;
 
     try {
       const objectStorageService = new ObjectStorageService();
@@ -1093,7 +1093,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Analytics endpoints for dashboard
-  app.get("/api/v1/analytics/gantt", requireAuth, (_req, res) => {
+  app.get("/api/v1/analytics/gantt", authenticateJWT, (_req, res) => {
     res.json({
       projects: [
         {
@@ -1140,7 +1140,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  app.get("/api/v1/analytics/financials", requireAuth, (_req, res) => {
+  app.get("/api/v1/analytics/financials", authenticateJWT, (_req, res) => {
     res.json({
       budgetVariance: [
         { category: 'Labor', planned: 500000, actual: 520000, variance: 20000 },
@@ -1161,7 +1161,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  app.get("/api/v1/analytics/ai-insights", requireAuth, (_req, res) => {
+  app.get("/api/v1/analytics/ai-insights", authenticateJWT, (_req, res) => {
     res.json({
       riskScores: [
         {
@@ -1186,14 +1186,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  app.post("/api/v1/analytics/ai-recommendation", requireAuth, (_req, res) => {
+  app.post("/api/v1/analytics/ai-recommendation", authenticateJWT, (_req, res) => {
     res.json({
       recommendation: "Based on the risk factors for this project, we recommend: 1) Implement weather contingency plans with indoor work alternatives, 2) Establish backup material suppliers to mitigate shortages, 3) Expedite permit processing through dedicated liaison, 4) Consider schedule buffer of 2-3 weeks for critical path activities."
     });
   });
 
   // Statistics and dashboard data
-  app.get('/api/dashboard/stats', requireAuth, async (req, res) => {
+  app.get('/api/dashboard/stats', authenticateJWT, async (req, res) => {
     try {
       const properties = await storage.getProperties();
       const totalBudget = properties.reduce((sum, p) => sum + parseFloat(p.totalBudget), 0);

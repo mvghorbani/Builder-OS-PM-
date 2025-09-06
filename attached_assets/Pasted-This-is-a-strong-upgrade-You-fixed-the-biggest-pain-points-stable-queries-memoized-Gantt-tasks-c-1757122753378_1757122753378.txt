@@ -1,0 +1,136 @@
+This is a strong upgrade. You fixed the biggest pain points: stable queries, memoized Gantt tasks, consistent money formatting, and cache-updating for AI recs. Nice. Here’s how to tighten it so it feels production-grade and stays fast on Replit.
+
+Priority fixes (quick wins)
+
+Match server routes exactly
+You’re calling /api/v1/analytics/*. Make sure you added these exact endpoints server-side. If not, either:
+
+add aliases in server/routes.ts, or
+
+change your query keys and URLs to /api/analytics/*.
+
+Consistency prevents silent 404s/spinners.
+
+Add error UI per query
+Right now you only show skeletons/empty states. Add a tiny error fallback so you don’t lose time debugging.
+
+if (ganttError) {
+  return (
+    <Card className="p-6">
+      <p className="text-sm text-red-600">Couldn’t load schedule data.</p>
+      <Button size="sm" className="mt-2"
+        onClick={() => queryClient.invalidateQueries({ queryKey: ['/api/v1/analytics/gantt'] })}
+      >
+        Retry
+      </Button>
+    </Card>
+  );
+}
+
+
+Mirror for financialData and aiInsights.
+
+Stabilize TabsList layout
+Your TabsList dropped the grid container classes. Bring them back for clean wrapping on mobile.
+
+<TabsList className="grid w-full grid-cols-1 md:grid-cols-3 gap-2">
+
+
+Pre-fetch related data for snappier UX
+As soon as the page mounts, prefetch the other tabs so switching is instant.
+
+import { useEffect } from "react";
+useEffect(() => {
+  queryClient.prefetchQuery({ queryKey: ['/api/v1/analytics/financials'], queryFn: async () => (await axios.get('/api/v1/analytics/financials')).data });
+  queryClient.prefetchQuery({ queryKey: ['/api/v1/analytics/ai-insights'], queryFn: async () => (await axios.get('/api/v1/analytics/ai-insights')).data });
+}, []);
+
+
+Guard AI button spam
+Disable while pending (you already do), and add a toast if the user clicks again:
+
+onClick={() => {
+  if (recommendationMutation.isPending) return toast({ title: "Working…", description: "Generating recommendation." });
+  recommendationMutation.mutate({ projectId: project.projectId, riskFactors: project.riskFactors });
+}}
+
+UX polish (Apple-ish, readable)
+
+Badges: you already rounded the risk badge; do the same for status chips and add slight letter-spacing for that iOS pill look.
+
+Gantt list: you set listCellWidth="220px"—good. That improves scannability. Keep barCornerRadius={3} and ganttHeight={500} (already added).
+
+Money axis: you added tickFormatter={fmtMoney} on YAxis—good. Also ensure tooltips use the same helper (you already do).
+
+Structural tidy (keeps code maintainable)
+
+Extract utilities
+Pull these into /client/src/lib/format.ts:
+
+export const fmtMoney = (n: number) => `$${n.toLocaleString()}`;
+export const statusClass = (s: 'complete'|'on-track'|'at-risk'|'overdue') =>
+  ({ complete:'bg-green-500', 'on-track':'bg-blue-500', 'at-risk':'bg-yellow-500', overdue:'bg-red-500' }[s]);
+export const riskClass = (score: number) =>
+  score >= 70 ? 'text-red-600 bg-red-50'
+  : score >= 40 ? 'text-yellow-600 bg-yellow-50'
+  : 'text-green-600 bg-green-50';
+
+
+Then import and use—less repetition and fewer typo risks.
+
+Extract JsonChartCard
+For repeated Card+Header+Chart blocks, create a tiny wrapper to reduce boilerplate.
+
+Navigation ties (from dashboard → sections)
+
+Add “Open …” links under each summary card (Budget → /budget, Schedule → /schedule, Risks → /permits) using wouter’s <Link> so your landing page actually routes users to the detailed pages they expect.
+
+import { Link } from "wouter";
+// inside summary card
+<Link href="/budget"><a className="text-xs underline text-blue-600">Open Budget</a></Link>
+
+Replit performance hygiene
+
+Reduce refetching (you already set staleTime / gcTime).
+
+Avoid console spam (Replit throttles noisy logs).
+
+Keep bundle lean: you’re fine; just avoid adding heavy chart libs on top of Recharts.
+
+Backend stubs to support this page (copy/paste)
+
+If you haven’t already, add these to server/routes.ts inside registerRoutes(app):
+
+app.get("/api/v1/analytics/gantt", (_req, res) => {
+  res.json({
+    projects: [
+      // copy the exact mock objects you use in the component
+    ]
+  });
+});
+app.get("/api/v1/analytics/financials", (_req, res) => {
+  res.json({
+    budgetVariance: [
+      // your mock rows
+    ],
+    cashFlow: [
+      // your mock rows
+    ]
+  });
+});
+app.get("/api/v1/analytics/ai-insights", (_req, res) => {
+  res.json({
+    riskScores: [
+      // your mock rows
+    ]
+  });
+});
+app.post("/api/v1/analytics/ai-recommendation", (_req, res) => {
+  res.json({
+    recommendation:
+      "Based on the risk factors for this project, we recommend: 1) Implement weather contingency plans with indoor work alternatives, 2) Establish backup material suppliers to mitigate shortages, 3) Expedite permit processing through dedicated liaison, 4) Add 2–3 week schedule buffer on critical path."
+  });
+});
+
+
+If auth guards are on: wrap with your requireAuth. If you’re in dev and using the session stub, you’re fine.

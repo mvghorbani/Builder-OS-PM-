@@ -1,12 +1,27 @@
 import { QueryClient } from "@tanstack/react-query";
 import axios from "axios";
 
+// API request function for mutations  
+export const apiRequest = async (url: string, options: RequestInit = {}) => {
+  const response = await axios.request({
+    url,
+    method: options.method || 'GET',
+    data: options.body ? JSON.parse(options.body as string) : undefined,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(options.headers || {}),
+    },
+    withCredentials: true,
+  });
+  return response.data;
+};
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       queryFn: async ({ queryKey }) => {
         try {
-          const response = await axios.get(queryKey[0] as string);
+          const response = await axios.get(queryKey[0] as string, { withCredentials: true });
           return response.data;
         } catch (error) {
           if (axios.isAxiosError(error)) {
