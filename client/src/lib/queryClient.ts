@@ -3,14 +3,21 @@ import axios from "axios";
 
 // API request function for mutations  
 export const apiRequest = async (url: string, options: RequestInit = {}) => {
+  // Handle FormData uploads differently
+  const isFormData = options.body instanceof FormData;
+  
   const response = await axios.request({
     url,
     method: options.method || 'GET',
-    data: options.body ? JSON.parse(options.body as string) : undefined,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(options.headers || {}),
-    },
+    data: isFormData 
+      ? options.body 
+      : options.body ? JSON.parse(options.body as string) : undefined,
+    headers: isFormData 
+      ? { ...(options.headers || {}) } // Let axios set Content-Type for FormData
+      : {
+          'Content-Type': 'application/json',
+          ...(options.headers || {}),
+        },
     withCredentials: true,
   });
   return response.data;
