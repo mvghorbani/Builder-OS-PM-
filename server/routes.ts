@@ -997,13 +997,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/documents', authenticateJWT, async (req: any, res) => {
+  app.post('/api/documents', authenticateJWT, upload.single('file'), async (req: any, res) => {
     try {
-      const validatedData = insertDocumentSchema.parse({
-        ...req.body,
+      const file = req.file;
+      if (!file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      // Parse the tags from string to array
+      let tags = [];
+      try {
+        tags = req.body.tags ? JSON.parse(req.body.tags) : [];
+      } catch (e) {
+        tags = req.body.tags ? req.body.tags.split(',').map((t: string) => t.trim()).filter((t: string) => t) : [];
+      }
+
+      // Create the document data
+      const documentData = {
+        name: req.body.name || file.originalname,
+        description: req.body.description || '',
+        type: req.body.type || file.mimetype.split('/')[0],
+        category: req.body.category,
+        fileName: file.originalname,
+        filePath: `/uploads/documents/${file.originalname}`, // Placeholder path
+        fileSize: file.size,
+        mimeType: file.mimetype,
+        version: 1,
+        status: 'draft' as const,
+        accessLevel: req.body.accessLevel || 'project_team',
+        tags,
+        propertyId: req.body.propertyId || null,
+        milestoneId: req.body.milestoneId || null,
         uploadedBy: req.user.id,
-      });
-      const document = await storage.createDocument(validatedData);
+        lastModifiedBy: req.user.id,
+        isArchived: false,
+      };
+
+      const document = await storage.createDocument(documentData);
 
       await createAuditLog(req, 'create', 'document', document.id, null, document);
 
@@ -1014,7 +1044,107 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(document);
     } catch (error) {
       console.error("Error creating document:", error);
-      res.status(500).json({ message: "Failed to create document" });
+      res.status(500).json({ message: "Failed to create document", error: error instanceof Error ? error.message : 'Unknown error' });
+    }
+  });
+
+  // Document status update routes
+  app.post('/api/documents/:id/approve', authenticateJWT, async (req: any, res) => {
+    try {
+      const documentId = req.params.id;
+      const { comments } = req.body;
+
+      // Get the document first
+      const documents = await storage.getDocuments();
+      const document = documents.find((doc: any) => doc.id === documentId);
+      
+      if (!document) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+
+      // Update document status to approved
+      const updatedDocument = await storage.updateDocument(documentId, {
+        status: 'approved',
+        approvedBy: req.user.id,
+        approvedAt: new Date().toISOString(),
+        versionNotes: comments || 'Approved via document management'
+      });
+
+      await createAuditLog(req, 'approve', 'document', documentId, document, updatedDocument);
+      
+      if (document.propertyId) {
+        await createActivity(req.user.id, document.propertyId, 'document_approved', `Approved document ${document.name}`, 'document', documentId);
+      }
+
+      res.status(200).json(updatedDocument);
+    } catch (error) {
+      console.error("Error approving document:", error);
+      res.status(500).json({ message: "Failed to approve document" });
+    }
+  });
+
+  app.post('/api/documents/:id/reject', authenticateJWT, async (req: any, res) => {
+    try {
+      const documentId = req.params.id;
+      const { comments } = req.body;
+
+      // Get the document first
+      const documents = await storage.getDocuments();
+      const document = documents.find((doc: any) => doc.id === documentId);
+      
+      if (!document) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+
+      // Update document status to rejected
+      const updatedDocument = await storage.updateDocument(documentId, {
+        status: 'rejected',
+        versionNotes: comments || 'Rejected via document management'
+      });
+
+      await createAuditLog(req, 'reject', 'document', documentId, document, updatedDocument);
+      
+      if (document.propertyId) {
+        await createActivity(req.user.id, document.propertyId, 'document_rejected', `Rejected document ${document.name}`, 'document', documentId);
+      }
+
+      res.status(200).json(updatedDocument);
+    } catch (error) {
+      console.error("Error rejecting document:", error);
+      res.status(500).json({ message: "Failed to reject document" });
+    }
+  });
+
+  app.post('/api/documents/:id/archive', authenticateJWT, async (req: any, res) => {
+    try {
+      const documentId = req.params.id;
+      const { reason } = req.body;
+
+      // Get the document first
+      const documents = await storage.getDocuments();
+      const document = documents.find((doc: any) => doc.id === documentId);
+      
+      if (!document) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+
+      // Update document to archived
+      const updatedDocument = await storage.updateDocument(documentId, {
+        status: 'archived',
+        isArchived: true,
+        archiveReason: reason || 'Archived via document management'
+      });
+
+      await createAuditLog(req, 'archive', 'document', documentId, document, updatedDocument);
+      
+      if (document.propertyId) {
+        await createActivity(req.user.id, document.propertyId, 'document_archived', `Archived document ${document.name}`, 'document', documentId);
+      }
+
+      res.status(200).json(updatedDocument);
+    } catch (error) {
+      console.error("Error archiving document:", error);
+      res.status(500).json({ message: "Failed to archive document" });
     }
   });
 

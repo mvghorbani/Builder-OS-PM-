@@ -112,6 +112,7 @@ export interface IStorage {
   getDocuments(propertyId?: string, milestoneId?: string): Promise<Document[]>;
   getDocument(id: string): Promise<Document | undefined>;
   createDocument(document: InsertDocument): Promise<Document>;
+  updateDocument(id: string, updates: Partial<InsertDocument>): Promise<Document | undefined>;
   deleteDocument(id: string): Promise<boolean>;
 
   // Activity operations
@@ -544,6 +545,15 @@ export class DatabaseStorage implements IStorage {
   async createDocument(document: InsertDocument): Promise<Document> {
     const [newDocument] = await db.insert(documents).values(document).returning();
     return newDocument;
+  }
+
+  async updateDocument(id: string, updates: Partial<InsertDocument>): Promise<Document | undefined> {
+    const [updatedDocument] = await db
+      .update(documents)
+      .set({ ...updates, updatedAt: new Date().toISOString() })
+      .where(eq(documents.id, id))
+      .returning();
+    return updatedDocument;
   }
 
   async deleteDocument(id: string): Promise<boolean> {
