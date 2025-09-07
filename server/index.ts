@@ -1,3 +1,6 @@
+import { config } from "dotenv";
+config(); // Load environment variables from .env file
+
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic } from "./vite";
@@ -94,11 +97,19 @@ app.use((req, res, next) => {
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = parseInt(process.env.PORT || '5000', 10);
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    console.log(`serving on port ${port}`);
-  });
+  
+  // Use simpler listen config for local development
+  if (process.env.NODE_ENV === 'development') {
+    server.listen(port, 'localhost', () => {
+      console.log(`🚀 Development server running on http://localhost:${port}`);
+    });
+  } else {
+    server.listen({
+      port,
+      host: "0.0.0.0",
+      reusePort: true,
+    }, () => {
+      console.log(`serving on port ${port}`);
+    });
+  }
 })();

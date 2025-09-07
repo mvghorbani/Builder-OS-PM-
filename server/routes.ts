@@ -561,8 +561,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Auth middleware
-  await setupAuth(app);
+  // Auth middleware - skip in development
+  if (process.env.NODE_ENV !== 'development') {
+    await setupAuth(app);
+  }
 
   // Auth routes
   app.get('/api/auth/user', authenticateJWT, async (req: any, res) => {
