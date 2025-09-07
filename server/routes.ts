@@ -15,6 +15,8 @@ import {
   insertRiskSchema,
   insertDocumentSchema,
   insertActivitySchema,
+  insertDiscussionSchema,
+  insertDiscussionCommentSchema,
   loginSchema,
   permitLookupSchema,
 } from "@shared/schema";
@@ -618,6 +620,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Failed to create activity:", error);
     }
   };
+
+  // Discussions feed (stakeholder communications)
+  app.get('/api/v1/discussions', authenticateJWT, async (req: any, res) => {
+    try {
+      const { propertyId, limit } = req.query as { propertyId?: string; limit?: string };
+      const rows = await storage.getDiscussions({ propertyId, limit: limit ? Number(limit) : 20 });
+      res.json(rows);
+    } catch (err) {
+      console.error('Error fetching discussions:', err);
+      res.status(500).json({ message: 'Failed to fetch discussions' });
+    }
+  });
+
+  app.post('/api/v1/discussions', authenticateJWT, async (req: any, res) => {
+    try {
+      const payload = insertDiscussionSchema.parse({
+        ...req.body,
+        authorId: req.user.id,
+      });
+      const row = await storage.createDiscussion(payload);
+      if (payload.propertyId) {
+        await createActivity(req.user.id, payload.propertyId, 'discussion_created', 'Started a new discussion', 'discussion', row.id);
+      }
+      res.status(201).json(row);
+    } catch (err) {
+      console.error('Error creating discussion:', err);
+      res.status(400).json({ message: 'Failed to create discussion' });
+    }
+  });
+
+  app.get('/api/v1/discussions/:id', authenticateJWT, async (req, res) => {
+    try {
+      const row = await storage.getDiscussion(req.params.id);
+      if (!row) return res.status(404).json({ message: 'Discussion not found' });
+      res.json(row);
+    } catch (err) {
+      console.error('Error fetching discussion:', err);
+      res.status(500).json({ message: 'Failed to fetch discussion' });
+    }
+  });
+
+  app.get('/api/v1/discussions/:id/comments', authenticateJWT, async (req, res) => {
+    try {
+      const rows = await storage.getDiscussionComments(req.params.id, 200);
+      res.json(rows);
+    } catch (err) {
+      console.error('Error fetching discussion comments:', err);
+      res.status(500).json({ message: 'Failed to fetch comments' });
+    }
+  });
+
+  app.post('/api/v1/discussions/:id/comments', authenticateJWT, async (req: any, res) => {
+    try {
+      const payload = insertDiscussionCommentSchema.parse({
+        ...req.body,
+        discussionId: req.params.id,
+        userId: req.user.id,
+      });
+      const row = await storage.createDiscussionComment(payload);
+      res.status(201).json(row);
+    } catch (err) {
+      console.error('Error creating comment:', err);
+      res.status(400).json({ message: 'Failed to create comment' });
+    }
+  });
+
+  app.post('/api/v1/discussions/:id/reactions', authenticateJWT, async (req: any, res) => {
+    try {
+      const { type } = req.body as { type: string };
+      const result = await storage.toggleDiscussionReaction(req.params.id, req.user.id, type);
+      const counts = await storage.getDiscussionReactionCounts(req.params.id);
+      res.json({ ...result, counts });
+    } catch (err) {
+      console.error('Error toggling reaction:', err);
+      res.status(400).json({ message: 'Failed to react' });
+    }
+  });
 
   // Property routes
   app.get('/api/properties', authenticateJWT, async (req, res) => {

@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
-          import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Document } from "@/types/document";
           import { apiRequest } from "@/lib/queryClient";
           import { Button } from "@/components/ui/button";
           import { Input } from "@/components/ui/input";
@@ -40,6 +41,8 @@ import { useState, useEffect } from "react";
             ExternalLink
           } from "lucide-react";
           import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DocumentViewer } from "@/components/DocumentViewer";
+import { QuickPreview } from "@/components/QuickPreview";
 
           interface Document {
             id: string;
@@ -48,6 +51,12 @@ import { useState, useEffect } from "react";
             type: string;
             category: string;
             fileName: string;
+            url: string;
+            mimeType: string;
+            fileSize: number;
+            createdAt: string;
+            summary?: string;
+            version: string;
             filePath: string;
             fileSize: number;
             mimeType: string;
@@ -118,6 +127,8 @@ import { useState, useEffect } from "react";
             const [showUploadDialog, setShowUploadDialog] = useState(false);
             const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
             const [showDocumentDetails, setShowDocumentDetails] = useState(false);
+            const [previewDocument, setPreviewDocument] = useState<Document | null>(null);
+            const [showQuickPreview, setShowQuickPreview] = useState(false);
             const [uploadForm, setUploadForm] = useState<UploadFormData>({
               name: "",
               description: "",
@@ -544,29 +555,37 @@ import { useState, useEffect } from "react";
                 <div className="relative z-10">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {documents.map((document: Document) => (
-                      <div key={document.id} className="glass-card p-4 transition-transform duration-300 hover:-translate-y-[2px] group">
-                        <CardHeader className="pb-3">
-                          <div className="flex items-start justify-between">
-                            <div className="flex items-center gap-3 flex-1">
-                              <div className="p-2 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-lg">
-                                {getFileIcon(document.mimeType)}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <CardTitle className="text-sm font-semibold text-gray-800 truncate" title={document.name}>
-                                  {document.name}
-                                </CardTitle>
-                                <p className="text-xs text-gray-500 mt-1">
-                                  v{document.version} • {formatFileSize(document.fileSize)}
-                                </p>
-                              </div>
-                            </div>
+                      <DocumentCard
+                        key={document.id}
+                        document={{
+                          ...document,
+                          summary: document.summary || 'No AI summary available yet.'
+                        }}
+                        onPreview={() => {
+                          setPreviewDocument(document);
+                          setShowQuickPreview(true);
+                        }}
+                      />
 
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <MoreVertical className="w-4 h-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={() => {
+                                  setPreviewDocument(document);
+                                  setShowQuickPreview(true);
+                                }}
+                              >
+                                <Eye className="w-4 h-4" />
+                              </Button>
+
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <MoreVertical className="w-4 h-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="bg-white/95 backdrop-blur border-white/20">
                                 <DropdownMenuItem onClick={() => { setSelectedDocument(document); setShowDocumentDetails(true); }}>
                                   <Eye className="w-4 h-4 mr-2" />
@@ -650,6 +669,13 @@ import { useState, useEffect } from "react";
                   </div>
                 </div>
 
+                {/* Quick Preview */}
+                <QuickPreview
+                  isOpen={showQuickPreview}
+                  onClose={() => setShowQuickPreview(false)}
+                  document={previewDocument}
+                />
+
                 {/* Document Details Dialog */}
                 <Dialog open={showDocumentDetails} onOpenChange={setShowDocumentDetails}>
                   <DialogContent className="glass-panel max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -662,10 +688,20 @@ import { useState, useEffect } from "react";
                           </DialogTitle>
                         </DialogHeader>
 
-                        <Tabs defaultValue="details" className="mt-6">
+                        <Tabs defaultValue="preview" className="mt-6">
                           <TabsList className="grid w-full grid-cols-4 bg-white/50">
+                            <TabsTrigger value="preview">Preview</TabsTrigger>
                             <TabsTrigger value="details">Details</TabsTrigger>
                             <TabsTrigger value="versions">Versions</TabsTrigger>
+
+                          <TabsContent value="preview" className="mt-6">
+                            <div className="h-[600px] w-full">
+                              <DocumentViewer 
+                                url={selectedDocument.url} 
+                                mimeType={selectedDocument.mimeType} 
+                              />
+                            </div>
+                          </TabsContent>
                             <TabsTrigger value="comments">Comments</TabsTrigger>
                             <TabsTrigger value="sharing">Sharing</TabsTrigger>
                           </TabsList>

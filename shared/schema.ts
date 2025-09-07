@@ -50,6 +50,7 @@ export const bidStatusEnum = pgEnum('bid_status', ['pending', 'submitted', 'awar
 export const auditActionEnum = pgEnum('audit_action', ['create', 'update', 'delete', 'view', 'approve', 'reject']);
 export const documentStatusEnum = pgEnum('document_status', ['draft', 'review', 'approved', 'rejected', 'archived']);
 export const accessLevelEnum = pgEnum('access_level', ['public', 'project_team', 'project_managers', 'owners_only', 'restricted']);
+export const reactionTypeEnum = pgEnum('reaction_type', ['like', 'love', 'insight', 'question', 'celebrate']);
 
 // Core tables
 export const properties = pgTable("properties", {
@@ -268,6 +269,37 @@ export const activities = pgTable("activities", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Discussions (Stakeholder feed)
+export const discussions = pgTable("discussions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  propertyId: varchar("property_id").references(() => properties.id, { onDelete: 'set null' }),
+  authorId: varchar("author_id").notNull().references(() => users.id),
+  title: text("title"),
+  body: text("body").notNull(),
+  visibility: accessLevelEnum("visibility").notNull().default('project_team'),
+  isPinned: boolean("is_pinned").notNull().default(false),
+  isLocked: boolean("is_locked").notNull().default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const discussionComments = pgTable("discussion_comments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  discussionId: varchar("discussion_id").notNull().references(() => discussions.id, { onDelete: 'cascade' }),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  body: text("body").notNull(),
+  parentCommentId: varchar("parent_comment_id"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const discussionReactions = pgTable("discussion_reactions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  discussionId: varchar("discussion_id").notNull().references(() => discussions.id, { onDelete: 'cascade' }),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  type: reactionTypeEnum("type").notNull().default('like'),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const auditLogs = pgTable("audit_logs", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").notNull().references(() => users.id),
@@ -371,6 +403,25 @@ export const auditLogRelations = relations(auditLogs, ({ one }) => ({
   user: one(users, { fields: [auditLogs.userId], references: [users.id] }),
 }));
 
+export const discussionRelations = relations(discussions, ({ one, many }) => ({
+  property: one(properties, { fields: [discussions.propertyId], references: [properties.id] }),
+  author: one(users, { fields: [discussions.authorId], references: [users.id] }),
+  comments: many(discussionComments),
+  reactions: many(discussionReactions),
+}));
+
+export const discussionCommentRelations = relations(discussionComments, ({ one, many }) => ({
+  discussion: one(discussions, { fields: [discussionComments.discussionId], references: [discussions.id] }),
+  user: one(users, { fields: [discussionComments.userId], references: [users.id] }),
+  parent: one(discussionComments, { fields: [discussionComments.parentCommentId], references: [discussionComments.id] }),
+  children: many(discussionComments),
+}));
+
+export const discussionReactionRelations = relations(discussionReactions, ({ one }) => ({
+  discussion: one(discussions, { fields: [discussionReactions.discussionId], references: [discussions.id] }),
+  user: one(users, { fields: [discussionReactions.userId], references: [users.id] }),
+}));
+
 // Zod schemas
 export const upsertUserSchema = createInsertSchema(users).pick({
   id: true,
@@ -465,6 +516,22 @@ export const insertAuditLogSchema = createInsertSchema(auditLogs).omit({
   createdAt: true,
 });
 
+export const insertDiscussionSchema = createInsertSchema(discussions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertDiscussionCommentSchema = createInsertSchema(discussionComments).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertDiscussionReactionSchema = createInsertSchema(discussionReactions).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type UpsertUser = z.infer<typeof upsertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -495,3 +562,10 @@ export type InsertActivity = z.infer<typeof insertActivitySchema>;
 export type AuditLog = typeof auditLogs.$inferSelect;
 export type InsertAuditLog = z.infer<typeof insertAuditLogSchema>;
 export type LoginRequest = z.infer<typeof loginSchema>;
+
+export type Discussion = typeof discussions.$inferSelect;
+export type InsertDiscussion = z.infer<typeof insertDiscussionSchema>;
+export type DiscussionComment = typeof discussionComments.$inferSelect;
+export type InsertDiscussionComment = z.infer<typeof insertDiscussionCommentSchema>;
+export type DiscussionReaction = typeof discussionReactions.$inferSelect;
+export type InsertDiscussionReaction = z.infer<typeof insertDiscussionReactionSchema>;

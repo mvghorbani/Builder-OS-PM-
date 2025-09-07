@@ -14,6 +14,9 @@ import {
   documentShares,
   activities,
   auditLogs,
+  discussions,
+  discussionComments as discussionComments,
+  discussionReactions,
   type User,
   type UpsertUser,
   type Property,
@@ -42,6 +45,12 @@ import {
   type InsertActivity,
   type AuditLog,
   type InsertAuditLog,
+  type Discussion,
+  type InsertDiscussion,
+  type DiscussionComment as DiscussionCommentType,
+  type InsertDiscussionComment as InsertDiscussionComment,
+  type DiscussionReaction,
+  type InsertDiscussionReaction,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, asc, sql, like, or, ilike, isNull, not } from "drizzle-orm";
@@ -159,6 +168,15 @@ export interface IStorage {
   // Audit operations
   createAuditLog(auditLog: InsertAuditLog): Promise<AuditLog>;
   getAuditLogs(entityType?: string, entityId?: string, limit?: number): Promise<AuditLog[]>;
+
+  // Discussion operations
+  getDiscussions(params?: { propertyId?: string; limit?: number; cursor?: string }): Promise<import("@shared/schema").Discussion[]>;
+  getDiscussion(id: string): Promise<import("@shared/schema").Discussion | undefined>;
+  createDiscussion(discussion: import("@shared/schema").InsertDiscussion): Promise<import("@shared/schema").Discussion>;
+  createDiscussionComment(comment: import("@shared/schema").InsertDiscussionComment): Promise<import("@shared/schema").DiscussionComment>;
+  getDiscussionComments(discussionId: string, limit?: number): Promise<import("@shared/schema").DiscussionComment[]>;
+  toggleDiscussionReaction(discussionId: string, userId: string, type: import("@shared/schema").DiscussionReaction["type"]): Promise<{ added: boolean }>;
+  getDiscussionReactionCounts(discussionId: string): Promise<Record<string, number>>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -907,6 +925,78 @@ export class DatabaseStorage implements IStorage {
       .from(auditLogs)
       .orderBy(desc(auditLogs.createdAt))
       .limit(limit);
+  }
+
+  // Discussion operations
+  async getDiscussions(params?: { propertyId?: string; limit?: number; cursor?: string }) {
+    const { propertyId, limit = 20, cursor } = params || {};
+    const filters = [] as any[];
+    if (propertyId) filters.push(eq(discussions.propertyId, propertyId));
+
+    const where = filters.length ? and(...filters) : undefined as any;
+
+    const q = db.select().from(discussions)
+      .where(where || sql`true`)
+      .orderBy(desc(discussions.createdAt))
+      .limit(limit);
+    return await q;
+  }
+
+  async getDiscussion(id: string) {
+    const [row] = await db.select().from(discussions).where(eq(discussions.id, id));
+    return row;
+  }
+
+  async createDiscussion(discussion: InsertDiscussion) {
+    const [row] = await db.insert(discussions).values(discussion).returning();
+    return row;
+  }
+
+  async createDiscussionComment(comment: InsertDiscussionComment) {
+    const [row] = await db.insert(discussionComments).values(comment).returning();
+    return row;
+  }
+
+  async getDiscussionComments(discussionId: string, limit: number = 100) {
+    return await db
+      .select()
+      .from(discussionComments)
+      .where(eq(discussionComments.discussionId, discussionId))
+      .orderBy(asc(discussionComments.createdAt))
+      .limit(limit);
+  }
+
+  async toggleDiscussionReaction(discussionId: string, userId: string, type: any) {
+    const existing = await db
+      .select()
+      .from(discussionReactions)
+      .where(and(
+        eq(discussionReactions.discussionId, discussionId),
+        eq(discussionReactions.userId, userId),
+        eq(discussionReactions.type, type as any)
+      ))
+      .limit(1);
+
+    if (existing[0]) {
+      await db
+        .delete(discussionReactions)
+        .where(eq(discussionReactions.id, existing[0].id));
+      return { added: false };
+    } else {
+      await db.insert(discussionReactions).values({ discussionId, userId, type });
+      return { added: true };
+    }
+  }
+
+  async getDiscussionReactionCounts(discussionId: string) {
+    const rows = await db
+      .select({ type: discussionReactions.type, count: sql<number>`count(*)`.as("count") })
+      .from(discussionReactions)
+      .where(eq(discussionReactions.discussionId, discussionId))
+      .groupBy(discussionReactions.type);
+    const result: Record<string, number> = {};
+    rows.forEach(r => { result[String(r.type)] = Number((r as any).count); });
+    return result;
   }
 }
 
