@@ -999,26 +999,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/documents', authenticateJWT, async (req: any, res) => {
-    try {
-      const validatedData = insertDocumentSchema.parse({
-        ...req.body,
-        uploadedBy: req.user.id,
-      });
-      const document = await storage.createDocument(validatedData);
-
-      await createAuditLog(req, 'create', 'document', document.id, null, document);
-
-      if (document.propertyId) {
-        await createActivity(req.user.id, document.propertyId, 'document_uploaded', `Uploaded ${document.name}`, 'document', document.id);
-      }
-
-      res.status(201).json(document);
-    } catch (error) {
-      console.error("Error creating document:", error);
-      res.status(500).json({ message: "Failed to create document" });
-    }
-  });
 
   // Activity routes
   app.get('/api/activities', authenticateJWT, async (req, res) => {
