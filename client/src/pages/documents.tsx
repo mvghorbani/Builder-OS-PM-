@@ -544,7 +544,7 @@ import { useState, useEffect } from "react";
                 <div className="relative z-10">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {documents.map((document: Document) => (
-                      <div key={document.id} className="glass-panel p-4 hover:shadow-2xl transition-all duration-300">
+                      <div key={document.id} className="glass-card p-4 transition-transform duration-300 hover:-translate-y-[2px] group">
                         <CardHeader className="pb-3">
                           <div className="flex items-start justify-between">
                             <div className="flex items-center gap-3 flex-1">
