@@ -314,7 +314,8 @@ export default function Budget() {
                         </div>
                         <div>
                           <h3 className="font-semibold">{t.description}</h3>
-                          <p className="text-sm text-gray-600">{t.vendor || dataset?.projectName}</p>
+                          <p className="text-sm text-gray-600">{t.vendor || '—'}</p>
+                          {dataset && <p className="text-xs text-gray-500">Project: {dataset.projectName}</p>}
                         </div>
                       </div>
                       <div className="text-right">
