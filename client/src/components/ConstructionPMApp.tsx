@@ -224,19 +224,19 @@ const ConstructionPMApp = () => {
     );
 
     const BudgetScreen = () => (
-      <div className="bg-white p-4">
+      <div className="glass-panel p-4">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="font-semibold text-gray-900">Budget Control</h3>
+          <h3 className="font-semibold">Budget Control</h3>
           <Button variant="ghost" size="sm" data-testid="button-add-budget-line">+ Add Line</Button>
         </div>
         
         <div className="space-y-3">
           {budgetLines.map((line) => (
-            <Card key={line.id}>
+            <Card key={line.id} className="glass-card bg-transparent border-transparent">
               <CardContent className="p-3">
                 <div className="flex justify-between items-start mb-2">
                   <div>
-                    <h4 className="font-medium text-gray-900">{line.scope}</h4>
+                    <h4 className="font-medium">{line.scope}</h4>
                     <div className="flex items-center mt-1">
                       {line.bidCount < 3 && !line.vendorId && (
                         <div className="flex items-center mr-3">
@@ -354,60 +354,60 @@ const ConstructionPMApp = () => {
     }
 
     return (
-      <div className="bg-white min-h-screen">
-        <div className="bg-blue-500 text-white px-4 py-6 rounded-b-3xl">
+      <div className="cosmic-bg min-h-screen text-slate-100">
+        <div className="glass-hero px-4 py-6 rounded-b-3xl">
           <Button 
             variant="ghost"
             onClick={() => setSelectedProperty(null)}
-            className="mb-4 text-blue-100 hover:text-white"
+            className="mb-4 text-slate-300 hover:text-white"
             data-testid="button-back-to-projects"
           >
             ← Back
           </Button>
           <h1 className="text-2xl font-bold">{property.address}</h1>
-          <p className="text-blue-100">{property.type}</p>
+          <p className="text-slate-300">{property.type}</p>
         </div>
 
         <div className="p-4 space-y-4">
           <div className="grid grid-cols-2 gap-3">
-            <Card className="bg-green-50">
+            <Card className="glass-card bg-transparent border-transparent">
               <CardContent className="p-3">
                 <div className="flex items-center justify-between mb-1">
-                  <p className="text-xs text-green-600">Schedule</p>
+                  <p className="text-xs text-green-300">Schedule</p>
                   {property.scheduleAdherence < 85 && <AlertTriangle className="w-3 h-3 text-red-500" />}
                 </div>
-                <p className={`text-lg font-bold ${property.scheduleAdherence < 85 ? 'text-red-600' : 'text-green-800'}`}>
+                <p className={`text-lg font-bold ${property.scheduleAdherence < 85 ? 'text-red-400' : 'text-green-300'}`}>
                   {property.scheduleAdherence}%
                 </p>
               </CardContent>
             </Card>
             
-            <Card className="bg-blue-50">
+            <Card className="glass-card bg-transparent border-transparent">
               <CardContent className="p-3">
                 <div className="flex items-center justify-between mb-1">
-                  <p className="text-xs text-blue-600">Budget Var</p>
+                  <p className="text-xs text-blue-300">Budget Var</p>
                   {Math.abs(parseFloat(property.budgetVariance)) > 5 && <AlertTriangle className="w-3 h-3 text-red-500" />}
                 </div>
-                <p className={`text-lg font-bold ${Math.abs(parseFloat(property.budgetVariance)) > 5 ? 'text-red-600' : 'text-blue-800'}`}>
+                <p className={`text-lg font-bold ${Math.abs(parseFloat(property.budgetVariance)) > 5 ? 'text-red-400' : 'text-blue-300'}`}>
                   {property.budgetVariance}%
                 </p>
               </CardContent>
             </Card>
             
-            <Card className="bg-gray-50">
+            <Card className="glass-card bg-transparent border-transparent">
               <CardContent className="p-3">
-                <p className="text-xs text-gray-600 mb-1">Safety</p>
-                <p className="text-lg font-bold text-gray-800">{property.safetyIncidents}</p>
+                <p className="text-xs text-gray-300 mb-1">Safety</p>
+                <p className="text-lg font-bold">{property.safetyIncidents}</p>
               </CardContent>
             </Card>
             
-            <Card className="bg-yellow-50">
+            <Card className="glass-card bg-transparent border-transparent">
               <CardContent className="p-3">
                 <div className="flex items-center justify-between mb-1">
-                  <p className="text-xs text-yellow-600">Permit SLA</p>
+                  <p className="text-xs text-yellow-300">Permit SLA</p>
                   {property.permitSLA > 21 && <AlertTriangle className="w-3 h-3 text-red-500" />}
                 </div>
-                <p className={`text-lg font-bold ${property.permitSLA > 21 ? 'text-red-600' : 'text-yellow-800'}`}>
+                <p className={`text-lg font-bold ${property.permitSLA > 21 ? 'text-red-400' : 'text-yellow-300'}`}>
                   {property.permitSLA}d
                 </p>
               </CardContent>
@@ -443,16 +443,16 @@ const ConstructionPMApp = () => {
     const totalBudget = properties.reduce((sum, p) => sum + parseFloat(p.totalBudget), 0);
 
     return (
-      <div className="bg-gray-50 min-h-screen">
-        <div className="bg-white px-4 py-6 rounded-b-3xl shadow-sm">
+      <div className="cosmic-bg min-h-screen text-slate-100">
+        <div className="glass-hero px-4 py-6 rounded-b-3xl">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Projects</h1>
-              <p className="text-gray-600 mt-1">{properties.length} active properties</p>
+              <h1 className="text-3xl font-bold">Projects</h1>
+              <p className="text-slate-300 mt-1">{properties.length} active properties</p>
             </div>
             <div className="text-right">
-              <p className="text-sm text-gray-600">Total Budget</p>
-              <p className="text-xl font-bold text-gray-900" data-testid="text-total-budget">
+              <p className="text-sm text-slate-300">Total Budget</p>
+              <p className="text-xl font-bold" data-testid="text-total-budget">
                 ${(totalBudget / 1000000).toFixed(2)}M
               </p>
             </div>
@@ -469,7 +469,7 @@ const ConstructionPMApp = () => {
   };
 
   const SideNav = () => (
-    <div className="fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-gray-200">
+    <div className="fixed left-0 top-0 bottom-0 w-64 glass-panel border-white/10 text-slate-100">
       <div className="p-4">
         <h1 className="text-xl font-bold mb-6">BuilderOS PM</h1>
         <div className="space-y-2">
@@ -511,27 +511,27 @@ const ConstructionPMApp = () => {
         return <ProjectsView />;
       case 'schedule':
         return (
-          <div className="bg-gray-50 min-h-screen">
-            <div className="bg-white px-4 py-6 rounded-b-3xl shadow-sm">
-              <h1 className="text-3xl font-bold text-gray-900">Master Schedule</h1>
-              <p className="text-gray-600 mt-1">Critical path & gates</p>
+          <div className="cosmic-bg min-h-screen text-slate-100">
+            <div className="glass-hero px-4 py-6 rounded-b-3xl">
+              <h1 className="text-3xl font-bold">Master Schedule</h1>
+              <p className="text-slate-300 mt-1">Critical path & gates</p>
             </div>
             <div className="p-4 space-y-3">
               {properties.map(property => (
-                <Card key={property.id}>
+                <Card key={property.id} className="glass-card bg-transparent border-transparent">
                   <CardContent className="p-4">
                     <div className="flex justify-between items-center mb-3">
                       <h3 className="font-semibold">{property.address}</h3>
                       <div className="text-right">
-                        <span className={`text-sm ${property.scheduleAdherence < 85 ? 'text-red-600' : 'text-blue-600'}`}>
+                        <span className={`text-sm ${property.scheduleAdherence < 85 ? 'text-red-400' : 'text-blue-300'}`}>
                           {property.scheduleAdherence}% on-time
                         </span>
                       </div>
                     </div>
-                    <Card className="bg-yellow-50">
+                    <Card className="glass-panel bg-transparent border-transparent">
                       <CardContent className="p-2">
-                        <p className="text-sm font-medium text-yellow-800">Next Milestone</p>
-                        <p className="text-xs text-yellow-700">
+                        <p className="text-sm font-medium text-yellow-300">Next Milestone</p>
+                        <p className="text-xs text-slate-300">
                           Due: {property.dueDate ? new Date(property.dueDate).toLocaleDateString() : 'TBD'}
                       </p>
                     </CardContent>

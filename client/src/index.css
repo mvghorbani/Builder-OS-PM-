@@ -159,6 +159,7 @@
     background: rgba(255,255,255,0.06);
     box-shadow: 0 16px 48px rgba(2, 12, 27, 0.18), inset 0 1px 0 rgba(255,255,255,0.55), inset -2px 0 0 rgba(255,255,255,0.18);
     will-change: transform, box-shadow;
+    color: #e5e7eb;
   }
   .glass-card::before { /* animated wet sheen */
     content: "";
@@ -205,5 +206,34 @@
 
   .dark .glass-input {
     @apply bg-white/10 border-white/10 placeholder:text-gray-400 focus-visible:ring-white/20 focus-visible:border-white/20;
+  }
+
+  /* Deep iOS-like dark blue background */
+  .cosmic-bg {
+    background:
+      radial-gradient(1200px 800px at 85% -10%, rgba(21, 94, 239, 0.18), rgba(2, 6, 23, 0) 60%),
+      radial-gradient(900px 700px at -10% 10%, rgba(59, 130, 246, 0.16), rgba(2, 6, 23, 0) 70%),
+      linear-gradient(180deg, #0b1220 0%, #0a0f1e 40%, #090e1a 100%);
+    color: #e5e7eb; /* slate-200 */
+  }
+
+  /* Hero glass with blue rim and luminous top highlight */
+  .glass-hero {
+    position: relative;
+    border-radius: 1.25rem;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: linear-gradient(165deg, rgba(15,23,42,0.65), rgba(2,6,23,0.35));
+    -webkit-backdrop-filter: blur(26px) saturate(160%);
+    backdrop-filter: blur(26px) saturate(160%);
+    box-shadow: 0 30px 80px rgba(16, 44, 116, 0.35), inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+  .glass-hero::before {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+    background: linear-gradient(180deg, rgba(255,255,255,0.35), rgba(255,255,255,0));
+    opacity: 0.5;
+  }
+  .glass-hero::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+    box-shadow: inset -2px 0 0 rgba(255,255,255,0.18), 0 0 0 1px rgba(56, 189, 248, 0.08), 0 0 40px rgba(37,99,235,0.2);
   }
 }
