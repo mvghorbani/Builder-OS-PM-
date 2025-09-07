@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -289,22 +288,20 @@ export default function Documents() {
       
       {/* Header Section */}
       <div className="relative z-10 mb-8">
-        <div className="glass-panel p-8">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-800 via-purple-700 to-pink-600 bg-clip-text text-transparent mb-2">
-                Document Management
-              </h1>
-              <p className="text-gray-600 text-lg">Organize, version, and collaborate on project documents</p>
-            </div>
+        <div className="glass-panel p-6">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-sky-500 to-indigo-500 bg-clip-text text-transparent mb-2">
+              Document Management
+            </h1>
+            <p className="text-gray-700 text-lg">Organize, version, and collaborate on project documents</p>
+          </div>
 
+          {/* Upload Button */}
+          <div className="flex justify-end">
             <Dialog open={showUploadDialog} onOpenChange={setShowUploadDialog}>
               <DialogTrigger asChild>
-                <Button 
-                  className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center gap-2"
-                  data-testid="button-upload-document"
-                >
-                  <Upload className="w-5 h-5" />
+                <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                  <Upload className="w-5 h-5 mr-2" />
                   Upload Document
                 </Button>
               </DialogTrigger>
@@ -470,24 +467,25 @@ export default function Documents() {
         </div>
       </div>
 
-      {/* Search and Filters Section */}
+      {/* Search and Filters */}
       <div className="relative z-10 mb-8">
         <div className="glass-panel p-6">
           <div className="flex flex-col lg:flex-row gap-4">
+            {/* Search Input */}
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <Input
-                placeholder="Search documents by name, description, or tags..."
+                placeholder="Search documents..."
+                className="glass-input pl-10"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 glass-input"
-                data-testid="input-search-documents"
               />
             </div>
 
+            {/* Filters */}
             <div className="flex flex-wrap gap-3">
               <Select value={filters.category} onValueChange={(value) => setFilters({ ...filters, category: value })}>
-                <SelectTrigger className="w-40 glass-input" data-testid="filter-category">
+                <SelectTrigger className="glass-input w-40">
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -515,7 +513,7 @@ export default function Documents() {
               </Select>
 
               <Select value={filters.propertyId} onValueChange={(value) => setFilters({ ...filters, propertyId: value })}>
-                <SelectTrigger className="w-40 glass-input" data-testid="filter-project">
+                <SelectTrigger className="glass-input w-40" data-testid="filter-project">
                   <SelectValue placeholder="Project" />
                 </SelectTrigger>
                 <SelectContent>
@@ -544,144 +542,112 @@ export default function Documents() {
 
       {/* Documents Grid */}
       <div className="relative z-10">
-        {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="glass-panel p-6 animate-pulse">
-                <div className="h-4 bg-gray-200 rounded mb-4" />
-                <div className="h-3 bg-gray-200 rounded mb-2" />
-                <div className="h-3 bg-gray-200 rounded w-2/3" />
-              </div>
-            ))}
-          </div>
-        ) : documents.length === 0 ? (
-          <div className="text-center py-16">
-            <div className="glass-panel p-12 max-w-md mx-auto">
-              <FolderOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">No Documents Found</h3>
-              <p className="text-gray-500 mb-6">Upload your first document to get started</p>
-              <Button 
-                onClick={() => setShowUploadDialog(true)}
-                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
-                data-testid="button-upload-first-document"
-              >
-                <Upload className="w-4 h-4 mr-2" />
-                Upload Document
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {documents.map((document: Document) => (
-              <Card 
-                key={document.id} 
-                className="glass-panel hover:shadow-2xl transition-all duration-300 group"
-                data-testid={`card-document-${document.id}`}
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3 flex-1">
-                      <div className="p-2 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-lg">
-                        {getFileIcon(document.mimeType)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <CardTitle className="text-sm font-semibold text-gray-800 truncate" title={document.name}>
-                          {document.name}
-                        </CardTitle>
-                        <p className="text-xs text-gray-500 mt-1">
-                          v{document.version} • {formatFileSize(document.fileSize)}
-                        </p>
-                      </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {documents.map((document: Document) => (
+            <div key={document.id} className="glass-panel p-4 hover:shadow-2xl transition-all duration-300">
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3 flex-1">
+                    <div className="p-2 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-lg">
+                      {getFileIcon(document.mimeType)}
                     </div>
-                    
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
-                          <MoreVertical className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="bg-white/95 backdrop-blur border-white/20">
-                        <DropdownMenuItem onClick={() => { setSelectedDocument(document); setShowDocumentDetails(true); }}>
-                          <Eye className="w-4 h-4 mr-2" />
-                          View Details
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Download className="w-4 h-4 mr-2" />
-                          Download
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Share className="w-4 h-4 mr-2" />
-                          Share
-                        </DropdownMenuItem>
-                        {document.status === 'review' && (
-                          <>
-                            <DropdownMenuItem onClick={() => approveDocumentMutation.mutate({ id: document.id })}>
-                              <CheckCircle2 className="w-4 h-4 mr-2" />
-                              Approve
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => rejectDocumentMutation.mutate({ id: document.id, comments: 'Rejected via quick action' })}>
-                              <XCircle className="w-4 h-4 mr-2" />
-                              Reject
-                            </DropdownMenuItem>
-                          </>
-                        )}
-                        <DropdownMenuItem 
-                          onClick={() => archiveDocumentMutation.mutate({ id: document.id, reason: 'Archived via quick action' })}
-                          className="text-red-600"
-                        >
-                          <Archive className="w-4 h-4 mr-2" />
-                          Archive
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <div className="flex-1 min-w-0">
+                      <CardTitle className="text-sm font-semibold text-gray-800 truncate" title={document.name}>
+                        {document.name}
+                      </CardTitle>
+                      <p className="text-xs text-gray-500 mt-1">
+                        v{document.version} • {formatFileSize(document.fileSize)}
+                      </p>
+                    </div>
                   </div>
-                </CardHeader>
-
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    {getStatusBadge(document.status)}
-                    <Badge variant="outline" className="text-xs">
-                      {document.category}
-                    </Badge>
-                  </div>
-
-                  {document.description && (
-                    <p className="text-sm text-gray-600 line-clamp-2">
-                      {document.description}
-                    </p>
-                  )}
-
-                  {document.tags && document.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      {document.tags.slice(0, 3).map((tag, index) => (
-                        <Badge key={index} variant="secondary" className="text-xs bg-indigo-100 text-indigo-700">
-                          <Tag className="w-3 h-3 mr-1" />
-                          {tag}
-                        </Badge>
-                      ))}
-                      {document.tags.length > 3 && (
-                        <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-600">
-                          +{document.tags.length - 3}
-                        </Badge>
+                  
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                        <MoreVertical className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="bg-white/95 backdrop-blur border-white/20">
+                      <DropdownMenuItem onClick={() => { setSelectedDocument(document); setShowDocumentDetails(true); }}>
+                        <Eye className="w-4 h-4 mr-2" />
+                        View Details
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Download className="w-4 h-4 mr-2" />
+                        Download
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Share className="w-4 h-4 mr-2" />
+                        Share
+                      </DropdownMenuItem>
+                      {document.status === 'review' && (
+                        <>
+                          <DropdownMenuItem onClick={() => approveDocumentMutation.mutate({ id: document.id })}>
+                            <CheckCircle2 className="w-4 h-4 mr-2" />
+                            Approve
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => rejectDocumentMutation.mutate({ id: document.id, comments: 'Rejected via quick action' })}>
+                            <XCircle className="w-4 h-4 mr-2" />
+                            Reject
+                          </DropdownMenuItem>
+                        </>
                       )}
-                    </div>
-                  )}
+                      <DropdownMenuItem 
+                        onClick={() => archiveDocumentMutation.mutate({ id: document.id, reason: 'Archived via quick action' })}
+                        className="text-red-600"
+                      >
+                        <Archive className="w-4 h-4 mr-2" />
+                        Archive
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </CardHeader>
 
-                  <div className="flex items-center justify-between text-xs text-gray-500">
-                    <div className="flex items-center gap-1">
-                      <User className="w-3 h-3" />
-                      {document.uploadedBy}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3" />
-                      {new Date(document.createdAt).toLocaleDateString()}
-                    </div>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  {getStatusBadge(document.status)}
+                  <Badge variant="outline" className="text-xs">
+                    {document.category}
+                  </Badge>
+                </div>
+
+                {document.description && (
+                  <p className="text-sm text-gray-600 line-clamp-2">
+                    {document.description}
+                  </p>
+                )}
+
+                {document.tags && document.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {document.tags.slice(0, 3).map((tag, index) => (
+                      <Badge key={index} variant="secondary" className="text-xs bg-indigo-100 text-indigo-700">
+                        <Tag className="w-3 h-3 mr-1" />
+                        {tag}
+                      </Badge>
+                    ))}
+                    {document.tags.length > 3 && (
+                      <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-600">
+                        +{document.tags.length - 3}
+                      </Badge>
+                    )}
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+                )}
+
+                <div className="flex items-center justify-between text-xs text-gray-500">
+                  <div className="flex items-center gap-1">
+                    <User className="w-3 h-3" />
+                    {document.uploadedBy}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Calendar className="w-3 h-3" />
+                    {new Date(document.createdAt).toLocaleDateString()}
+                  </div>
+                </div>
+              </CardContent>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Document Details Dialog */}
@@ -831,6 +797,40 @@ export default function Documents() {
                         </Button>
                       </>
                     )}
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="versions" className="mt-6">
+                  <div className="text-center py-8">
+                    <History className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-gray-700 mb-2">Version History</h3>
+                    <p className="text-gray-500">Version management features coming soon</p>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="comments" className="mt-6">
+                  <div className="text-center py-8">
+                    <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-gray-700 mb-2">Comments & Reviews</h3>
+                    <p className="text-gray-500">Comment system features coming soon</p>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="sharing" className="mt-6">
+                  <div className="text-center py-8">
+                    <ExternalLink className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-gray-700 mb-2">Sharing & Permissions</h3>
+                    <p className="text-gray-500">Document sharing features coming soon</p>
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
                   </div>
                 </TabsContent>
 
