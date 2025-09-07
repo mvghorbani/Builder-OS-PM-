@@ -485,7 +485,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create document record
       const documentData = {
         name: file.originalname,
+        fileName: file.originalname,
         type: file.mimetype.split('/')[0] as 'image' | 'document' | 'video' | 'other', // Extract main type
+        category: 'other', // Default category for milestone uploads
         fileSize: file.size,
         mimeType: file.mimetype,
         filePath: `/uploads/milestone_${milestoneId}/${file.originalname}`, // Placeholder path
@@ -997,157 +999,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/documents', authenticateJWT, upload.single('file'), async (req: any, res) => {
-    try {
-      const file = req.file;
-      if (!file) {
-        return res.status(400).json({ message: "No file uploaded" });
-      }
-
-      // Parse the tags from string to array
-      let tags = [];
-      try {
-        tags = req.body.tags ? JSON.parse(req.body.tags) : [];
-      } catch (e) {
-        tags = req.body.tags ? req.body.tags.split(',').map((t: string) => t.trim()).filter((t: string) => t) : [];
-      }
-
-      // Create the document data
-      const documentData = {
-        name: req.body.name || file.originalname,
-        description: req.body.description || '',
-        type: req.body.type || file.mimetype.split('/')[0],
-        category: req.body.category,
-        fileName: file.originalname,
-        filePath: `/uploads/documents/${file.originalname}`, // Placeholder path
-        fileSize: file.size,
-        mimeType: file.mimetype,
-        version: 1,
-        status: 'draft' as const,
-        accessLevel: req.body.accessLevel || 'project_team',
-        tags,
-        propertyId: req.body.propertyId || null,
-        milestoneId: req.body.milestoneId || null,
-        uploadedBy: req.user.id,
-        lastModifiedBy: req.user.id,
-        isArchived: false,
-      };
-
-      const document = await storage.createDocument(documentData);
-
-      await createAuditLog(req, 'create', 'document', document.id, null, document);
-
-      if (document.propertyId) {
-        await createActivity(req.user.id, document.propertyId, 'document_uploaded', `Uploaded ${document.name}`, 'document', document.id);
-      }
-
-      res.status(201).json(document);
-    } catch (error) {
-      console.error("Error creating document:", error);
-      res.status(500).json({ message: "Failed to create document", error: error instanceof Error ? error.message : 'Unknown error' });
-    }
-  });
-
-  // Document status update routes
-  app.post('/api/documents/:id/approve', authenticateJWT, async (req: any, res) => {
-    try {
-      const documentId = req.params.id;
-      const { comments } = req.body;
-
-      // Get the document first
-      const documents = await storage.getDocuments();
-      const document = documents.find((doc: any) => doc.id === documentId);
-      
-      if (!document) {
-        return res.status(404).json({ message: "Document not found" });
-      }
-
-      // Update document status to approved
-      const updatedDocument = await storage.updateDocument(documentId, {
-        status: 'approved',
-        approvedBy: req.user.id,
-        approvedAt: new Date().toISOString(),
-        versionNotes: comments || 'Approved via document management'
-      });
-
-      await createAuditLog(req, 'approve', 'document', documentId, document, updatedDocument);
-      
-      if (document.propertyId) {
-        await createActivity(req.user.id, document.propertyId, 'document_approved', `Approved document ${document.name}`, 'document', documentId);
-      }
-
-      res.status(200).json(updatedDocument);
-    } catch (error) {
-      console.error("Error approving document:", error);
-      res.status(500).json({ message: "Failed to approve document" });
-    }
-  });
-
-  app.post('/api/documents/:id/reject', authenticateJWT, async (req: any, res) => {
-    try {
-      const documentId = req.params.id;
-      const { comments } = req.body;
-
-      // Get the document first
-      const documents = await storage.getDocuments();
-      const document = documents.find((doc: any) => doc.id === documentId);
-      
-      if (!document) {
-        return res.status(404).json({ message: "Document not found" });
-      }
-
-      // Update document status to rejected
-      const updatedDocument = await storage.updateDocument(documentId, {
-        status: 'rejected',
-        versionNotes: comments || 'Rejected via document management'
-      });
-
-      await createAuditLog(req, 'reject', 'document', documentId, document, updatedDocument);
-      
-      if (document.propertyId) {
-        await createActivity(req.user.id, document.propertyId, 'document_rejected', `Rejected document ${document.name}`, 'document', documentId);
-      }
-
-      res.status(200).json(updatedDocument);
-    } catch (error) {
-      console.error("Error rejecting document:", error);
-      res.status(500).json({ message: "Failed to reject document" });
-    }
-  });
-
-  app.post('/api/documents/:id/archive', authenticateJWT, async (req: any, res) => {
-    try {
-      const documentId = req.params.id;
-      const { reason } = req.body;
-
-      // Get the document first
-      const documents = await storage.getDocuments();
-      const document = documents.find((doc: any) => doc.id === documentId);
-      
-      if (!document) {
-        return res.status(404).json({ message: "Document not found" });
-      }
-
-      // Update document to archived
-      const updatedDocument = await storage.updateDocument(documentId, {
-        status: 'archived',
-        isArchived: true,
-        archiveReason: reason || 'Archived via document management'
-      });
-
-      await createAuditLog(req, 'archive', 'document', documentId, document, updatedDocument);
-      
-      if (document.propertyId) {
-        await createActivity(req.user.id, document.propertyId, 'document_archived', `Archived document ${document.name}`, 'document', documentId);
-      }
-
-      res.status(200).json(updatedDocument);
-    } catch (error) {
-      console.error("Error archiving document:", error);
-      res.status(500).json({ message: "Failed to archive document" });
-    }
-  });
-
   // Activity routes
   app.get('/api/activities', authenticateJWT, async (req, res) => {
     try {
@@ -1446,6 +1297,406 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error generating Excel export:", error);
       res.status(500).json({ message: "Failed to generate Excel export" });
+    }
+  });
+
+  // ===============================
+  // DOCUMENT MANAGEMENT ROUTES
+  // ===============================
+
+  // Get all documents with optional filtering
+  app.get('/api/documents', authenticateJWT, async (req, res) => {
+    try {
+      const { propertyId, milestoneId, category, type, status, search } = req.query;
+      
+      let documents;
+      if (search) {
+        documents = await storage.searchDocuments(search as string, {
+          propertyId: propertyId as string,
+          category: category as string,
+          type: type as string,
+          status: status as string,
+        });
+      } else {
+        documents = await storage.getDocuments(
+          propertyId as string, 
+          milestoneId as string
+        );
+      }
+
+      res.json(documents);
+    } catch (error) {
+      console.error("Error fetching documents:", error);
+      res.status(500).json({ message: "Failed to fetch documents" });
+    }
+  });
+
+  // Get document by ID
+  app.get('/api/documents/:id', authenticateJWT, async (req, res) => {
+    try {
+      const document = await storage.getDocument(req.params.id);
+      if (!document) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+      res.json(document);
+    } catch (error) {
+      console.error("Error fetching document:", error);
+      res.status(500).json({ message: "Failed to fetch document" });
+    }
+  });
+
+  // Upload document
+  app.post('/api/documents', authenticateJWT, upload.single('file'), async (req: any, res) => {
+    try {
+      const { name, description, type, category, propertyId, milestoneId, tags, accessLevel } = req.body;
+      
+      if (!req.file) {
+        return res.status(400).json({ message: "File is required" });
+      }
+
+      // Validate required fields
+      if (!name || !category) {
+        return res.status(400).json({ message: "Name and category are required" });
+      }
+
+      // Create document record
+      const documentData = {
+        name: name.trim(),
+        description: description?.trim() || '',
+        type: type?.trim() || 'other',
+        category: category.trim(),
+        propertyId: propertyId || null,
+        milestoneId: milestoneId || null,
+        tags: tags ? JSON.parse(tags) : [],
+        fileName: req.file.originalname,
+        filePath: `/uploads/${Date.now()}-${req.file.originalname}`,
+        fileSize: req.file.size,
+        mimeType: req.file.mimetype,
+        accessLevel: accessLevel || 'project_team',
+        uploadedBy: req.user.claims.sub,
+        lastModifiedBy: req.user.claims.sub,
+      };
+
+      console.log('Creating document with data:', documentData);
+      const document = await storage.createDocument(documentData);
+      
+      // Log activity
+      await storage.createActivity({
+        propertyId: propertyId || null,
+        userId: req.user.claims.sub,
+        action: 'upload',
+        description: `Uploaded document: ${name}`,
+        entityType: 'document',
+        entityId: document.id,
+      });
+
+      res.status(201).json(document);
+    } catch (error) {
+      console.error("Error uploading document:", error);
+      res.status(500).json({ message: "Failed to upload document" });
+    }
+  });
+
+  // Update document metadata
+  app.patch('/api/documents/:id', authenticateJWT, async (req: any, res) => {
+    try {
+      const updates = {
+        ...req.body,
+        lastModifiedBy: req.user.claims.sub,
+      };
+      
+      const document = await storage.updateDocument(req.params.id, updates);
+      if (!document) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+      
+      res.json(document);
+    } catch (error) {
+      console.error("Error updating document:", error);
+      res.status(500).json({ message: "Failed to update document" });
+    }
+  });
+
+  // Create new document version
+  app.post('/api/documents/:id/versions', authenticateJWT, upload.single('file'), async (req: any, res) => {
+    try {
+      const { versionNotes } = req.body;
+      
+      if (!req.file) {
+        return res.status(400).json({ message: "File is required" });
+      }
+
+      const newDocumentData = {
+        versionNotes,
+        fileName: req.file.originalname,
+        filePath: `/uploads/${Date.now()}-${req.file.originalname}`,
+        fileSize: req.file.size,
+        mimeType: req.file.mimetype,
+        uploadedBy: req.user.claims.sub,
+        lastModifiedBy: req.user.claims.sub,
+      };
+
+      const versionedDocument = await storage.createDocumentVersion(req.params.id, newDocumentData);
+      
+      res.status(201).json(versionedDocument);
+    } catch (error) {
+      console.error("Error creating document version:", error);
+      res.status(500).json({ message: "Failed to create document version" });
+    }
+  });
+
+  // Get document versions
+  app.get('/api/documents/:id/versions', isAuthenticated, async (req, res) => {
+    try {
+      const versions = await storage.getDocumentVersions(req.params.id);
+      res.json(versions);
+    } catch (error) {
+      console.error("Error fetching document versions:", error);
+      res.status(500).json({ message: "Failed to fetch document versions" });
+    }
+  });
+
+  // Approve document
+  app.post('/api/documents/:id/approve', authenticateJWT, async (req: any, res) => {
+    try {
+      const { comments } = req.body;
+      
+      const document = await storage.approveDocument(
+        req.params.id,
+        req.user.claims.sub,
+        comments
+      );
+      
+      if (!document) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+      
+      res.json(document);
+    } catch (error) {
+      console.error("Error approving document:", error);
+      res.status(500).json({ message: "Failed to approve document" });
+    }
+  });
+
+  // Reject document
+  app.post('/api/documents/:id/reject', authenticateJWT, async (req: any, res) => {
+    try {
+      const { comments } = req.body;
+      
+      if (!comments) {
+        return res.status(400).json({ message: "Comments are required for rejection" });
+      }
+      
+      const document = await storage.rejectDocument(
+        req.params.id,
+        req.user.claims.sub,
+        comments
+      );
+      
+      if (!document) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+      
+      res.json(document);
+    } catch (error) {
+      console.error("Error rejecting document:", error);
+      res.status(500).json({ message: "Failed to reject document" });
+    }
+  });
+
+  // Archive document
+  app.post('/api/documents/:id/archive', authenticateJWT, async (req: any, res) => {
+    try {
+      const { reason } = req.body;
+      
+      if (!reason) {
+        return res.status(400).json({ message: "Archive reason is required" });
+      }
+      
+      const document = await storage.archiveDocument(req.params.id, reason);
+      
+      if (!document) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+      
+      res.json(document);
+    } catch (error) {
+      console.error("Error archiving document:", error);
+      res.status(500).json({ message: "Failed to archive document" });
+    }
+  });
+
+  // Document comments
+  app.get('/api/documents/:id/comments', isAuthenticated, async (req, res) => {
+    try {
+      const comments = await storage.getDocumentComments(req.params.id);
+      res.json(comments);
+    } catch (error) {
+      console.error("Error fetching document comments:", error);
+      res.status(500).json({ message: "Failed to fetch document comments" });
+    }
+  });
+
+  app.post('/api/documents/:id/comments', authenticateJWT, async (req: any, res) => {
+    try {
+      const { comment, parentCommentId } = req.body;
+      
+      if (!comment) {
+        return res.status(400).json({ message: "Comment is required" });
+      }
+      
+      const newComment = await storage.createDocumentComment({
+        documentId: req.params.id,
+        userId: req.user.claims.sub,
+        comment,
+        parentCommentId: parentCommentId || null,
+      });
+      
+      res.status(201).json(newComment);
+    } catch (error) {
+      console.error("Error creating document comment:", error);
+      res.status(500).json({ message: "Failed to create document comment" });
+    }
+  });
+
+  app.patch('/api/comments/:id/resolve', isAuthenticated, async (req, res) => {
+    try {
+      const comment = await storage.resolveComment(req.params.id);
+      if (!comment) {
+        return res.status(404).json({ message: "Comment not found" });
+      }
+      res.json(comment);
+    } catch (error) {
+      console.error("Error resolving comment:", error);
+      res.status(500).json({ message: "Failed to resolve comment" });
+    }
+  });
+
+  // Document sharing
+  app.post('/api/documents/:id/share', authenticateJWT, async (req: any, res) => {
+    try {
+      const { sharedWith, expiresAt, canDownload, canComment } = req.body;
+      
+      const shareToken = `share_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      const share = await storage.createDocumentShare({
+        documentId: req.params.id,
+        sharedBy: req.user.claims.sub,
+        sharedWith: sharedWith || null,
+        shareToken,
+        expiresAt: expiresAt ? new Date(expiresAt) : null,
+        canDownload: canDownload !== false,
+        canComment: canComment === true,
+      });
+      
+      res.status(201).json(share);
+    } catch (error) {
+      console.error("Error creating document share:", error);
+      res.status(500).json({ message: "Failed to create document share" });
+    }
+  });
+
+  app.get('/api/shared/:shareToken', async (req, res) => {
+    try {
+      const share = await storage.getDocumentShare(req.params.shareToken);
+      
+      if (!share) {
+        return res.status(404).json({ message: "Shared document not found" });
+      }
+      
+      if (share.expiresAt && new Date() > share.expiresAt) {
+        return res.status(410).json({ message: "Shared link has expired" });
+      }
+      
+      // Update access count
+      await storage.updateShareAccess(share.id);
+      
+      const document = await storage.getDocument(share.documentId);
+      
+      res.json({
+        document,
+        share: {
+          canDownload: share.canDownload,
+          canComment: share.canComment,
+        }
+      });
+    } catch (error) {
+      console.error("Error accessing shared document:", error);
+      res.status(500).json({ message: "Failed to access shared document" });
+    }
+  });
+
+  // Document exports
+  app.get('/api/documents/export/:category', authenticateJWT, async (req, res) => {
+    try {
+      const { category } = req.params;
+      const { propertyId, format } = req.query;
+      
+      const documents = await storage.getDocumentsByCategory(
+        category, 
+        propertyId as string
+      );
+      
+      if (format === 'json') {
+        res.json({
+          category,
+          propertyId,
+          documents,
+          exportedAt: new Date().toISOString(),
+        });
+      } else {
+        // Default to document list
+        res.json(documents);
+      }
+    } catch (error) {
+      console.error("Error exporting documents:", error);
+      res.status(500).json({ message: "Failed to export documents" });
+    }
+  });
+
+  // Backup endpoint
+  app.get('/api/documents/backup', authenticateJWT, async (req, res) => {
+    try {
+      const { lastBackupDate } = req.query;
+      
+      const documents = await storage.getDocumentsForBackup(
+        lastBackupDate ? new Date(lastBackupDate as string) : undefined
+      );
+      
+      res.json({
+        documents,
+        backupDate: new Date().toISOString(),
+        count: documents.length,
+      });
+    } catch (error) {
+      console.error("Error creating backup:", error);
+      res.status(500).json({ message: "Failed to create backup" });
+    }
+  });
+
+  // Delete document
+  app.delete('/api/documents/:id', authenticateJWT, async (req: any, res) => {
+    try {
+      const success = await storage.deleteDocument(req.params.id);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+      
+      // Log activity
+      await storage.createActivity({
+        propertyId: null,
+        userId: req.user.claims.sub,
+        action: 'delete',
+        description: `Deleted document`,
+        entityType: 'document',
+        entityId: req.params.id,
+      });
+      
+      res.json({ message: "Document deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting document:", error);
+      res.status(500).json({ message: "Failed to delete document" });
     }
   });
 

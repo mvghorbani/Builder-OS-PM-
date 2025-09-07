@@ -48,6 +48,8 @@ export const permitStatusEnum = pgEnum('permit_status', ['not_started', 'submitt
 export const rfqStatusEnum = pgEnum('rfq_status', ['draft', 'sent', 'responses_received', 'awarded', 'cancelled']);
 export const bidStatusEnum = pgEnum('bid_status', ['pending', 'submitted', 'awarded', 'rejected']);
 export const auditActionEnum = pgEnum('audit_action', ['create', 'update', 'delete', 'view', 'approve', 'reject']);
+export const documentStatusEnum = pgEnum('document_status', ['draft', 'review', 'approved', 'rejected', 'archived']);
+export const accessLevelEnum = pgEnum('access_level', ['public', 'project_team', 'project_managers', 'owners_only', 'restricted']);
 
 // Core tables
 export const properties = pgTable("properties", {
@@ -191,11 +193,67 @@ export const documents = pgTable("documents", {
   propertyId: varchar("property_id").references(() => properties.id, { onDelete: 'cascade' }),
   milestoneId: varchar("milestone_id").references(() => milestones.id, { onDelete: 'cascade' }),
   name: text("name").notNull(),
-  type: text("type").notNull(), // contract, permit, photo, plan, etc.
+  description: text("description"),
+  type: text("type").notNull(), // contract, permit, photo, plan, drawing, invoice, report, etc.
+  category: text("category").notNull(), // permits, contracts, photos, plans, correspondence, reports
+  tags: text("tags").array(), // searchable tags
   filePath: text("file_path").notNull(),
+  fileName: text("file_name").notNull(),
   fileSize: integer("file_size"),
   mimeType: text("mime_type"),
+  checksum: text("checksum"), // for integrity verification
+  
+  // Version Control
+  version: integer("version").notNull().default(1),
+  parentDocumentId: varchar("parent_document_id"),
+  isLatestVersion: boolean("is_latest_version").notNull().default(true),
+  versionNotes: text("version_notes"),
+  
+  // Access Control
+  accessLevel: accessLevelEnum("access_level").notNull().default('project_team'),
+  allowedUsers: varchar("allowed_users").array(), // specific user IDs for restricted access
+  allowedRoles: text("allowed_roles").array(), // specific roles for access
+  
+  // Workflow & Approval
+  status: documentStatusEnum("status").notNull().default('draft'),
+  reviewedBy: varchar("reviewed_by").references(() => users.id),
+  reviewedAt: timestamp("reviewed_at"),
+  approvedBy: varchar("approved_by").references(() => users.id),
+  approvedAt: timestamp("approved_at"),
+  reviewComments: text("review_comments"),
+  
+  // Metadata
   uploadedBy: varchar("uploaded_by").notNull().references(() => users.id),
+  lastModifiedBy: varchar("last_modified_by").references(() => users.id),
+  expiryDate: timestamp("expiry_date"), // for permits, licenses, etc.
+  isArchived: boolean("is_archived").notNull().default(false),
+  archiveReason: text("archive_reason"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const documentComments = pgTable("document_comments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  documentId: varchar("document_id").notNull().references(() => documents.id, { onDelete: 'cascade' }),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  comment: text("comment").notNull(),
+  parentCommentId: varchar("parent_comment_id"),
+  isResolved: boolean("is_resolved").notNull().default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const documentShares = pgTable("document_shares", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  documentId: varchar("document_id").notNull().references(() => documents.id, { onDelete: 'cascade' }),
+  sharedBy: varchar("shared_by").notNull().references(() => users.id),
+  sharedWith: varchar("shared_with").references(() => users.id), // null for public links
+  shareToken: varchar("share_token").unique(),
+  expiresAt: timestamp("expires_at"),
+  canDownload: boolean("can_download").notNull().default(true),
+  canComment: boolean("can_comment").notNull().default(false),
+  accessCount: integer("access_count").notNull().default(0),
+  isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -278,10 +336,30 @@ export const riskRelations = relations(risks, ({ one }) => ({
   owner: one(users, { fields: [risks.owner], references: [users.id] }),
 }));
 
-export const documentRelations = relations(documents, ({ one }) => ({
+export const documentRelations = relations(documents, ({ one, many }) => ({
   property: one(properties, { fields: [documents.propertyId], references: [properties.id] }),
   milestone: one(milestones, { fields: [documents.milestoneId], references: [milestones.id] }),
   uploadedBy: one(users, { fields: [documents.uploadedBy], references: [users.id] }),
+  lastModifiedBy: one(users, { fields: [documents.lastModifiedBy], references: [users.id] }),
+  reviewedBy: one(users, { fields: [documents.reviewedBy], references: [users.id] }),
+  approvedBy: one(users, { fields: [documents.approvedBy], references: [users.id] }),
+  parentDocument: one(documents, { fields: [documents.parentDocumentId], references: [documents.id] }),
+  childDocuments: many(documents),
+  comments: many(documentComments),
+  shares: many(documentShares),
+}));
+
+export const documentCommentRelations = relations(documentComments, ({ one, many }) => ({
+  document: one(documents, { fields: [documentComments.documentId], references: [documents.id] }),
+  user: one(users, { fields: [documentComments.userId], references: [users.id] }),
+  parentComment: one(documentComments, { fields: [documentComments.parentCommentId], references: [documentComments.id] }),
+  childComments: many(documentComments),
+}));
+
+export const documentShareRelations = relations(documentShares, ({ one }) => ({
+  document: one(documents, { fields: [documentShares.documentId], references: [documents.id] }),
+  sharedBy: one(users, { fields: [documentShares.sharedBy], references: [users.id] }),
+  sharedWith: one(users, { fields: [documentShares.sharedWith], references: [users.id] }),
 }));
 
 export const activityRelations = relations(activities, ({ one }) => ({
@@ -364,6 +442,17 @@ export const insertRiskSchema = createInsertSchema(risks).omit({
 export const insertDocumentSchema = createInsertSchema(documents).omit({
   id: true,
   createdAt: true,
+  updatedAt: true,
+});
+
+export const insertDocumentCommentSchema = createInsertSchema(documentComments).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertDocumentShareSchema = createInsertSchema(documentShares).omit({
+  id: true,
+  createdAt: true,
 });
 
 export const insertActivitySchema = createInsertSchema(activities).omit({
@@ -397,6 +486,10 @@ export type Risk = typeof risks.$inferSelect;
 export type InsertRisk = z.infer<typeof insertRiskSchema>;
 export type Document = typeof documents.$inferSelect;
 export type InsertDocument = z.infer<typeof insertDocumentSchema>;
+export type DocumentComment = typeof documentComments.$inferSelect;
+export type InsertDocumentComment = z.infer<typeof insertDocumentCommentSchema>;
+export type DocumentShare = typeof documentShares.$inferSelect;
+export type InsertDocumentShare = z.infer<typeof insertDocumentShareSchema>;
 export type Activity = typeof activities.$inferSelect;
 export type InsertActivity = z.infer<typeof insertActivitySchema>;
 export type AuditLog = typeof auditLogs.$inferSelect;
