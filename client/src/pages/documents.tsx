@@ -1,654 +1,867 @@
-import { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { toast } from "@/hooks/use-toast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Upload, 
-  Search, 
-  Filter, 
-  Download, 
-  Eye, 
-  Edit3, 
-  MoreVertical, 
-  FileText, 
-  Image, 
-  FileSpreadsheet, 
-  FileText as FilePdf, 
-  FileVideo,
-  Share,
-  Archive,
-  Clock,
-  User,
-  Calendar,
-  CheckCircle2,
-  XCircle,
-  MessageSquare,
-  History,
-  FolderOpen,
-  Tag,
-  Shield,
-  Database,
-  ExternalLink
-} from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+          import { useState, useEffect } from "react";
+          import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+          import { apiRequest } from "@/lib/queryClient";
+          import { Button } from "@/components/ui/button";
+          import { Input } from "@/components/ui/input";
+          import { Label } from "@/components/ui/label";
+          import { Textarea } from "@/components/ui/textarea";
+          import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+          import { Badge } from "@/components/ui/badge";
+          import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+          import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+          import { toast } from "@/hooks/use-toast";
+          import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+          import { 
+            Upload, 
+            Search, 
+            Filter, 
+            Download, 
+            Eye, 
+            Edit3, 
+            MoreVertical, 
+            FileText, 
+            Image, 
+            FileSpreadsheet, 
+            FileText as FilePdf, 
+            FileVideo,
+            Share,
+            Archive,
+            Clock,
+            User,
+            Calendar,
+            CheckCircle2,
+            XCircle,
+            MessageSquare,
+            History,
+            FolderOpen,
+            Tag,
+            Shield,
+            Database,
+            ExternalLink
+          } from "lucide-react";
+          import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
-interface Document {
-  id: string;
-  name: string;
-  description?: string;
-  type: string;
-  category: string;
-  fileName: string;
-  filePath: string;
-  fileSize: number;
-  mimeType: string;
-  version: number;
-  parentDocumentId?: string;
-  versionNotes?: string;
-  status: 'draft' | 'review' | 'approved' | 'rejected' | 'archived';
-  accessLevel: 'public' | 'internal' | 'confidential' | 'project_team';
-  tags: string[];
-  propertyId?: string;
-  milestoneId?: string;
-  uploadedBy: string;
-  approvedBy?: string;
-  approvedAt?: string;
-  lastModifiedBy: string;
-  isArchived: boolean;
-  archiveReason?: string;
-  createdAt: string;
-  updatedAt: string;
-}
+          interface Document {
+            id: string;
+            name: string;
+            description?: string;
+            type: string;
+            category: string;
+            fileName: string;
+            filePath: string;
+            fileSize: number;
+            mimeType: string;
+            version: number;
+            parentDocumentId?: string;
+            versionNotes?: string;
+            status: 'draft' | 'review' | 'approved' | 'rejected' | 'archived';
+            accessLevel: 'public' | 'internal' | 'confidential' | 'project_team';
+            tags: string[];
+            propertyId?: string;
+            milestoneId?: string;
+            uploadedBy: string;
+            approvedBy?: string;
+            approvedAt?: string;
+            lastModifiedBy: string;
+            isArchived: boolean;
+            archiveReason?: string;
+            createdAt: string;
+            updatedAt: string;
+          }
 
-interface UploadFormData {
-  name: string;
-  description: string;
-  type: string;
-  category: string;
-  propertyId: string;
-  milestoneId: string;
-  tags: string;
-  accessLevel: string;
-  file: File | null;
-}
+          interface UploadFormData {
+            name: string;
+            description: string;
+            type: string;
+            category: string;
+            propertyId: string;
+            milestoneId: string;
+            tags: string;
+            accessLevel: string;
+            file: File | null;
+          }
 
-const DOCUMENT_TYPES = [
-  'contract', 'invoice', 'receipt', 'permit', 'plan', 'specification', 
-  'report', 'photo', 'video', 'correspondence', 'legal', 'other'
-];
+          const DOCUMENT_TYPES = [
+            'contract', 'invoice', 'receipt', 'permit', 'plan', 'specification', 
+            'report', 'photo', 'video', 'correspondence', 'legal', 'other'
+          ];
 
-const DOCUMENT_CATEGORIES = [
-  'permits', 'contracts', 'financial', 'plans', 'photos', 'reports', 
-  'correspondence', 'legal', 'safety', 'quality', 'other'
-];
+          const DOCUMENT_CATEGORIES = [
+            'permits', 'contracts', 'financial', 'plans', 'photos', 'reports', 
+            'correspondence', 'legal', 'safety', 'quality', 'other'
+          ];
 
-const ACCESS_LEVELS = [
-  { value: 'public', label: 'Public', icon: '🌐' },
-  { value: 'internal', label: 'Internal', icon: '🏢' },
-  { value: 'project_team', label: 'Project Team', icon: '👥' },
-  { value: 'confidential', label: 'Confidential', icon: '🔒' },
-];
+          const ACCESS_LEVELS = [
+            { value: 'public', label: 'Public', icon: '🌐' },
+            { value: 'internal', label: 'Internal', icon: '🏢' },
+            { value: 'project_team', label: 'Project Team', icon: '👥' },
+            { value: 'confidential', label: 'Confidential', icon: '🔒' },
+          ];
 
-const STATUS_COLORS = {
-  draft: 'bg-gray-100 text-gray-800',
-  review: 'bg-yellow-100 text-yellow-800',
-  approved: 'bg-green-100 text-green-800',
-  rejected: 'bg-red-100 text-red-800',
-  archived: 'bg-gray-100 text-gray-600',
-};
+          const STATUS_COLORS = {
+            draft: 'bg-gray-100 text-gray-800',
+            review: 'bg-yellow-100 text-yellow-800',
+            approved: 'bg-green-100 text-green-800',
+            rejected: 'bg-red-100 text-red-800',
+            archived: 'bg-gray-100 text-gray-600',
+          };
 
-export default function Documents() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filters, setFilters] = useState({
-    category: "",
-    type: "",
-    status: "",
-    accessLevel: "",
-    propertyId: "",
-  });
-  const [showUploadDialog, setShowUploadDialog] = useState(false);
-  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
-  const [showDocumentDetails, setShowDocumentDetails] = useState(false);
-  const [activeTab, setActiveTab] = useState('browse');
-  const [uploadForm, setUploadForm] = useState<UploadFormData>({
-    name: "",
-    description: "",
-    type: "",
-    category: "",
-    propertyId: "",
-    milestoneId: "",
-    tags: "",
-    accessLevel: "project_team",
-    file: null,
-  });
+          export default function Documents() {
+            const [searchQuery, setSearchQuery] = useState("");
+            const [filters, setFilters] = useState({
+              category: "",
+              type: "",
+              status: "",
+              accessLevel: "",
+              propertyId: "",
+            });
+            const [showUploadDialog, setShowUploadDialog] = useState(false);
+            const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+            const [showDocumentDetails, setShowDocumentDetails] = useState(false);
+            const [uploadForm, setUploadForm] = useState<UploadFormData>({
+              name: "",
+              description: "",
+              type: "",
+              category: "",
+              propertyId: "",
+              milestoneId: "",
+              tags: "",
+              accessLevel: "project_team",
+              file: null,
+            });
 
-  const queryClient = useQueryClient();
+            const queryClient = useQueryClient();
 
-  // Fetch documents
-  const { data: documents = [], isLoading } = useQuery({
-    queryKey: ['/api/documents'],
-    queryFn: () => apiRequest('/api/documents')
-  });
+            // Fetch documents with search and filters
+            const { data: documents = [], isLoading } = useQuery({
+              queryKey: ['/api/documents', searchQuery, filters],
+              queryFn: () => {
+                const params = new URLSearchParams();
+                if (searchQuery) params.append('search', searchQuery);
+                Object.entries(filters).forEach(([key, value]) => {
+                  if (value && value !== 'all') params.append(key, value);
+                });
+                return apiRequest(`/api/documents?${params.toString()}`);
+              }
+            });
 
-  // Fetch projects for dropdown
-  const { data: projects = [] } = useQuery({
-    queryKey: ['/api/properties'],
-    queryFn: () => apiRequest('/api/properties')
-  });
+            // Fetch projects for filtering
+            const { data: projects = [] } = useQuery({
+              queryKey: ['/api/properties'],
+              queryFn: () => apiRequest('/api/properties')
+            });
 
-  // Upload mutation
-  const uploadMutation = useMutation({
-    mutationFn: async (formData: FormData) => {
-      return await apiRequest('/api/documents', {
-        method: 'POST',
-        body: formData,
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
-      setShowUploadDialog(false);
-      setUploadForm({
-        name: "",
-        description: "",
-        type: "",
-        category: "",
-        propertyId: "",
-        milestoneId: "",
-        tags: "",
-        accessLevel: "project_team",
-        file: null,
-      });
-      toast({
-        title: "Success",
-        description: "Document uploaded successfully",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to upload document",
-        variant: "destructive",
-      });
-    },
-  });
+            // Upload mutation
+            const uploadMutation = useMutation({
+              mutationFn: async (formData: FormData) => {
+                return await apiRequest('/api/documents', {
+                  method: 'POST',
+                  body: formData,
+                });
+              },
+              onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
+                setShowUploadDialog(false);
+                setUploadForm({
+                  name: "",
+                  description: "",
+                  type: "",
+                  category: "",
+                  propertyId: "",
+                  milestoneId: "",
+                  tags: "",
+                  accessLevel: "project_team",
+                  file: null,
+                });
+                toast({
+                  title: "Success",
+                  description: "Document uploaded successfully",
+                });
+              },
+              onError: (error) => {
+                toast({
+                  title: "Error",
+                  description: "Failed to upload document",
+                  variant: "destructive",
+                });
+              },
+            });
 
-  const handleUpload = () => {
-    if (!uploadForm.file || !uploadForm.name || !uploadForm.category) {
-      toast({
-        title: "Error",
-        description: "Please fill in all required fields",
-        variant: "destructive",
-      });
-      return;
-    }
+            // Status update mutations
+            const approveDocumentMutation = useMutation({
+              mutationFn: ({ id, comments }: { id: string; comments?: string }) =>
+                apiRequest(`/api/documents/${id}/approve`, {
+                  method: 'POST',
+                  body: JSON.stringify({ comments }),
+                }),
+              onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
+                toast({ title: "Success", description: "Document approved successfully" });
+              },
+            });
 
-    const formData = new FormData();
-    formData.append('file', uploadForm.file);
-    formData.append('name', uploadForm.name);
-    formData.append('description', uploadForm.description);
-    formData.append('type', uploadForm.type);
-    formData.append('category', uploadForm.category);
-    formData.append('propertyId', uploadForm.propertyId);
-    formData.append('milestoneId', uploadForm.milestoneId);
-    formData.append('accessLevel', uploadForm.accessLevel);
-    formData.append('tags', JSON.stringify(uploadForm.tags.split(',').map(t => t.trim()).filter(t => t)));
+            const rejectDocumentMutation = useMutation({
+              mutationFn: ({ id, comments }: { id: string; comments: string }) =>
+                apiRequest(`/api/documents/${id}/reject`, {
+                  method: 'POST',
+                  body: JSON.stringify({ comments }),
+                }),
+              onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
+                toast({ title: "Success", description: "Document rejected" });
+              },
+            });
 
-    uploadMutation.mutate(formData);
-  };
+            const archiveDocumentMutation = useMutation({
+              mutationFn: ({ id, reason }: { id: string; reason: string }) =>
+                apiRequest(`/api/documents/${id}/archive`, {
+                  method: 'POST',
+                  body: JSON.stringify({ reason }),
+                }),
+              onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
+                toast({ title: "Success", description: "Document archived" });
+              },
+            });
 
-  const getFileIcon = (mimeType: string) => {
-    if (mimeType.startsWith('image/')) return <Image className="w-5 h-5" />;
-    if (mimeType.includes('pdf')) return <FilePdf className="w-5 h-5" />;
-    if (mimeType.includes('spreadsheet') || mimeType.includes('excel')) return <FileSpreadsheet className="w-5 h-5" />;
-    if (mimeType.startsWith('video/')) return <FileVideo className="w-5 h-5" />;
-    return <FileText className="w-5 h-5" />;
-  };
+            const handleUpload = () => {
+              if (!uploadForm.file || !uploadForm.name || !uploadForm.category) {
+                toast({
+                  title: "Error",
+                  description: "Please fill in all required fields",
+                  variant: "destructive",
+                });
+                return;
+              }
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
+              const formData = new FormData();
+              formData.append('file', uploadForm.file);
+              formData.append('name', uploadForm.name);
+              formData.append('description', uploadForm.description);
+              formData.append('type', uploadForm.type);
+              formData.append('category', uploadForm.category);
+              formData.append('propertyId', uploadForm.propertyId);
+              formData.append('milestoneId', uploadForm.milestoneId);
+              formData.append('accessLevel', uploadForm.accessLevel);
+              formData.append('tags', JSON.stringify(uploadForm.tags.split(',').map(t => t.trim()).filter(t => t)));
 
-  const getStatusBadge = (status: string) => {
-    const icons = {
-      draft: <Edit3 className="w-3 h-3" />,
-      review: <Clock className="w-3 h-3" />,
-      approved: <CheckCircle2 className="w-3 h-3" />,
-      rejected: <XCircle className="w-3 h-3" />,
-      archived: <Archive className="w-3 h-3" />,
-    };
+              uploadMutation.mutate(formData);
+            };
 
-    return (
-      <Badge className={`${STATUS_COLORS[status as keyof typeof STATUS_COLORS]} flex items-center gap-1`}>
-        {icons[status as keyof typeof icons]}
-        {status.charAt(0).toUpperCase() + status.slice(1)}
-      </Badge>
-    );
-  };
+            const getFileIcon = (mimeType: string) => {
+              if (mimeType.startsWith('image/')) return <Image className="w-5 h-5" />;
+              if (mimeType === 'application/pdf') return <FilePdf className="w-5 h-5" />;
+              if (mimeType.includes('spreadsheet') || mimeType.includes('excel')) return <FileSpreadsheet className="w-5 h-5" />;
+              if (mimeType.startsWith('video/')) return <FileVideo className="w-5 h-5" />;
+              return <FileText className="w-5 h-5" />;
+            };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-6">
-      {/* Glass morphism background overlay */}
-      <div className="fixed inset-0 bg-gradient-to-br from-black/60 via-gray-900/40 to-black/60 backdrop-blur-2xl pointer-events-none" />
-      
-      {/* Header Section */}
-      <div className="relative z-10 mb-8">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 via-gray-300 to-white bg-clip-text text-transparent mb-2">
-            Document Management
-          </h1>
-          <p className="text-gray-300 text-lg">Organize, version, and collaborate on project documents</p>
-        </div>
+            const formatFileSize = (bytes: number) => {
+              if (bytes === 0) return '0 Bytes';
+              const k = 1024;
+              const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+              const i = Math.floor(Math.log(bytes) / Math.log(k));
+              return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            };
 
-        {/* Main Feature Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {/* File Browser */}
-          <div className="bg-white/[0.15] backdrop-blur-lg border border-white/[0.1] shadow-lg shadow-white/10 rounded-3xl p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-blue-500/20 rounded-2xl flex items-center justify-center">
-                <FolderOpen className="w-6 h-6 text-blue-400" />
-              </div>
-              <h3 className="text-xl font-semibold text-white">File Browser</h3>
-            </div>
-            <p className="text-gray-300 mb-4 text-sm">Browse and organize project files with advanced filtering and sorting.</p>
-            <Button 
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-              onClick={() => setActiveTab('browse')}
-              data-testid="button-browse-files"
-            >
-              Browse Files
-            </Button>
-          </div>
+            const getStatusBadge = (status: string) => {
+              const icons = {
+                draft: <Edit3 className="w-3 h-3" />,
+                review: <Clock className="w-3 h-3" />,
+                approved: <CheckCircle2 className="w-3 h-3" />,
+                rejected: <XCircle className="w-3 h-3" />,
+                archived: <Archive className="w-3 h-3" />,
+              };
 
-          {/* Bulk Upload */}
-          <div className="bg-white/[0.15] backdrop-blur-lg border border-white/[0.1] shadow-lg shadow-white/10 rounded-3xl p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-blue-500/20 rounded-2xl flex items-center justify-center">
-                <Upload className="w-6 h-6 text-blue-400" />
-              </div>
-              <h3 className="text-xl font-semibold text-white">Bulk Upload</h3>
-            </div>
-            <p className="text-gray-300 mb-4 text-sm">Upload multiple files simultaneously with automatic categorization.</p>
-            <Button 
-              onClick={() => setShowUploadDialog(true)}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-              data-testid="button-upload-documents"
-            >
-              Upload Documents
-            </Button>
-          </div>
+              return (
+                <Badge className={`${STATUS_COLORS[status as keyof typeof STATUS_COLORS]} flex items-center gap-1`}>
+                  {icons[status as keyof typeof icons]}
+                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                </Badge>
+              );
+            };
 
-          {/* Version Control */}
-          <div className="bg-white/[0.15] backdrop-blur-lg border border-white/[0.1] shadow-lg shadow-white/10 rounded-3xl p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-gray-500/20 rounded-2xl flex items-center justify-center">
-                <History className="w-6 h-6 text-gray-400" />
-              </div>
-              <h3 className="text-xl font-semibold text-white">Version Control</h3>
-            </div>
-            <p className="text-gray-300 mb-4 text-sm">Track document versions and maintain revision history.</p>
-            <Button 
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-              onClick={() => setActiveTab('versions')}
-              data-testid="button-manage-versions"
-            >
-              Manage Versions
-            </Button>
-          </div>
+            return (
+              <div className="min-h-screen airy-space p-6">
+                {/* Glass morphism background overlay */}
+                <div className="fixed inset-0 bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl pointer-events-none" />
 
-          {/* Access Control */}
-          <div className="bg-white/[0.15] backdrop-blur-lg border border-white/[0.1] shadow-lg shadow-white/10 rounded-3xl p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-blue-500/20 rounded-2xl flex items-center justify-center">
-                <Shield className="w-6 h-6 text-blue-400" />
-              </div>
-              <h3 className="text-xl font-semibold text-white">Access Control</h3>
-            </div>
-            <p className="text-gray-300 mb-4 text-sm">Manage user permissions and secure document access.</p>
-            <Button 
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-              onClick={() => setActiveTab('access')}
-              data-testid="button-manage-access"
-            >
-              Manage Access
-            </Button>
-          </div>
-
-          {/* Advanced Search */}
-          <div className="bg-white/[0.15] backdrop-blur-lg border border-white/[0.1] shadow-lg shadow-white/10 rounded-3xl p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-gray-500/20 rounded-2xl flex items-center justify-center">
-                <Search className="w-6 h-6 text-gray-400" />
-              </div>
-              <h3 className="text-xl font-semibold text-white">Advanced Search</h3>
-            </div>
-            <p className="text-gray-300 mb-4 text-sm">Search documents by content, metadata, and project association.</p>
-            <Button 
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-              onClick={() => setActiveTab('search')}
-              data-testid="button-search-documents"
-            >
-              Search Documents
-            </Button>
-          </div>
-
-          {/* Export & Backup */}
-          <div className="bg-white/[0.15] backdrop-blur-lg border border-white/[0.1] shadow-lg shadow-white/10 rounded-3xl p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-blue-500/20 rounded-2xl flex items-center justify-center">
-                <Database className="w-6 h-6 text-blue-400" />
-              </div>
-              <h3 className="text-xl font-semibold text-white">Export & Backup</h3>
-            </div>
-            <p className="text-gray-300 mb-4 text-sm">Export document collections and create automated backups.</p>
-            <Button 
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-              onClick={() => setActiveTab('export')}
-              data-testid="button-export-files"
-            >
-              Export Files
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Upload Dialog - Working functionality preserved */}
-      <Dialog open={showUploadDialog} onOpenChange={setShowUploadDialog}>
-        <DialogContent className="bg-gradient-to-br from-gray-900/80 via-black/60 to-gray-800/80 backdrop-blur-2xl border border-gray-700/30 max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent">
-              Upload New Document
-            </DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-4 mt-6">
-            <div>
-              <Label htmlFor="file">File *</Label>
-              <Input
-                id="file"
-                type="file"
-                onChange={(e) => setUploadForm({ ...uploadForm, file: e.target.files?.[0] || null })}
-                className="bg-gray-800/50 border-gray-600/30 text-white"
-                data-testid="input-file-upload"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="name">Document Name *</Label>
-              <Input
-                id="name"
-                value={uploadForm.name}
-                onChange={(e) => setUploadForm({ ...uploadForm, name: e.target.value })}
-                placeholder="Enter document name"
-                className="bg-gray-800/50 border-gray-600/30 text-white"
-                data-testid="input-document-name"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={uploadForm.description}
-                onChange={(e) => setUploadForm({ ...uploadForm, description: e.target.value })}
-                placeholder="Enter document description"
-                className="bg-gray-800/50 border-gray-600/30 text-white"
-                data-testid="textarea-document-description"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="category">Category *</Label>
-                <Select
-                  value={uploadForm.category}
-                  onValueChange={(value) => setUploadForm({ ...uploadForm, category: value })}
-                >
-                  <SelectTrigger className="bg-gray-800/50 border-gray-600/30 text-white" data-testid="select-document-category">
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {DOCUMENT_CATEGORIES.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category.charAt(0).toUpperCase() + category.slice(1)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label htmlFor="type">Type</Label>
-                <Select
-                  value={uploadForm.type}
-                  onValueChange={(value) => setUploadForm({ ...uploadForm, type: value })}
-                >
-                  <SelectTrigger className="bg-gray-800/50 border-gray-600/30 text-white" data-testid="select-document-type">
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {DOCUMENT_TYPES.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type.charAt(0).toUpperCase() + type.slice(1)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="propertyId">Project</Label>
-                <Select
-                  value={uploadForm.propertyId}
-                  onValueChange={(value) => setUploadForm({ ...uploadForm, propertyId: value })}
-                >
-                  <SelectTrigger className="bg-gray-800/50 border-gray-600/30 text-white" data-testid="select-document-project">
-                    <SelectValue placeholder="Select project" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {projects.map((project: any) => (
-                      <SelectItem key={project.id} value={project.id}>
-                        {project.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label htmlFor="accessLevel">Access Level</Label>
-                <Select
-                  value={uploadForm.accessLevel}
-                  onValueChange={(value) => setUploadForm({ ...uploadForm, accessLevel: value })}
-                >
-                  <SelectTrigger className="bg-gray-800/50 border-gray-600/30 text-white" data-testid="select-access-level">
-                    <SelectValue placeholder="Select access level" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ACCESS_LEVELS.map((level) => (
-                      <SelectItem key={level.value} value={level.value}>
-                        <span className="flex items-center gap-2">
-                          {level.icon} {level.label}
-                        </span>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="tags">Tags (comma-separated)</Label>
-              <Input
-                id="tags"
-                value={uploadForm.tags}
-                onChange={(e) => setUploadForm({ ...uploadForm, tags: e.target.value })}
-                placeholder="e.g., contract, important, legal"
-                className="bg-gray-800/50 border-gray-600/30 text-white"
-                data-testid="input-document-tags"
-              />
-            </div>
-
-            <div className="flex justify-end gap-3 pt-4">
-              <Button 
-                variant="outline" 
-                onClick={() => setShowUploadDialog(false)}
-                className="bg-gray-800/50 border-gray-600/30 text-white"
-                data-testid="button-cancel-upload"
-              >
-                Cancel
-              </Button>
-              <Button 
-                onClick={handleUpload}
-                disabled={uploadMutation.isPending}
-                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
-                data-testid="button-confirm-upload"
-              >
-                {uploadMutation.isPending ? 'Uploading...' : 'Upload Document'}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Recent Documents Section */}
-      <div className="relative z-10 mb-8">
-        <div className="bg-white/[0.15] backdrop-blur-lg border border-white/[0.1] shadow-lg shadow-white/10 rounded-3xl p-6">
-          <h2 className="text-2xl font-bold text-white mb-6">Recent Documents</h2>
-          
-          {isLoading ? (
-            <div className="space-y-4">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="animate-pulse">
-                  <div className="h-16 bg-gray-200/50 rounded-xl"></div>
-                </div>
-              ))}
-            </div>
-          ) : documents.length === 0 ? (
-            <div className="text-center py-12">
-              <FolderOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-300 mb-2">No documents yet</h3>
-              <p className="text-gray-400 mb-4">Upload your first document to get started</p>
-              <Button 
-                onClick={() => setShowUploadDialog(true)}
-                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
-              >
-                <Upload className="w-4 h-4 mr-2" />
-                Upload Document
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {documents.slice(0, 5).map((doc: Document) => (
-                <div key={doc.id} className="bg-white/[0.15] backdrop-blur-lg border border-white/[0.1] shadow-lg shadow-white/10 rounded-2xl p-4 hover:bg-white/[0.2] transition-all duration-300 cursor-pointer">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
-                      {getFileIcon(doc.mimeType)}
+                {/* Header Section */}
+                <div className="relative z-10 mb-8">
+                  <div className="glass-panel p-6">
+                    <div className="text-center mb-8">
+                      <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-sky-500 to-indigo-500 bg-clip-text text-transparent mb-2">
+                        Document Management
+                      </h1>
+                      <p className="text-gray-700 text-lg">Organize, version, and collaborate on project documents</p>
                     </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900">{doc.name}</h3>
-                      <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
-                        <span>{doc.category}</span>
-                        <span>•</span>
-                        <span>{formatFileSize(doc.fileSize)}</span>
-                        <span>•</span>
-                        <span>Uploaded {new Date(doc.createdAt).toLocaleDateString()}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {getStatusBadge(doc.status)}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreVertical className="w-4 h-4" />
+
+                    {/* Upload Button */}
+                    <div className="flex justify-end">
+                      <Dialog open={showUploadDialog} onOpenChange={setShowUploadDialog}>
+                        <DialogTrigger asChild>
+                          <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                            <Upload className="w-5 h-5 mr-2" />
+                            Upload Document
                           </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                          <DropdownMenuItem>
-                            <Eye className="w-4 h-4 mr-2" />
-                            View
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Download className="w-4 h-4 mr-2" />
-                            Download
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Share className="w-4 h-4 mr-2" />
-                            Share
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                        </DialogTrigger>
+                        <DialogContent className="glass-panel max-w-2xl">
+                          <DialogHeader>
+                            <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-indigo-800 to-purple-700 bg-clip-text text-transparent">
+                              Upload New Document
+                            </DialogTitle>
+                          </DialogHeader>
+
+                          <div className="space-y-4 mt-6">
+                            <div>
+                              <Label htmlFor="file">File *</Label>
+                              <Input
+                                id="file"
+                                type="file"
+                                onChange={(e) => setUploadForm({ ...uploadForm, file: e.target.files?.[0] || null })}
+                                className="glass-input"
+                                data-testid="input-file-upload"
+                              />
+                            </div>
+
+                            <div>
+                              <Label htmlFor="name">Document Name *</Label>
+                              <Input
+                                id="name"
+                                value={uploadForm.name}
+                                onChange={(e) => setUploadForm({ ...uploadForm, name: e.target.value })}
+                                placeholder="Enter document name"
+                                className="glass-input"
+                                data-testid="input-document-name"
+                              />
+                            </div>
+
+                            <div>
+                              <Label htmlFor="description">Description</Label>
+                              <Textarea
+                                id="description"
+                                value={uploadForm.description}
+                                onChange={(e) => setUploadForm({ ...uploadForm, description: e.target.value })}
+                                placeholder="Enter document description"
+                                className="glass-input"
+                                data-testid="textarea-document-description"
+                              />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <Label htmlFor="category">Category *</Label>
+                                <Select
+                                  value={uploadForm.category}
+                                  onValueChange={(value) => setUploadForm({ ...uploadForm, category: value })}
+                                >
+                                  <SelectTrigger className="glass-input" data-testid="select-document-category">
+                                    <SelectValue placeholder="Select category" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {DOCUMENT_CATEGORIES.map((category) => (
+                                      <SelectItem key={category} value={category}>
+                                        {category.charAt(0).toUpperCase() + category.slice(1)}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+
+                              <div>
+                                <Label htmlFor="type">Type</Label>
+                                <Select
+                                  value={uploadForm.type}
+                                  onValueChange={(value) => setUploadForm({ ...uploadForm, type: value })}
+                                >
+                                  <SelectTrigger className="glass-input" data-testid="select-document-type">
+                                    <SelectValue placeholder="Select type" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {DOCUMENT_TYPES.map((type) => (
+                                      <SelectItem key={type} value={type}>
+                                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <Label htmlFor="propertyId">Project</Label>
+                                <Select
+                                  value={uploadForm.propertyId}
+                                  onValueChange={(value) => setUploadForm({ ...uploadForm, propertyId: value })}
+                                >
+                                  <SelectTrigger className="glass-input" data-testid="select-document-project">
+                                    <SelectValue placeholder="Select project" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {projects.map((project: any) => (
+                                      <SelectItem key={project.id} value={project.id}>
+                                        {project.name}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+
+                              <div>
+                                <Label htmlFor="accessLevel">Access Level</Label>
+                                <Select
+                                  value={uploadForm.accessLevel}
+                                  onValueChange={(value) => setUploadForm({ ...uploadForm, accessLevel: value })}
+                                >
+                                  <SelectTrigger className="glass-input" data-testid="select-access-level">
+                                    <SelectValue placeholder="Select access level" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {ACCESS_LEVELS.map((level) => (
+                                      <SelectItem key={level.value} value={level.value}>
+                                        <span className="flex items-center gap-2">
+                                          {level.icon} {level.label}
+                                        </span>
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </div>
+
+                            <div>
+                              <Label htmlFor="tags">Tags (comma-separated)</Label>
+                              <Input
+                                id="tags"
+                                value={uploadForm.tags}
+                                onChange={(e) => setUploadForm({ ...uploadForm, tags: e.target.value })}
+                                placeholder="e.g., contract, important, legal"
+                                className="glass-input"
+                                data-testid="input-document-tags"
+                              />
+                            </div>
+
+                            <div className="flex justify-end gap-3 pt-4">
+                              <Button 
+                                variant="outline" 
+                                onClick={() => setShowUploadDialog(false)}
+                                className="bg-white/50 border-white/30"
+                                data-testid="button-cancel-upload"
+                              >
+                                Cancel
+                              </Button>
+                              <Button 
+                                onClick={handleUpload}
+                                disabled={uploadMutation.isPending}
+                                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
+                                data-testid="button-confirm-upload"
+                              >
+                                {uploadMutation.isPending ? 'Uploading...' : 'Upload Document'}
+                              </Button>
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
 
-      {/* Document Categories Section */}
-      <div className="relative z-10">
-        <div className="bg-white/[0.15] backdrop-blur-lg border border-white/[0.1] shadow-lg shadow-white/10 rounded-3xl p-6">
-          <h2 className="text-2xl font-bold text-white mb-6">Document Categories</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Plans & Drawings */}
-            <div className="bg-white/[0.15] backdrop-blur-lg border border-white/[0.1] shadow-lg shadow-white/10 rounded-2xl p-6 hover:bg-white/[0.2] transition-all duration-300 cursor-pointer">
-              <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center mb-4">
-                <FileText className="w-6 h-6 text-blue-400" />
-              </div>
-              <h3 className="font-semibold text-white mb-2">Plans & Drawings</h3>
-              <p className="text-sm text-gray-300 mb-4">Architectural and engineering plans</p>
-              <p className="text-2xl font-bold text-blue-400">{documents.filter((d: any) => d.category === 'plans').length} files</p>
-            </div>
+                {/* Search and Filters */}
+                <div className="relative z-10 mb-8">
+                  <div className="glass-panel p-6">
+                    <div className="flex flex-col lg:flex-row gap-4">
+                      {/* Search Input */}
+                      <div className="flex-1 relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                        <Input
+                          placeholder="Search documents..."
+                          className="glass-input pl-10"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                      </div>
 
-            {/* Photos & Media */}
-            <div className="bg-white/[0.15] backdrop-blur-lg border border-white/[0.1] shadow-lg shadow-white/10 rounded-2xl p-6 hover:bg-white/[0.2] transition-all duration-300 cursor-pointer">
-              <div className="w-12 h-12 bg-gray-500/20 rounded-xl flex items-center justify-center mb-4">
-                <Image className="w-6 h-6 text-gray-400" />
-              </div>
-              <h3 className="font-semibold text-white mb-2">Photos & Media</h3>
-              <p className="text-sm text-gray-300 mb-4">Progress photos and videos</p>
-              <p className="text-2xl font-bold text-gray-400">{documents.filter((d: any) => d.category === 'photos').length} files</p>
-            </div>
+                      {/* Filters */}
+                      <div className="flex flex-wrap gap-3">
+                        <Select value={filters.category} onValueChange={(value) => setFilters({ ...filters, category: value })}>
+                          <SelectTrigger className="glass-input w-40">
+                            <SelectValue placeholder="Category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Categories</SelectItem>
+                            {DOCUMENT_CATEGORIES.map((category) => (
+                              <SelectItem key={category} value={category}>
+                                {category.charAt(0).toUpperCase() + category.slice(1)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
 
-            {/* Permits & Legal */}
-            <div className="bg-white/[0.15] backdrop-blur-lg border border-white/[0.1] shadow-lg shadow-white/10 rounded-2xl p-6 hover:bg-white/[0.2] transition-all duration-300 cursor-pointer">
-              <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center mb-4">
-                <Shield className="w-6 h-6 text-blue-400" />
-              </div>
-              <h3 className="font-semibold text-white mb-2">Permits & Legal</h3>
-              <p className="text-sm text-gray-300 mb-4">Official documentation</p>
-              <p className="text-2xl font-bold text-blue-400">{documents.filter((d: any) => d.category === 'permits' || d.category === 'legal').length} files</p>
-            </div>
+                        <Select value={filters.status} onValueChange={(value) => setFilters({ ...filters, status: value })}>
+                          <SelectTrigger className="w-32 glass-input" data-testid="filter-status">
+                            <SelectValue placeholder="Status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Status</SelectItem>
+                            <SelectItem value="draft">Draft</SelectItem>
+                            <SelectItem value="review">Review</SelectItem>
+                            <SelectItem value="approved">Approved</SelectItem>
+                            <SelectItem value="rejected">Rejected</SelectItem>
+                            <SelectItem value="archived">Archived</SelectItem>
+                          </SelectContent>
+                        </Select>
 
-            {/* Contracts */}
-            <div className="bg-white/[0.15] backdrop-blur-lg border border-white/[0.1] shadow-lg shadow-white/10 rounded-2xl p-6 hover:bg-white/[0.2] transition-all duration-300 cursor-pointer">
-              <div className="w-12 h-12 bg-gray-500/20 rounded-xl flex items-center justify-center mb-4">
-                <FileText className="w-6 h-6 text-gray-400" />
+                        <Select value={filters.propertyId} onValueChange={(value) => setFilters({ ...filters, propertyId: value })}>
+                          <SelectTrigger className="glass-input w-40" data-testid="filter-project">
+                            <SelectValue placeholder="Project" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Projects</SelectItem>
+                            {projects.map((project: any) => (
+                              <SelectItem key={project.id} value={project.id}>
+                                {project.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+
+                        <Button 
+                          variant="outline" 
+                          onClick={() => setFilters({ category: "all", type: "all", status: "all", accessLevel: "all", propertyId: "all" })}
+                          className="bg-white/50 border-white/30"
+                          data-testid="button-clear-filters"
+                        >
+                          <Filter className="w-4 h-4 mr-2" />
+                          Clear
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Documents Grid */}
+                <div className="relative z-10">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {documents.map((document: Document) => (
+                      <div key={document.id} className="glass-panel p-4 hover:shadow-2xl transition-all duration-300">
+                        <CardHeader className="pb-3">
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-center gap-3 flex-1">
+                              <div className="p-2 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-lg">
+                                {getFileIcon(document.mimeType)}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <CardTitle className="text-sm font-semibold text-gray-800 truncate" title={document.name}>
+                                  {document.name}
+                                </CardTitle>
+                                <p className="text-xs text-gray-500 mt-1">
+                                  v{document.version} • {formatFileSize(document.fileSize)}
+                                </p>
+                              </div>
+                            </div>
+
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <MoreVertical className="w-4 h-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="bg-white/95 backdrop-blur border-white/20">
+                                <DropdownMenuItem onClick={() => { setSelectedDocument(document); setShowDocumentDetails(true); }}>
+                                  <Eye className="w-4 h-4 mr-2" />
+                                  View Details
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                  <Download className="w-4 h-4 mr-2" />
+                                  Download
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                  <Share className="w-4 h-4 mr-2" />
+                                  Share
+                                </DropdownMenuItem>
+                                {document.status === 'review' && (
+                                  <>
+                                    <DropdownMenuItem onClick={() => approveDocumentMutation.mutate({ id: document.id })}>
+                                      <CheckCircle2 className="w-4 h-4 mr-2" />
+                                      Approve
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => rejectDocumentMutation.mutate({ id: document.id, comments: 'Rejected via quick action' })}>
+                                      <XCircle className="w-4 h-4 mr-2" />
+                                      Reject
+                                    </DropdownMenuItem>
+                                  </>
+                                )}
+                                <DropdownMenuItem 
+                                  onClick={() => archiveDocumentMutation.mutate({ id: document.id, reason: 'Archived via quick action' })}
+                                  className="text-red-600"
+                                >
+                                  <Archive className="w-4 h-4 mr-2" />
+                                  Archive
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </CardHeader>
+
+                        <CardContent className="space-y-4">
+                          <div className="flex items-center justify-between">
+                            {getStatusBadge(document.status)}
+                            <Badge variant="outline" className="text-xs">
+                              {document.category}
+                            </Badge>
+                          </div>
+
+                          {document.description && (
+                            <p className="text-sm text-gray-600 line-clamp-2">
+                              {document.description}
+                            </p>
+                          )}
+
+                          {document.tags && document.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1">
+                              {document.tags.slice(0, 3).map((tag, index) => (
+                                <Badge key={index} variant="secondary" className="text-xs bg-indigo-100 text-indigo-700">
+                                  <Tag className="w-3 h-3 mr-1" />
+                                  {tag}
+                                </Badge>
+                              ))}
+                              {document.tags.length > 3 && (
+                                <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-600">
+                                  +{document.tags.length - 3}
+                                </Badge>
+                              )}
+                            </div>
+                          )}
+
+                          <div className="flex items-center justify-between text-xs text-gray-500">
+                            <div className="flex items-center gap-1">
+                              <User className="w-3 h-3" />
+                              {document.uploadedBy}
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Calendar className="w-3 h-3" />
+                              {new Date(document.createdAt).toLocaleDateString()}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Document Details Dialog */}
+                <Dialog open={showDocumentDetails} onOpenChange={setShowDocumentDetails}>
+                  <DialogContent className="glass-panel max-w-4xl max-h-[90vh] overflow-y-auto">
+                    {selectedDocument && (
+                      <>
+                        <DialogHeader>
+                          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-indigo-800 to-purple-700 bg-clip-text text-transparent flex items-center gap-3">
+                            {getFileIcon(selectedDocument.mimeType)}
+                            {selectedDocument.name}
+                          </DialogTitle>
+                        </DialogHeader>
+
+                        <Tabs defaultValue="details" className="mt-6">
+                          <TabsList className="grid w-full grid-cols-4 bg-white/50">
+                            <TabsTrigger value="details">Details</TabsTrigger>
+                            <TabsTrigger value="versions">Versions</TabsTrigger>
+                            <TabsTrigger value="comments">Comments</TabsTrigger>
+                            <TabsTrigger value="sharing">Sharing</TabsTrigger>
+                          </TabsList>
+
+                          <TabsContent value="details" className="space-y-6 mt-6">
+                            <div className="grid grid-cols-2 gap-6">
+                              <div className="space-y-4">
+                                <div>
+                                  <Label className="text-sm font-medium text-gray-700">Description</Label>
+                                  <p className="text-sm text-gray-600 mt-1">
+                                    {selectedDocument.description || 'No description provided'}
+                                  </p>
+                                </div>
+
+                                <div>
+                                  <Label className="text-sm font-medium text-gray-700">Category</Label>
+                                  <p className="text-sm text-gray-600 mt-1 capitalize">{selectedDocument.category}</p>
+                                </div>
+
+                                <div>
+                                  <Label className="text-sm font-medium text-gray-700">Type</Label>
+                                  <p className="text-sm text-gray-600 mt-1 capitalize">{selectedDocument.type}</p>
+                                </div>
+
+                                <div>
+                                  <Label className="text-sm font-medium text-gray-700">Tags</Label>
+                                  <div className="flex flex-wrap gap-1 mt-1">
+                                    {selectedDocument.tags && selectedDocument.tags.length > 0 ? (
+                                      selectedDocument.tags.map((tag, index) => (
+                                        <Badge key={index} variant="secondary" className="text-xs">
+                                          {tag}
+                                        </Badge>
+                                      ))
+                                    ) : (
+                                      <p className="text-sm text-gray-500">No tags</p>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="space-y-4">
+                                <div>
+                                  <Label className="text-sm font-medium text-gray-700">File Information</Label>
+                                  <div className="bg-white/50 rounded-lg p-3 mt-1 space-y-2">
+                                    <div className="flex justify-between text-sm">
+                                      <span className="text-gray-600">File name:</span>
+                                      <span className="font-medium">{selectedDocument.fileName}</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                      <span className="text-gray-600">Size:</span>
+                                      <span className="font-medium">{formatFileSize(selectedDocument.fileSize)}</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                      <span className="text-gray-600">Type:</span>
+                                      <span className="font-medium">{selectedDocument.mimeType}</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                      <span className="text-gray-600">Version:</span>
+                                      <span className="font-medium">v{selectedDocument.version}</span>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div>
+                                  <Label className="text-sm font-medium text-gray-700">Status & Access</Label>
+                                  <div className="bg-white/50 rounded-lg p-3 mt-1 space-y-2">
+                                    <div className="flex justify-between items-center text-sm">
+                                      <span className="text-gray-600">Status:</span>
+                                      {getStatusBadge(selectedDocument.status)}
+                                    </div>
+                                    <div className="flex justify-between items-center text-sm">
+                                      <span className="text-gray-600">Access Level:</span>
+                                      <Badge variant="outline" className="capitalize">
+                                        <Shield className="w-3 h-3 mr-1" />
+                                        {selectedDocument.accessLevel.replace('_', ' ')}
+                                      </Badge>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div>
+                                  <Label className="text-sm font-medium text-gray-700">Timeline</Label>
+                                  <div className="bg-white/50 rounded-lg p-3 mt-1 space-y-2">
+                                    <div className="flex justify-between text-sm">
+                                      <span className="text-gray-600">Uploaded:</span>
+                                      <span className="font-medium">{new Date(selectedDocument.createdAt).toLocaleString()}</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                      <span className="text-gray-600">Modified:</span>
+                                      <span className="font-medium">{new Date(selectedDocument.updatedAt).toLocaleString()}</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                      <span className="text-gray-600">Uploaded by:</span>
+                                      <span className="font-medium">{selectedDocument.uploadedBy}</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                      <span className="text-gray-600">Last modified by:</span>
+                                      <span className="font-medium">{selectedDocument.lastModifiedBy}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex justify-end gap-3 pt-4 border-t border-white/20">
+                              <Button variant="outline" className="bg-white/50 border-white/30">
+                                <Download className="w-4 h-4 mr-2" />
+                                Download
+                              </Button>
+                              <Button variant="outline" className="bg-white/50 border-white/30">
+                                <Share className="w-4 h-4 mr-2" />
+                                Share
+                              </Button>
+                              {selectedDocument.status === 'review' && (
+                                <>
+                                  <Button 
+                                    onClick={() => approveDocumentMutation.mutate({ id: selectedDocument.id })}
+                                    className="bg-green-600 hover:bg-green-700 text-white"
+                                  >
+                                    <CheckCircle2 className="w-4 h-4 mr-2" />
+                                    Approve
+                                  </Button>
+                                  <Button 
+                                    variant="destructive"
+                                    onClick={() => rejectDocumentMutation.mutate({ id: selectedDocument.id, comments: 'Rejected from details view' })}
+                                  >
+                                    <XCircle className="w-4 h-4 mr-2" />
+                                    Reject
+                                  </Button>
+                                </>
+                              )}
+                            </div>
+                          </TabsContent>
+
+                          <TabsContent value="versions" className="mt-6">
+                            <div className="text-center py-8">
+                              <History className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                              <h3 className="text-lg font-semibold text-gray-700 mb-2">Version History</h3>
+                              <p className="text-gray-500">Version management features coming soon</p>
+                            </div>
+                          </TabsContent>
+
+                          <TabsContent value="comments" className="mt-6">
+                            <div className="text-center py-8">
+                              <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                              <h3 className="text-lg font-semibold text-gray-700 mb-2">Comments & Reviews</h3>
+                              <p className="text-gray-500">Comment system features coming soon</p>
+                            </div>
+                          </TabsContent>
+
+                          <TabsContent value="sharing" className="mt-6">
+                            <div className="text-center py-8">
+                              <ExternalLink className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                              <h3 className="text-lg font-semibold text-gray-700 mb-2">Sharing & Permissions</h3>
+                              <p className="text-gray-500">Document sharing features coming soon</p>
+                            </div>
+                          </TabsContent>
+                        </Tabs>
+                      </>
+                    )}
+                  </DialogContent>
+                </Dialog>
               </div>
-              <h3 className="font-semibold text-white mb-2">Contracts</h3>
-              <p className="text-sm text-gray-300 mb-4">Vendor and client agreements</p>
-              <p className="text-2xl font-bold text-gray-400">{documents.filter((d: any) => d.category === 'contracts').length} files</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+            );
+          }
+                            </div>
+                          </TabsContent>
+
+                          <TabsContent value="versions" className="mt-6">
+                            <div className="text-center py-8">
+                              <History className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                              <h3 className="text-lg font-semibold text-gray-700 mb-2">Version History</h3>
+                              <p className="text-gray-500">Version management features coming soon</p>
+                            </div>
+                          </TabsContent>
+
+                          <TabsContent value="comments" className="mt-6">
+                            <div className="text-center py-8">
+                              <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                              <h3 className="text-lg font-semibold text-gray-700 mb-2">Comments & Reviews</h3>
+                              <p className="text-gray-500">Comment system features coming soon</p>
+                            </div>
+                          </TabsContent>
+
+                          <TabsContent value="sharing" className="mt-6">
+                            <div className="text-center py-8">
+                              <ExternalLink className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                              <h3 className="text-lg font-semibold text-gray-700 mb-2">Sharing & Permissions</h3>
+                              <p className="text-gray-500">Document sharing features coming soon</p>
+                            </div>
+                          </TabsContent>
+                        </Tabs>
+                      </>
+                    )}
+                  </DialogContent>
+                </Dialog>
+              </div>
+            );
+          }
