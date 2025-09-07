@@ -255,7 +255,7 @@ export default function Documents() {
         {/* Main Feature Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {/* File Browser */}
-          <div className="bg-gradient-to-br from-gray-900/60 via-black/40 to-gray-800/60 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] border border-gray-700/30 p-6">
+          <div className="bg-gray-800/40 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] border border-gray-700/30 p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 bg-blue-500/20 rounded-2xl flex items-center justify-center">
                 <FolderOpen className="w-6 h-6 text-blue-400" />
@@ -273,7 +273,7 @@ export default function Documents() {
           </div>
 
           {/* Bulk Upload */}
-          <div className="bg-gradient-to-br from-gray-900/60 via-black/40 to-gray-800/60 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] border border-gray-700/30 p-6">
+          <div className="bg-gray-800/40 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] border border-gray-700/30 p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 bg-blue-500/20 rounded-2xl flex items-center justify-center">
                 <Upload className="w-6 h-6 text-blue-400" />
@@ -283,7 +283,7 @@ export default function Documents() {
             <p className="text-gray-300 mb-4 text-sm">Upload multiple files simultaneously with automatic categorization.</p>
             <Button 
               onClick={() => setShowUploadDialog(true)}
-              className="w-full bg-gray-600 hover:bg-gray-700 text-white"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
               data-testid="button-upload-documents"
             >
               Upload Documents
@@ -291,7 +291,7 @@ export default function Documents() {
           </div>
 
           {/* Version Control */}
-          <div className="bg-gradient-to-br from-gray-900/60 via-black/40 to-gray-800/60 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] border border-gray-700/30 p-6">
+          <div className="bg-gray-800/40 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] border border-gray-700/30 p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 bg-gray-500/20 rounded-2xl flex items-center justify-center">
                 <History className="w-6 h-6 text-gray-400" />
@@ -300,7 +300,7 @@ export default function Documents() {
             </div>
             <p className="text-gray-300 mb-4 text-sm">Track document versions and maintain revision history.</p>
             <Button 
-              className="w-full bg-gray-600 hover:bg-gray-700 text-white"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
               onClick={() => setActiveTab('versions')}
               data-testid="button-manage-versions"
             >
@@ -309,7 +309,7 @@ export default function Documents() {
           </div>
 
           {/* Access Control */}
-          <div className="bg-gradient-to-br from-gray-900/60 via-black/40 to-gray-800/60 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] border border-gray-700/30 p-6">
+          <div className="bg-gray-800/40 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] border border-gray-700/30 p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 bg-blue-500/20 rounded-2xl flex items-center justify-center">
                 <Shield className="w-6 h-6 text-blue-400" />
@@ -327,7 +327,7 @@ export default function Documents() {
           </div>
 
           {/* Advanced Search */}
-          <div className="bg-gradient-to-br from-gray-900/60 via-black/40 to-gray-800/60 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] border border-gray-700/30 p-6">
+          <div className="bg-gray-800/40 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] border border-gray-700/30 p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 bg-gray-500/20 rounded-2xl flex items-center justify-center">
                 <Search className="w-6 h-6 text-gray-400" />
@@ -336,7 +336,7 @@ export default function Documents() {
             </div>
             <p className="text-gray-300 mb-4 text-sm">Search documents by content, metadata, and project association.</p>
             <Button 
-              className="w-full bg-gray-600 hover:bg-gray-700 text-white"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
               onClick={() => setActiveTab('search')}
               data-testid="button-search-documents"
             >
@@ -345,7 +345,7 @@ export default function Documents() {
           </div>
 
           {/* Export & Backup */}
-          <div className="bg-gradient-to-br from-gray-900/60 via-black/40 to-gray-800/60 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] border border-gray-700/30 p-6">
+          <div className="bg-gray-800/40 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] border border-gray-700/30 p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 bg-blue-500/20 rounded-2xl flex items-center justify-center">
                 <Database className="w-6 h-6 text-blue-400" />
@@ -527,7 +527,7 @@ export default function Documents() {
 
       {/* Recent Documents Section */}
       <div className="relative z-10 mb-8">
-        <div className="bg-gradient-to-r from-gray-900/60 via-black/40 to-gray-800/60 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] border border-gray-700/30 p-6">
+        <div className="bg-gray-800/40 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] border border-gray-700/30 p-6">
           <h2 className="text-2xl font-bold text-white mb-6">Recent Documents</h2>
           
           {isLoading ? (
@@ -603,7 +603,7 @@ export default function Documents() {
 
       {/* Document Categories Section */}
       <div className="relative z-10">
-        <div className="bg-gradient-to-r from-gray-900/60 via-black/40 to-gray-800/60 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] border border-gray-700/30 p-6">
+        <div className="bg-gray-800/40 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] border border-gray-700/30 p-6">
           <h2 className="text-2xl font-bold text-white mb-6">Document Categories</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
