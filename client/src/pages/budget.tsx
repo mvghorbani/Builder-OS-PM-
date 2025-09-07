@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { MainLayout } from "@/layouts/MainLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useMemo, useState } from "react";
-import { getLocalDataset, computeOverview, buildAlerts, recentTransactions, formatUSD } from "@/lib/budgetLocalAdapter";
+import { getLocalDataset, computeOverview, buildAlerts, recentTransactions, formatUSD, formatUSDCompact } from "@/lib/budgetLocalAdapter";
+import { useLocation } from "wouter";
 import {
   DollarSign,
   TrendingUp,
@@ -50,6 +51,7 @@ export default function Budget() {
   const kpis = useMemo(() => dataset ? computeOverview(dataset) : null, [dataset]);
   const alerts = useMemo(() => dataset ? buildAlerts(dataset) : [], [dataset]);
   const tx = useMemo(() => dataset ? recentTransactions(dataset, 3) : [], [dataset]);
+  const [, navigate] = useLocation();
 
   return (
     <MainLayout>
@@ -82,7 +84,10 @@ export default function Budget() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600 mb-1">Total Budget</p>
-                    <p className="text-3xl font-bold text-gray-900">{kpis ? formatUSD(kpis.totalBudget) : '$2.4M'}</p>
+                    <p className="md:text-3xl text-2xl font-bold text-gray-900 tabular-nums tracking-tight">
+                      <span className="md:inline hidden">{kpis ? formatUSD(kpis.totalBudget) : '$2.4M'}</span>
+                      <span className="md:hidden inline">{kpis ? formatUSDCompact(kpis.totalBudget) : '$2.4M'}</span>
+                    </p>
                     <p className="text-xs text-blue-600 mt-1">{dataset ? dataset.projectName : 'Across all projects'}</p>
                   </div>
                   <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -97,7 +102,10 @@ export default function Budget() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600 mb-1">Spent</p>
-                    <p className="text-3xl font-bold text-gray-900">{kpis ? formatUSD(kpis.spent) : '$1.8M'}</p>
+                    <p className="md:text-3xl text-2xl font-bold text-gray-900 tabular-nums tracking-tight">
+                      <span className="md:inline hidden">{kpis ? formatUSD(kpis.spent) : '$1.8M'}</span>
+                      <span className="md:hidden inline">{kpis ? formatUSDCompact(kpis.spent) : '$1.8M'}</span>
+                    </p>
                     <p className={`text-xs mt-1 flex items-center gap-1 ${kpis && kpis.spent > (kpis.totalBudget || 1) ? 'text-red-600' : 'text-green-600'}`}>
                       <TrendingUp className="w-3 h-3" />
                       {kpis ? `${Math.round((kpis.spent / (kpis.totalBudget || 1)) * 100)}% utilized` : '75% utilized'}
@@ -115,7 +123,10 @@ export default function Budget() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600 mb-1">Remaining</p>
-                    <p className="text-3xl font-bold text-gray-900">{kpis ? formatUSD(kpis.remaining) : '$600K'}</p>
+                    <p className="md:text-3xl text-2xl font-bold text-gray-900 tabular-nums tracking-tight">
+                      <span className="md:inline hidden">{kpis ? formatUSD(kpis.remaining) : '$600K'}</span>
+                      <span className="md:hidden inline">{kpis ? formatUSDCompact(kpis.remaining) : '$600K'}</span>
+                    </p>
                     <p className="text-xs text-purple-600 mt-1">{kpis ? `${Math.max(0, Math.round((kpis.remaining / (kpis.totalBudget || 1)) * 100))}% available` : '25% available'}</p>
                   </div>
                   <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
@@ -130,7 +141,10 @@ export default function Budget() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600 mb-1">Variance</p>
-                    <p className="text-3xl font-bold text-gray-900">{kpis ? formatUSD(kpis.variance) : '-$45K'}</p>
+                    <p className="md:text-3xl text-2xl font-bold text-gray-900 tabular-nums tracking-tight">
+                      <span className="md:inline hidden">{kpis ? formatUSD(kpis.variance) : '-$45K'}</span>
+                      <span className="md:hidden inline">{kpis ? formatUSDCompact(kpis.variance) : '-$45K'}</span>
+                    </p>
                     <p className={`text-xs mt-1 flex items-center gap-1 ${kpis && kpis.variance > 0 ? 'text-red-600' : 'text-green-600'}`}>
                       {kpis && kpis.variance > 0 ? (
                         <>
@@ -165,7 +179,7 @@ export default function Budget() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 mb-4">Real-time budget monitoring with variance analysis and spending patterns.</p>
-                <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                <Button className="w-full bg-blue-600 hover:bg-blue-700" onClick={() => navigate('/budget/tracking')}>
                   View Budget Dashboard
                 </Button>
               </CardContent>
@@ -265,7 +279,10 @@ export default function Budget() {
                       {a.level === 'info' && <DollarSign className="w-5 h-5 text-blue-600 mt-1" />}
                       <div>
                         <h3 className={`font-semibold mb-1 ${a.level === 'critical' ? 'text-red-900' : a.level === 'warning' ? 'text-yellow-900' : 'text-blue-900'}`}>{a.title}</h3>
-                        <p className={`text-sm mb-2 ${a.level === 'critical' ? 'text-red-800' : a.level === 'warning' ? 'text-yellow-800' : 'text-blue-800'}`}>{a.detail}</p>
+                        <p className={`text-sm mb-1 ${a.level === 'critical' ? 'text-red-800' : a.level === 'warning' ? 'text-yellow-800' : 'text-blue-800'}`}>{a.detail}</p>
+                        {dataset && (
+                          <p className="text-xs text-gray-600">Project: {dataset.projectName}</p>
+                        )}
                         <div className="flex items-center gap-2">
                           {a.tag && <Badge className={`${a.level === 'critical' ? 'bg-red-600' : a.level === 'warning' ? 'bg-yellow-600' : 'bg-blue-600'} text-white text-xs`}>{a.tag}</Badge>}
                           <span className={`text-xs ${a.level === 'critical' ? 'text-red-700' : a.level === 'warning' ? 'text-yellow-700' : 'text-blue-700'}`}>Review</span>

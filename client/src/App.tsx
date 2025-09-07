@@ -11,6 +11,7 @@ import Dashboard from "./pages/dashboard";
 import Analytics from "./pages/analytics";
 import Schedule from "./pages/schedule";
 import Budget from "./pages/budget";
+import BudgetTrackingPage from "./pages/budget-tracking";
 import Vendors from "./pages/vendors";
 import Permits from "./pages/permits";
 import Documents from "./pages/documents";
@@ -31,6 +32,7 @@ function Router() {
           <Route path="/analytics" component={Analytics} />
           <Route path="/schedule" component={Schedule} />
           <Route path="/budget" component={Budget} />
+          <Route path="/budget/tracking" component={BudgetTrackingPage} />
           <Route path="/vendors" component={Vendors} />
           <Route path="/permits" component={Permits} />
           <Route path="/documents" component={Documents} />
