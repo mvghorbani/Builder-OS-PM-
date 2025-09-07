@@ -151,15 +151,25 @@
   /* Stronger variant for cards */
   .glass-card {
     @apply relative overflow-hidden rounded-3xl;
-    -webkit-backdrop-filter: blur(28px) saturate(180%);
-    backdrop-filter: blur(28px) saturate(180%);
-    background: linear-gradient(180deg, rgba(255,255,255,0.26), rgba(255,255,255,0.12));
-    box-shadow: 0 16px 48px rgba(2, 12, 27, 0.16), inset 0 1px 0 rgba(255,255,255,0.45);
+    -webkit-backdrop-filter: blur(20px) saturate(180%) brightness(1.08);
+    backdrop-filter: blur(20px) saturate(180%) brightness(1.08);
+    background: rgba(255,255,255,0.06);
+    box-shadow: 0 16px 48px rgba(2, 12, 27, 0.18), inset 0 1px 0 rgba(255,255,255,0.55);
+    will-change: transform, box-shadow;
   }
-  .glass-card::before { /* brighter sheen */
+  .glass-card::before { /* animated wet sheen */
     content: "";
-    position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
-    background: linear-gradient(135deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.18) 18%, rgba(255,255,255,0.06) 42%, rgba(255,255,255,0) 62%);
+    position: absolute; border-radius: inherit; pointer-events: none;
+    width: 220%; height: 220%; top: -60%; left: -60%;
+    background: linear-gradient(115deg,
+      rgba(255,255,255,0) 20%,
+      rgba(255,255,255,0.7) 45%,
+      rgba(255,255,255,0.25) 52%,
+      rgba(255,255,255,0) 65%
+    );
+    transform: translateX(-55%) translateY(-35%) rotate(12deg);
+    opacity: 0.0;
+    transition: opacity 180ms ease-out;
   }
   .glass-card::after { /* crisp stroke */
     content: "";
@@ -168,7 +178,12 @@
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite: xor; mask-composite: exclude;
   }
-  .glass-card:hover { box-shadow: 0 22px 60px rgba(2, 12, 27, 0.22), inset 0 1px 0 rgba(255,255,255,0.55); }
+  .glass-card:hover { box-shadow: 0 22px 60px rgba(2, 12, 27, 0.22), inset 0 1px 0 rgba(255,255,255,0.6); }
+  .glass-card:hover::before { opacity: 0.6; animation: sheen-sweep 1100ms cubic-bezier(.2,.6,.2,1) forwards; }
+
+  @keyframes sheen-sweep {
+    to { transform: translateX(55%) translateY(35%) rotate(12deg); }
+  }
 
   /* Soft white/blue atmospheric background */
   .airy-space {
