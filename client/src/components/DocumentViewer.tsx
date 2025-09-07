@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Document, Page } from 'react-pdf';
 import { pdfjs } from 'react-pdf';
 import { Button } from '@/components/ui/button';
+import { SignatureModal } from '@/components/SignatureModal';
+import { DocumentAnnotationSidebar } from '@/components/DocumentAnnotationSidebar';
+import { AnnotationLayer } from '@/components/AnnotationLayer';
+import { useDocumentAnnotations } from '@/hooks/useDocumentAnnotations';
 import { 
   ChevronLeft, 
   ChevronRight,
@@ -9,7 +13,8 @@ import {
   Download,
   ZoomIn,
   ZoomOut,
-  RotateCw
+  RotateCw,
+  PanelRightOpen
 } from 'lucide-react';
 
 // Initialize PDF.js worker
@@ -20,18 +25,40 @@ interface DocumentViewerProps {
   mimeType: string;
   isFullScreen?: boolean;
   onClose?: () => void;
+  onSign?: (signatureDataUrl: string) => Promise<void>;
+  canSign?: boolean;
 }
 
 export const DocumentViewer = ({ 
   url, 
   mimeType,
   isFullScreen = false,
-  onClose 
+  onClose,
+  onSign,
+  canSign = false
 }: DocumentViewerProps) => {
   const [numPages, setNumPages] = useState<number>(1);
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [scale, setScale] = useState<number>(1);
   const [rotation, setRotation] = useState<number>(0);
+  const [showSignatureModal, setShowSignatureModal] = useState(false);
+  const [showAnnotationSidebar, setShowAnnotationSidebar] = useState(false);
+  const [currentTool, setCurrentTool] = useState<'text' | 'highlight' | 'comment' | null>(null);
+  const [pageSize, setPageSize] = useState<{ width: number; height: number }>({ width: 0, height: 0 });
+  
+  // Get annotations from React Query
+  const { annotations, deleteAnnotation } = useDocumentAnnotations("temp-id"); // Replace with actual document ID
+  
+  const handleSignatureSave = async (signatureDataUrl: string) => {
+    if (onSign) {
+      try {
+        await onSign(signatureDataUrl);
+        setShowSignatureModal(false);
+      } catch (error) {
+        console.error('Failed to save signature:', error);
+      }
+    }
+  };
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }): void {
     setNumPages(numPages);
@@ -59,12 +86,13 @@ export const DocumentViewer = ({
 
   if (mimeType === 'application/pdf') {
     return (
-      <div className="w-full h-full flex flex-col">
-        {/* Toolbar */}
-        <div className="sticky top-0 z-10 bg-white border-b px-4 py-2 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            {/* Page Navigation */}
-            {numPages > 1 && (
+      <div className="w-full h-full flex">
+        <div className="flex-1 flex flex-col">
+          {/* Toolbar */}
+          <div className="sticky top-0 z-10 bg-white border-b px-4 py-2 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {/* Page Navigation */}
+              {numPages > 1 && (
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
@@ -119,14 +147,17 @@ export const DocumentViewer = ({
                 <RotateCw className="w-4 h-4" />
               </Button>
 
-              {/* Edit Tools */}
-              <Button
-                variant="outline"
-                size="sm"
-              >
-                <PenLine className="w-4 h-4 mr-2" />
-                Edit
-              </Button>
+              {/* Sign/Edit Tools */}
+              {canSign && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowSignatureModal(true)}
+                >
+                  <PenLine className="w-4 h-4 mr-2" />
+                  Sign
+                </Button>
+              )}
 
               {/* Download */}
               <Button
@@ -135,6 +166,15 @@ export const DocumentViewer = ({
                 onClick={() => window.open(url, '_blank')}
               >
                 <Download className="w-4 h-4" />
+              </Button>
+
+              {/* Annotation Sidebar Toggle */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowAnnotationSidebar(s => !s)}
+              >
+                <PanelRightOpen className={`w-4 h-4 transition-transform ${showAnnotationSidebar ? 'rotate-180' : ''}`} />
               </Button>
             </div>
           )}
@@ -152,16 +192,61 @@ export const DocumentViewer = ({
                 </div>
               }
             >
-              <Page 
-                pageNumber={pageNumber} 
-                scale={scale}
-                rotate={rotation}
-              />
+              <div className="relative">
+                <Page 
+                  pageNumber={pageNumber} 
+                  scale={scale}
+                  rotate={rotation}
+                  onLoadSuccess={({ width, height }) => setPageSize({ width, height })}
+                />
+                <AnnotationLayer
+                  annotations={annotations}
+                  pageNumber={pageNumber}
+                  scale={scale}
+                  rotation={rotation}
+                  onDeleteAnnotation={deleteAnnotation.mutate}
+                  pageWidth={pageSize.width}
+                  pageHeight={pageSize.height}
+                />
+              </div>
             </Document>
           </div>
         </div>
+        
+        {/* Signature Modal */}
+        <SignatureModal 
+          isOpen={showSignatureModal}
+          onClose={() => setShowSignatureModal(false)}
+          onSave={handleSignatureSave}
+        />
       </div>
-    );
+
+      {/* Annotation Sidebar */}
+      {showAnnotationSidebar && (
+        <DocumentAnnotationSidebar
+          documentId="temp-id" // Replace with actual document ID
+          onMobileSign={() => {
+            // Handle mobile signing
+          }}
+          onAddStamp={(stampType) => {
+            // Handle adding stamps
+            console.log('Adding stamp:', stampType);
+          }}
+          onAddText={() => {
+            setCurrentTool('text');
+          }}
+          onAddHighlight={() => {
+            setCurrentTool('highlight');
+          }}
+          onAddComment={() => {
+            setCurrentTool('comment');
+          }}
+          savedSignatures={[]} // Add your saved signatures here
+          savedStamps={[]} // Add your saved stamps here
+        />
+      )}
+    </div>
+  );
   }
 
   // For other file types, show download button

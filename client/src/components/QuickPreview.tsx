@@ -39,6 +39,11 @@ export const QuickPreview: React.FC<QuickPreviewProps> = ({
           <DocumentViewer 
             url={document.url} 
             mimeType={document.mimeType}
+            canSign={document.mimeType === 'application/pdf'}
+            onSign={async (signatureDataUrl) => {
+              // Here we would integrate with your document signing API
+              console.log('Signature data:', signatureDataUrl);
+            }}
           />
         </div>
       </DialogContent>

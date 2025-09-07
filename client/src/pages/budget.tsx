@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MainLayout } from "@/layouts/MainLayout";
 import { useAuth } from "@/hooks/useAuth";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { getLocalDataset, computeOverview, buildAlerts, recentTransactions, formatUSD } from "@/lib/budgetLocalAdapter";
 import {
   DollarSign,
   TrendingUp,
@@ -44,6 +45,12 @@ export default function Budget() {
     return null;
   }
 
+  // TEMP: use local dataset for project P128_18TH_AVE_N to power KPIs and lists
+  const dataset = useMemo(() => getLocalDataset('P128_18TH_AVE_N'), []);
+  const kpis = useMemo(() => dataset ? computeOverview(dataset) : null, [dataset]);
+  const alerts = useMemo(() => dataset ? buildAlerts(dataset) : [], [dataset]);
+  const tx = useMemo(() => dataset ? recentTransactions(dataset, 3) : [], [dataset]);
+
   return (
     <MainLayout>
       <div className="min-h-screen bg-gray-50">
@@ -75,8 +82,8 @@ export default function Budget() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600 mb-1">Total Budget</p>
-                    <p className="text-3xl font-bold text-gray-900">$2.4M</p>
-                    <p className="text-xs text-blue-600 mt-1">Across all projects</p>
+                    <p className="text-3xl font-bold text-gray-900">{kpis ? formatUSD(kpis.totalBudget) : '$2.4M'}</p>
+                    <p className="text-xs text-blue-600 mt-1">{dataset ? dataset.projectName : 'Across all projects'}</p>
                   </div>
                   <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
                     <Wallet className="w-6 h-6 text-blue-600" />
@@ -90,7 +97,7 @@ export default function Budget() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600 mb-1">Spent</p>
-                    <p className="text-3xl font-bold text-gray-900">$1.8M</p>
+                    <p className="text-3xl font-bold text-gray-900">{kpis ? formatUSD(kpis.spent) : '$1.8M'}</p>
                     <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
                       <TrendingUp className="w-3 h-3" />
                       75% utilized
@@ -108,8 +115,8 @@ export default function Budget() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600 mb-1">Remaining</p>
-                    <p className="text-3xl font-bold text-gray-900">$600K</p>
-                    <p className="text-xs text-purple-600 mt-1">25% available</p>
+                    <p className="text-3xl font-bold text-gray-900">{kpis ? formatUSD(kpis.remaining) : '$600K'}</p>
+                    <p className="text-xs text-purple-600 mt-1">{kpis ? `${Math.max(0, Math.round((kpis.remaining / (kpis.totalBudget || 1)) * 100))}% available` : '25% available'}</p>
                   </div>
                   <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
                     <Target className="w-6 h-6 text-purple-600" />
@@ -123,7 +130,7 @@ export default function Budget() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600 mb-1">Variance</p>
-                    <p className="text-3xl font-bold text-gray-900">-$45K</p>
+                    <p className="text-3xl font-bold text-gray-900">{kpis ? formatUSD(kpis.variance) : '-$45K'}</p>
                     <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
                       <TrendingDown className="w-3 h-3" />
                       Over budget
@@ -240,53 +247,30 @@ export default function Budget() {
           <section className="mt-12">
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">Budget Alerts</h2>
             <div className="space-y-4">
-              <Card className="border border-red-200 bg-red-50">
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    <AlertTriangle className="w-5 h-5 text-red-600 mt-1" />
-                    <div>
-                      <h3 className="font-semibold text-red-900 mb-1">Budget Exceeded</h3>
-                      <p className="text-sm text-red-800 mb-2">717 S Palmway Development is $25,000 over budget in the Materials category.</p>
-                      <div className="flex items-center gap-2">
-                        <Badge className="bg-red-600 text-white text-xs">Critical</Badge>
-                        <span className="text-xs text-red-700">Requires immediate attention</span>
+              {alerts.map((a, idx) => (
+                <Card key={idx} className={a.level === 'critical' ? 'border border-red-200 bg-red-50' : a.level === 'warning' ? 'border border-yellow-200 bg-yellow-50' : 'border border-blue-200 bg-blue-50'}>
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-3">
+                      {a.level === 'critical' && <AlertTriangle className="w-5 h-5 text-red-600 mt-1" />}
+                      {a.level === 'warning' && <TrendingUp className="w-5 h-5 text-yellow-600 mt-1" />}
+                      {a.level === 'info' && <DollarSign className="w-5 h-5 text-blue-600 mt-1" />}
+                      <div>
+                        <h3 className={`font-semibold mb-1 ${a.level === 'critical' ? 'text-red-900' : a.level === 'warning' ? 'text-yellow-900' : 'text-blue-900'}`}>{a.title}</h3>
+                        <p className={`text-sm mb-2 ${a.level === 'critical' ? 'text-red-800' : a.level === 'warning' ? 'text-yellow-800' : 'text-blue-800'}`}>{a.detail}</p>
+                        <div className="flex items-center gap-2">
+                          {a.tag && <Badge className={`${a.level === 'critical' ? 'bg-red-600' : a.level === 'warning' ? 'bg-yellow-600' : 'bg-blue-600'} text-white text-xs`}>{a.tag}</Badge>}
+                          <span className={`text-xs ${a.level === 'critical' ? 'text-red-700' : a.level === 'warning' ? 'text-yellow-700' : 'text-blue-700'}`}>Review</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="border border-yellow-200 bg-yellow-50">
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    <TrendingUp className="w-5 h-5 text-yellow-600 mt-1" />
-                    <div>
-                      <h3 className="font-semibold text-yellow-900 mb-1">Budget Warning</h3>
-                      <p className="text-sm text-yellow-800 mb-2">284 Lytton Project has used 85% of allocated Labor budget.</p>
-                      <div className="flex items-center gap-2">
-                        <Badge className="bg-yellow-600 text-white text-xs">Warning</Badge>
-                        <span className="text-xs text-yellow-700">Monitor closely</span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="border border-blue-200 bg-blue-50">
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    <DollarSign className="w-5 h-5 text-blue-600 mt-1" />
-                    <div>
-                      <h3 className="font-semibold text-blue-900 mb-1">Payment Due</h3>
-                      <p className="text-sm text-blue-800 mb-2">Contractor payment of $35,000 due for Electrical work on Phase 2.</p>
-                      <div className="flex items-center gap-2">
-                        <Badge className="bg-blue-600 text-white text-xs">Due Soon</Badge>
-                        <span className="text-xs text-blue-700">Due: December 15, 2024</span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              ))}
+              {alerts.length === 0 && (
+                <Card className="border border-gray-200 bg-white">
+                  <CardContent className="p-4 text-sm text-gray-600">No alerts right now.</CardContent>
+                </Card>
+              )}
             </div>
           </section>
 
@@ -296,53 +280,23 @@ export default function Budget() {
             <Card>
               <CardContent className="p-0">
                 <div className="space-y-0">
-                  <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                        <Receipt className="w-5 h-5 text-green-600" />
+                  {tx.map((t, i) => (
+                    <div key={i} className={`p-4 ${i < tx.length - 1 ? 'border-b border-gray-100' : ''} flex items-center justify-between`}>
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 ${t.type === 'payment' ? 'bg-purple-100' : 'bg-green-100'} rounded-lg flex items-center justify-center`}>
+                          {t.type === 'payment' ? <Wallet className="w-5 h-5 text-purple-600" /> : <Receipt className="w-5 h-5 text-green-600" />}
+                        </div>
+                        <div>
+                          <h3 className="font-semibold">{t.description}</h3>
+                          <p className="text-sm text-gray-600">{t.vendor || dataset?.projectName}</p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-semibold">ABC Construction Materials</h3>
-                        <p className="text-sm text-gray-600">Lumber and steel delivery</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-bold text-red-600">-$8,450</p>
-                      <p className="text-xs text-gray-500">Dec 10, 2024</p>
-                    </div>
-                  </div>
-
-                  <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <CreditCard className="w-5 h-5 text-blue-600" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold">Elite Electrical Services</h3>
-                        <p className="text-sm text-gray-600">Rough-in completion payment</p>
+                      <div className="text-right">
+                        <p className={`font-bold ${t.type === 'payment' ? 'text-green-600' : 'text-red-600'}`}>{t.type === 'payment' ? `+${formatUSD(t.amount)}` : `-${formatUSD(t.amount)}`}</p>
+                        <p className="text-xs text-gray-500">{new Date(t.date).toLocaleDateString()}</p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-bold text-red-600">-$12,300</p>
-                      <p className="text-xs text-gray-500">Dec 8, 2024</p>
-                    </div>
-                  </div>
-
-                  <div className="p-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                        <Wallet className="w-5 h-5 text-purple-600" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold">Client Payment Received</h3>
-                        <p className="text-sm text-gray-600">Progress payment - Phase 1</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-bold text-green-600">+$45,000</p>
-                      <p className="text-xs text-gray-500">Dec 5, 2024</p>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>

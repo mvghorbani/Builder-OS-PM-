@@ -1,0 +1,44 @@
+{
+  "projectId": "P128_18TH_AVE_N",
+  "projectName": "128 18th Avenue North",
+  "budgetLines": [
+    {"projectId":"P128_18TH_AVE_N","scope":"Architectural Design Services","category":"Architect - Designer","vendor":"Sprem Services LLC","contractAmount":35000,"spentAmount":5000,"payableDate":"2025-02-18"},
+    {"projectId":"P128_18TH_AVE_N","scope":"Landscape & Irrigation Plans","category":"Landscape Architect","vendor":"Landscape Architectural Services, LLC","contractAmount":2850,"spentAmount":570,"payableDate":"2025-01-21"},
+    {"projectId":"P128_18TH_AVE_N","scope":"Geotechnical Package","category":"Soil Testing - GeoTech","vendor":"TGS Engineers","contractAmount":1700,"spentAmount":0},
+    {"projectId":"P128_18TH_AVE_N","scope":"Lot Grading & Water/Sewer Service Plan","category":"Site Drainage Plan / Civil Engineering","vendor":"SCPE","contractAmount":7000,"spentAmount":1000,"payableDate":"2025-02-22"},
+    {"projectId":"P128_18TH_AVE_N","scope":"Appraisal Services","category":"Permits and Impact Fees","vendor":"Professional Real Estate Advisors","contractAmount":800,"spentAmount":400,"payableDate":"2025-02-11"},
+    {"projectId":"P128_18TH_AVE_N","scope":"Initial Software & Project Template Implementation","category":"Software","vendor":"Stelacasa","contractAmount":2000,"spentAmount":0},
+    {"projectId":"P128_18TH_AVE_N","scope":"Hard Construction Cost (Base Build)","category":"Hard Construction Cost","vendor":"General Contractor (TBD)","contractAmount":450000,"spentAmount":0},
+    {"projectId":"P128_18TH_AVE_N","scope":"Hard Cost Contingency","category":"Hard Construction Cost / Contingency","vendor":"N/A","contractAmount":45000,"spentAmount":0},
+    {"projectId":"P128_18TH_AVE_N","scope":"Permits & Impact Fees (Allocated)","category":"Permits and Impact Fees","vendor":"LWB / PBCSB","contractAmount":12000,"spentAmount":0},
+    {"projectId":"P128_18TH_AVE_N","scope":"Insurance (Builder's Risk & Liability)","category":"Insurance","vendor":"EPI","contractAmount":5000,"spentAmount":0},
+    {"projectId":"P128_18TH_AVE_N","scope":"Legal & Miscellaneous Administration","category":"Legal & Admin","vendor":"N/A","contractAmount":3000,"spentAmount":0},
+    {"projectId":"P128_18TH_AVE_N","scope":"Property Taxes (Carrying Cost)","category":"Property Taxes","vendor":"Local Government","contractAmount":10000,"spentAmount":6009.57},
+    {"projectId":"P128_18TH_AVE_N","scope":"Lot Clearing","category":"Lot Clearing","vendor":"N/A","contractAmount":5000,"spentAmount":0},
+    {"projectId":"P128_18TH_AVE_N","scope":"Demolition","category":"Demolition","vendor":"N/A","contractAmount":40000,"spentAmount":0},
+    {"projectId":"P128_18TH_AVE_N","scope":"Cabinets Kitchen (Allowance)","category":"Cabinetry Kitchen","vendor":"Z Cabinets","contractAmount":14986.25,"spentAmount":0},
+    {"projectId":"P128_18TH_AVE_N","scope":"Cabinets Master Bath (Allowance)","category":"Cabinetry Master Bath","vendor":"Z Cabinets","contractAmount":5000,"spentAmount":7266.32},
+    {"projectId":"P128_18TH_AVE_N","scope":"Lighting Whole House (Allowance)","category":"Lighting / Electrical Fixtures","vendor":"N/A","contractAmount":1950,"spentAmount":0},
+    {"projectId":"P128_18TH_AVE_N","scope":"Flooring Whole House (Allowance)","category":"Flooring","vendor":"Z Flooring","contractAmount":11802.3,"spentAmount":0}
+  ],
+  "transactions": [
+    {"projectId":"P128_18TH_AVE_N","date":"2024-11-13","description":"Land Acquisition","amount":515000,"type":"expense","vendor":"Seller"},
+    {"projectId":"P128_18TH_AVE_N","date":"2024-11-04","description":"Buildertrend Flat Rate","amount":72,"type":"expense","vendor":"Buildertrend"},
+    {"projectId":"P128_18TH_AVE_N","date":"2025-01-21","description":"Landscape Architecture Retainer","amount":570,"type":"expense","vendor":"Landscape Architectural Services"},
+    {"projectId":"P128_18TH_AVE_N","date":"2025-01-31","description":"Zelle Payment Received","amount":19058.86,"type":"payment","vendor":"Anastasia A Thiele"},
+    {"projectId":"P128_18TH_AVE_N","date":"2025-02-05","description":"Project Management Fee","amount":4500,"type":"expense","vendor":"Stelacasa"},
+    {"projectId":"P128_18TH_AVE_N","date":"2025-02-11","description":"Appraisal Fee","amount":400,"type":"expense","vendor":"Professional Real Estate Advisors"},
+    {"projectId":"P128_18TH_AVE_N","date":"2025-02-18","description":"Architectural and Design Services","amount":5000,"type":"expense","vendor":"Sprem Services LLC"},
+    {"projectId":"P128_18TH_AVE_N","date":"2025-02-19","description":"Payment to Michelle Ghorbani","amount":725.84,"type":"expense","vendor":"Michelle Ghorbani"},
+    {"projectId":"P128_18TH_AVE_N","date":"2025-02-19","description":"Payment to Michelle Ghorbani","amount":412.43,"type":"expense","vendor":"Michelle Ghorbani"},
+    {"projectId":"P128_18TH_AVE_N","date":"2025-02-21","description":"Drainage and Utilities Plan","amount":1000,"type":"expense","vendor":"SCPE"},
+    {"projectId":"P128_18TH_AVE_N","date":"2025-02-28","description":"Zelle Payment Received","amount":12190,"type":"payment","vendor":"Frederick Ghorbani"},
+    {"projectId":"P128_18TH_AVE_N","date":"2025-03-14","description":"Project Management Monthly Fee","amount":2500,"type":"expense","vendor":"Stelacasa"},
+    {"projectId":"P128_18TH_AVE_N","date":"2025-03-15","description":"Project Management Monthly Fee","amount":2000,"type":"expense","vendor":"Stelacasa"},
+    {"projectId":"P128_18TH_AVE_N","date":"2025-03-26","description":"Payment to Michelle Ghorbani (OLB Xfer)","amount":725.84,"type":"expense","vendor":"Michelle Ghorbani"},
+    {"projectId":"P128_18TH_AVE_N","date":"2025-03-26","description":"Payment to Michelle Ghorbani (OLB Xfer)","amount":412.43,"type":"expense","vendor":"Michelle Ghorbani"},
+    {"projectId":"P128_18TH_AVE_N","date":"2025-04-15","description":"Project Management Monthly Fee","amount":2000,"type":"expense","vendor":"Stelacasa"},
+    {"projectId":"P128_18TH_AVE_N","date":"2025-04-24","description":"Tile Material","amount":1743,"type":"expense","vendor":"Emser Tile"}
+  ]
+}
+
