@@ -485,7 +485,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create document record
       const documentData = {
         name: file.originalname,
+        fileName: file.originalname,
         type: file.mimetype.split('/')[0] as 'image' | 'document' | 'video' | 'other', // Extract main type
+        category: 'other', // Default category for milestone uploads
         fileSize: file.size,
         mimeType: file.mimetype,
         filePath: `/uploads/milestone_${milestoneId}/${file.originalname}`, // Placeholder path
@@ -1373,12 +1375,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "File is required" });
       }
 
+      // Validate required fields
+      if (!name || !category) {
+        return res.status(400).json({ message: "Name and category are required" });
+      }
+
       // Create document record
       const documentData = {
-        name,
-        description,
-        type,
-        category,
+        name: name.trim(),
+        description: description?.trim() || '',
+        type: type?.trim() || 'other',
+        category: category.trim(),
         propertyId: propertyId || null,
         milestoneId: milestoneId || null,
         tags: tags ? JSON.parse(tags) : [],
@@ -1391,6 +1398,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         lastModifiedBy: req.user.claims.sub,
       };
 
+      console.log('Creating document with data:', documentData);
       const document = await storage.createDocument(documentData);
       
       // Log activity

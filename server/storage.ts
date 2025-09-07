@@ -606,7 +606,7 @@ export class DatabaseStorage implements IStorage {
         or(
           ilike(documents.name, `%${query}%`),
           ilike(documents.description, `%${query}%`)
-        )
+        )!
       );
     }
     
@@ -663,7 +663,7 @@ export class DatabaseStorage implements IStorage {
     return updatedDocument;
   }
 
-  async createDocumentVersion(originalDocumentId: string, newDocument: InsertDocument): Promise<Document> {
+  async createDocumentVersion(originalDocumentId: string, newDocument: Partial<InsertDocument>): Promise<Document> {
     // Get the original document to inherit properties
     const originalDoc = await this.getDocument(originalDocumentId);
     if (!originalDoc) {
@@ -682,14 +682,31 @@ export class DatabaseStorage implements IStorage {
       .set({ isLatestVersion: false })
       .where(eq(documents.id, originalDocumentId));
 
-    // Create new version
+    // Create new version with inherited properties
     const newVersion = originalDoc.version + 1;
-    const [versionedDocument] = await db.insert(documents).values({
-      ...newDocument,
+    const versionData = {
+      // Inherit from original document
+      name: originalDoc.name,
+      type: originalDoc.type,
+      category: originalDoc.category,
+      filePath: originalDoc.filePath,
+      fileName: originalDoc.fileName,
+      uploadedBy: originalDoc.uploadedBy,
+      propertyId: originalDoc.propertyId,
+      milestoneId: originalDoc.milestoneId,
+      tags: originalDoc.tags || [],
+      accessLevel: originalDoc.accessLevel,
+      
+      // Override with new document data
+      ...(newDocument as any),
+      
+      // Version-specific properties
       parentDocumentId: originalDocumentId,
       version: newVersion,
       isLatestVersion: true,
-    }).returning();
+    } as any;
+    
+    const [versionedDocument] = await db.insert(documents).values(versionData).returning();
     
     return versionedDocument;
   }
