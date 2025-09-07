@@ -15,6 +15,7 @@ import Vendors from "./pages/vendors";
 import Permits from "./pages/permits";
 import Documents from "./pages/documents";
 import Projects from "./pages/projects";
+import GlassDemo from "./pages/glass-demo";
 
 
 function Router() {
@@ -22,6 +23,7 @@ function Router() {
 
   return (
     <Switch>
+      <Route path="/glass-demo" component={GlassDemo} />
       {isLoading || !isAuthenticated ? (
         <Route path="/" component={Landing} />
       ) : (

@@ -17,11 +17,11 @@ export default function Landing() {
   }, []);
 
   return (
-    <div className="min-h-screen grid place-items-center bg-gradient-to-br from-blue-50 via-white to-blue-50 px-4">
+    <div className="min-h-screen grid place-items-center airy-space px-4">
       <div className="w-full max-w-md">
-        <Card className="border-0 shadow-xl rounded-2xl backdrop-blur-xl bg-white/85">
+        <Card className="glass-card border-0">
           <CardHeader className="pb-2 text-center">
-            <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100">
+            <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-white/40 backdrop-blur-sm">
               <BrandIcon variant="neutral" size={24} />
             </div>
             <CardTitle className="text-2xl font-bold tracking-tight text-gray-900">
@@ -30,7 +30,7 @@ export default function Landing() {
           </CardHeader>
 
           <CardContent className="pb-6">
-            <div className="mx-auto w-full rounded-2xl border border-black/5 bg-gray-50/90 p-5 shadow-inner">
+            <div className="mx-auto w-full rounded-2xl border border-white/20 bg-white/30 backdrop-blur-xl p-5 shadow-inner">
               <div className="space-y-4">
                 <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-blue-500/10">
                   <BrandIcon variant="brand" size={28} />
