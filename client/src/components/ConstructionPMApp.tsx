@@ -27,7 +27,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useAuth } from '@/hooks/useAuth';
 import type { Property, Milestone, BudgetLine } from '@shared/schema';
-import DocumentsDashboard from './DocumentsDashboard';
+import Documents from '../pages/Documents';
 import PermitsDashboard from './PermitsDashboard';
 
 const ConstructionPMApp = () => {
@@ -504,7 +504,7 @@ const ConstructionPMApp = () => {
 
     switch (activeView) {
       case 'documents':
-        return <DocumentsDashboard />;
+        return <Documents />;
       case 'permits':
         return <PermitsDashboard />;
       case 'projects':
