@@ -1375,8 +1375,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         fileSize: req.file.size,
         mimeType: req.file.mimetype,
         accessLevel: accessLevel || 'project_team',
-        uploadedBy: req.user.claims.sub,
-        lastModifiedBy: req.user.claims.sub,
+        uploadedBy: req.user.id,
+        lastModifiedBy: req.user.id,
       };
 
       console.log('Creating document with data:', documentData);
@@ -1385,7 +1385,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Log activity
       await storage.createActivity({
         propertyId: propertyId || null,
-        userId: req.user.claims.sub,
+        userId: req.user.id,
         action: 'upload',
         description: `Uploaded document: ${name}`,
         entityType: 'document',

@@ -13,10 +13,9 @@ export const apiRequest = async (url: string, options: RequestInit = {}) => {
       ? options.body 
       : options.body ? JSON.parse(options.body as string) : undefined,
     headers: isFormData 
-      ? { ...(options.headers || {}) } // Let axios set Content-Type for FormData
+      ? undefined // Let axios handle FormData headers automatically
       : {
           'Content-Type': 'application/json',
-          ...(options.headers || {}),
         },
     withCredentials: true,
   });
