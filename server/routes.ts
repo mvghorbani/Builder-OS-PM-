@@ -1306,7 +1306,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ===============================
 
   // Get all documents with optional filtering
-  app.get('/api/documents', isAuthenticated, async (req, res) => {
+  app.get('/api/documents', authenticateJWT, async (req, res) => {
     try {
       const { propertyId, milestoneId, category, type, status, search } = req.query;
       
@@ -1333,7 +1333,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get document by ID
-  app.get('/api/documents/:id', isAuthenticated, async (req, res) => {
+  app.get('/api/documents/:id', authenticateJWT, async (req, res) => {
     try {
       const document = await storage.getDocument(req.params.id);
       if (!document) {
@@ -1347,7 +1347,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Upload document
-  app.post('/api/documents', isAuthenticated, upload.single('file'), async (req: any, res) => {
+  app.post('/api/documents', authenticateJWT, upload.single('file'), async (req: any, res) => {
     try {
       const { name, description, type, category, propertyId, milestoneId, tags, accessLevel } = req.body;
       
@@ -1399,7 +1399,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update document metadata
-  app.patch('/api/documents/:id', isAuthenticated, async (req: any, res) => {
+  app.patch('/api/documents/:id', authenticateJWT, async (req: any, res) => {
     try {
       const updates = {
         ...req.body,
@@ -1419,7 +1419,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create new document version
-  app.post('/api/documents/:id/versions', isAuthenticated, upload.single('file'), async (req: any, res) => {
+  app.post('/api/documents/:id/versions', authenticateJWT, upload.single('file'), async (req: any, res) => {
     try {
       const { versionNotes } = req.body;
       
@@ -1458,7 +1458,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Approve document
-  app.post('/api/documents/:id/approve', isAuthenticated, async (req: any, res) => {
+  app.post('/api/documents/:id/approve', authenticateJWT, async (req: any, res) => {
     try {
       const { comments } = req.body;
       
@@ -1480,7 +1480,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Reject document
-  app.post('/api/documents/:id/reject', isAuthenticated, async (req: any, res) => {
+  app.post('/api/documents/:id/reject', authenticateJWT, async (req: any, res) => {
     try {
       const { comments } = req.body;
       
@@ -1506,7 +1506,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Archive document
-  app.post('/api/documents/:id/archive', isAuthenticated, async (req: any, res) => {
+  app.post('/api/documents/:id/archive', authenticateJWT, async (req: any, res) => {
     try {
       const { reason } = req.body;
       
@@ -1538,7 +1538,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/documents/:id/comments', isAuthenticated, async (req: any, res) => {
+  app.post('/api/documents/:id/comments', authenticateJWT, async (req: any, res) => {
     try {
       const { comment, parentCommentId } = req.body;
       
@@ -1574,7 +1574,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Document sharing
-  app.post('/api/documents/:id/share', isAuthenticated, async (req: any, res) => {
+  app.post('/api/documents/:id/share', authenticateJWT, async (req: any, res) => {
     try {
       const { sharedWith, expiresAt, canDownload, canComment } = req.body;
       
@@ -1628,7 +1628,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Document exports
-  app.get('/api/documents/export/:category', isAuthenticated, async (req, res) => {
+  app.get('/api/documents/export/:category', authenticateJWT, async (req, res) => {
     try {
       const { category } = req.params;
       const { propertyId, format } = req.query;
@@ -1656,7 +1656,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Backup endpoint
-  app.get('/api/documents/backup', isAuthenticated, async (req, res) => {
+  app.get('/api/documents/backup', authenticateJWT, async (req, res) => {
     try {
       const { lastBackupDate } = req.query;
       
@@ -1676,7 +1676,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Delete document
-  app.delete('/api/documents/:id', isAuthenticated, async (req: any, res) => {
+  app.delete('/api/documents/:id', authenticateJWT, async (req: any, res) => {
     try {
       const success = await storage.deleteDocument(req.params.id);
       
