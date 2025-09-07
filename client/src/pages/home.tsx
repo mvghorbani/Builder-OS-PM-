@@ -218,17 +218,9 @@ const PropertyCard = ({ property }: { property: Property }) => (
   >
     {/* Property Photo */}
     <div className="relative h-40 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
-      {property.imageUrl ? (
-        <img 
-          src={property.imageUrl} 
-          alt={property.name || property.address}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-        />
-      ) : (
-        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">
-          <Building2 className="w-12 h-12 text-blue-400" />
-        </div>
-      )}
+      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">
+        <Building2 className="w-12 h-12 text-blue-400" />
+      </div>
       <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent"></div>
     </div>
 
