@@ -155,13 +155,10 @@ export default function Documents() {
   // Upload mutation
   const uploadMutation = useMutation({
     mutationFn: async (formData: FormData) => {
-      const response = await fetch('/api/documents', {
+      return await apiRequest('/api/documents', {
         method: 'POST',
         body: formData,
-        credentials: 'include',
       });
-      if (!response.ok) throw new Error('Upload failed');
-      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
