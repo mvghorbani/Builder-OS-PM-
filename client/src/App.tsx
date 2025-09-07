@@ -23,7 +23,8 @@ function Router() {
 
   return (
     <Switch>
-      <Route path="/glass-demo" component={GlassDemo} />
+      {/* Demo route available in development */}
+      {import.meta.env.DEV && <Route path="/glass-demo" component={GlassDemo} />}
       {isLoading || !isAuthenticated ? (
         <Route path="/" component={Landing} />
       ) : (
