@@ -1,4 +1,4 @@
-          import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
           import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
           import { apiRequest } from "@/lib/queryClient";
           import { Button } from "@/components/ui/button";
@@ -285,7 +285,7 @@
               <div className="min-h-screen airy-space p-6">
                 {/* Glass morphism background overlay */}
                 <div className="fixed inset-0 bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl pointer-events-none" />
-
+                
                 {/* Header Section */}
                 <div className="relative z-10 mb-8">
                   <div className="glass-panel p-6">
@@ -797,40 +797,6 @@
                                   </Button>
                                 </>
                               )}
-                            </div>
-                          </TabsContent>
-
-                          <TabsContent value="versions" className="mt-6">
-                            <div className="text-center py-8">
-                              <History className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                              <h3 className="text-lg font-semibold text-gray-700 mb-2">Version History</h3>
-                              <p className="text-gray-500">Version management features coming soon</p>
-                            </div>
-                          </TabsContent>
-
-                          <TabsContent value="comments" className="mt-6">
-                            <div className="text-center py-8">
-                              <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                              <h3 className="text-lg font-semibold text-gray-700 mb-2">Comments & Reviews</h3>
-                              <p className="text-gray-500">Comment system features coming soon</p>
-                            </div>
-                          </TabsContent>
-
-                          <TabsContent value="sharing" className="mt-6">
-                            <div className="text-center py-8">
-                              <ExternalLink className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                              <h3 className="text-lg font-semibold text-gray-700 mb-2">Sharing & Permissions</h3>
-                              <p className="text-gray-500">Document sharing features coming soon</p>
-                            </div>
-                          </TabsContent>
-                        </Tabs>
-                      </>
-                    )}
-                  </DialogContent>
-                </Dialog>
-              </div>
-            );
-          }
                             </div>
                           </TabsContent>
 
