@@ -283,13 +283,13 @@ export default function Documents() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-6">
+    <div className="min-h-screen airy-space p-6">
       {/* Glass morphism background overlay */}
       <div className="fixed inset-0 bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl pointer-events-none" />
       
       {/* Header Section */}
       <div className="relative z-10 mb-8">
-        <div className="bg-gradient-to-r from-white/40 via-white/20 to-white/10 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.4)] border border-white/20 p-8">
+        <div className="glass-panel p-8">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-800 via-purple-700 to-pink-600 bg-clip-text text-transparent mb-2">
@@ -308,7 +308,7 @@ export default function Documents() {
                   Upload Document
                 </Button>
               </DialogTrigger>
-              <DialogContent className="bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl border border-white/20 max-w-2xl">
+              <DialogContent className="glass-panel max-w-2xl">
                 <DialogHeader>
                   <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-indigo-800 to-purple-700 bg-clip-text text-transparent">
                     Upload New Document
@@ -322,7 +322,7 @@ export default function Documents() {
                       id="file"
                       type="file"
                       onChange={(e) => setUploadForm({ ...uploadForm, file: e.target.files?.[0] || null })}
-                      className="bg-white/50 border-white/30"
+                      className="glass-input"
                       data-testid="input-file-upload"
                     />
                   </div>
@@ -334,7 +334,7 @@ export default function Documents() {
                       value={uploadForm.name}
                       onChange={(e) => setUploadForm({ ...uploadForm, name: e.target.value })}
                       placeholder="Enter document name"
-                      className="bg-white/50 border-white/30"
+                      className="glass-input"
                       data-testid="input-document-name"
                     />
                   </div>
@@ -346,7 +346,7 @@ export default function Documents() {
                       value={uploadForm.description}
                       onChange={(e) => setUploadForm({ ...uploadForm, description: e.target.value })}
                       placeholder="Enter document description"
-                      className="bg-white/50 border-white/30"
+                      className="glass-input"
                       data-testid="textarea-document-description"
                     />
                   </div>
@@ -358,7 +358,7 @@ export default function Documents() {
                         value={uploadForm.category}
                         onValueChange={(value) => setUploadForm({ ...uploadForm, category: value })}
                       >
-                        <SelectTrigger className="bg-white/50 border-white/30" data-testid="select-document-category">
+                        <SelectTrigger className="glass-input" data-testid="select-document-category">
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                         <SelectContent>
@@ -377,7 +377,7 @@ export default function Documents() {
                         value={uploadForm.type}
                         onValueChange={(value) => setUploadForm({ ...uploadForm, type: value })}
                       >
-                        <SelectTrigger className="bg-white/50 border-white/30" data-testid="select-document-type">
+                        <SelectTrigger className="glass-input" data-testid="select-document-type">
                           <SelectValue placeholder="Select type" />
                         </SelectTrigger>
                         <SelectContent>
@@ -398,7 +398,7 @@ export default function Documents() {
                         value={uploadForm.propertyId}
                         onValueChange={(value) => setUploadForm({ ...uploadForm, propertyId: value })}
                       >
-                        <SelectTrigger className="bg-white/50 border-white/30" data-testid="select-document-project">
+                        <SelectTrigger className="glass-input" data-testid="select-document-project">
                           <SelectValue placeholder="Select project" />
                         </SelectTrigger>
                         <SelectContent>
@@ -417,7 +417,7 @@ export default function Documents() {
                         value={uploadForm.accessLevel}
                         onValueChange={(value) => setUploadForm({ ...uploadForm, accessLevel: value })}
                       >
-                        <SelectTrigger className="bg-white/50 border-white/30" data-testid="select-access-level">
+                        <SelectTrigger className="glass-input" data-testid="select-access-level">
                           <SelectValue placeholder="Select access level" />
                         </SelectTrigger>
                         <SelectContent>
@@ -440,7 +440,7 @@ export default function Documents() {
                       value={uploadForm.tags}
                       onChange={(e) => setUploadForm({ ...uploadForm, tags: e.target.value })}
                       placeholder="e.g., contract, important, legal"
-                      className="bg-white/50 border-white/30"
+                      className="glass-input"
                       data-testid="input-document-tags"
                     />
                   </div>
@@ -472,7 +472,7 @@ export default function Documents() {
 
       {/* Search and Filters Section */}
       <div className="relative z-10 mb-8">
-        <div className="bg-gradient-to-r from-white/40 via-white/20 to-white/10 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.4)] border border-white/20 p-6">
+        <div className="glass-panel p-6">
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -480,14 +480,14 @@ export default function Documents() {
                 placeholder="Search documents by name, description, or tags..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-white/50 border-white/30"
+                className="pl-10 glass-input"
                 data-testid="input-search-documents"
               />
             </div>
 
             <div className="flex flex-wrap gap-3">
               <Select value={filters.category} onValueChange={(value) => setFilters({ ...filters, category: value })}>
-                <SelectTrigger className="w-40 bg-white/50 border-white/30" data-testid="filter-category">
+                <SelectTrigger className="w-40 glass-input" data-testid="filter-category">
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -501,7 +501,7 @@ export default function Documents() {
               </Select>
 
               <Select value={filters.status} onValueChange={(value) => setFilters({ ...filters, status: value })}>
-                <SelectTrigger className="w-32 bg-white/50 border-white/30" data-testid="filter-status">
+                <SelectTrigger className="w-32 glass-input" data-testid="filter-status">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -515,7 +515,7 @@ export default function Documents() {
               </Select>
 
               <Select value={filters.propertyId} onValueChange={(value) => setFilters({ ...filters, propertyId: value })}>
-                <SelectTrigger className="w-40 bg-white/50 border-white/30" data-testid="filter-project">
+                <SelectTrigger className="w-40 glass-input" data-testid="filter-project">
                   <SelectValue placeholder="Project" />
                 </SelectTrigger>
                 <SelectContent>
@@ -547,7 +547,7 @@ export default function Documents() {
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl rounded-2xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.4)] border border-white/20 p-6 animate-pulse">
+              <div key={i} className="glass-panel p-6 animate-pulse">
                 <div className="h-4 bg-gray-200 rounded mb-4" />
                 <div className="h-3 bg-gray-200 rounded mb-2" />
                 <div className="h-3 bg-gray-200 rounded w-2/3" />
@@ -556,7 +556,7 @@ export default function Documents() {
           </div>
         ) : documents.length === 0 ? (
           <div className="text-center py-16">
-            <div className="bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.4)] border border-white/20 p-12 max-w-md mx-auto">
+            <div className="glass-panel p-12 max-w-md mx-auto">
               <FolderOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-700 mb-2">No Documents Found</h3>
               <p className="text-gray-500 mb-6">Upload your first document to get started</p>
@@ -575,7 +575,7 @@ export default function Documents() {
             {documents.map((document: Document) => (
               <Card 
                 key={document.id} 
-                className="bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.4)] border border-white/20 hover:shadow-2xl transition-all duration-300 group"
+                className="glass-panel hover:shadow-2xl transition-all duration-300 group"
                 data-testid={`card-document-${document.id}`}
               >
                 <CardHeader className="pb-3">
@@ -686,7 +686,7 @@ export default function Documents() {
 
       {/* Document Details Dialog */}
       <Dialog open={showDocumentDetails} onOpenChange={setShowDocumentDetails}>
-        <DialogContent className="bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl border border-white/20 max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="glass-panel max-w-4xl max-h-[90vh] overflow-y-auto">
           {selectedDocument && (
             <>
               <DialogHeader>

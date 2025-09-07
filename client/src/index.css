@@ -109,3 +109,48 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
+
+/* Reusable glassmorphism utilities */
+@layer components {
+  .glass-panel {
+    @apply relative overflow-hidden rounded-3xl border border-white/20 backdrop-blur-2xl bg-gradient-to-br from-white/30 via-white/15 to-white/10 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.35),0_8px_32px_0_rgba(0,0,0,0.12)];
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    backdrop-filter: blur(24px) saturate(160%);
+  }
+
+  .dark .glass-panel {
+    @apply border-white/10 from-white/10 via-white/5 to-white/0 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1),0_8px_24px_-12px_rgba(0,0,0,0.5)];
+  }
+
+  /* Reflective sheen overlay */
+  .glass-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom right,
+      rgba(255, 255, 255, 0.18) 0%,
+      rgba(255, 255, 255, 0) 50%,
+      rgba(255, 255, 255, 0.08) 100%
+    );
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  /* Soft white/blue atmospheric background */
+  .airy-space {
+    background:
+      radial-gradient(1000px 700px at 15% 10%, rgba(255,255,255,0.9), rgba(255,255,255,0) 60%),
+      radial-gradient(900px 600px at 85% 20%, rgba(214, 227, 255, 0.65), rgba(255,255,255,0) 70%),
+      radial-gradient(800px 600px at 30% 90%, rgba(173, 216, 230, 0.35), rgba(255,255,255,0) 70%),
+      linear-gradient(180deg, #f8fbff 0%, #eff5ff 50%, #eaf2ff 100%);
+  }
+
+  .glass-input {
+    @apply bg-white/50 border-white/30 placeholder:text-gray-500 focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:border-white/40;
+  }
+
+  .dark .glass-input {
+    @apply bg-white/10 border-white/10 placeholder:text-gray-400 focus-visible:ring-white/20 focus-visible:border-white/20;
+  }
+}
