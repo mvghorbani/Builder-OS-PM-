@@ -11,7 +11,14 @@ import {
   Lock, 
   Shield, 
   XCircle,
-  AlertCircle
+  AlertCircle,
+  Home,
+  LayoutDashboard,
+  FileText as FileIcon,
+  HardHat,
+  DollarSign as DollarIcon,
+  Users,
+  Settings
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
@@ -20,12 +27,23 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useAuth } from '@/hooks/useAuth';
 import type { Property, Milestone, BudgetLine } from '@shared/schema';
+import DocumentsDashboard from './DocumentsDashboard';
+import PermitsDashboard from './PermitsDashboard';
 
 const ConstructionPMApp = () => {
-  const [activeView, setActiveView] = useState('projects');
+  const [activeView, setActiveView] = useState('dashboard');
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
-  const [activeScreen, setActiveScreen] = useState('dashboard');
   const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(null);
+  
+  const navigation = [
+    { name: 'Dashboard', icon: LayoutDashboard, value: 'dashboard' },
+    { name: 'Projects', icon: Home, value: 'projects' },
+    { name: 'Documents', icon: FileIcon, value: 'documents' },
+    { name: 'Permits', icon: HardHat, value: 'permits' },
+    { name: 'Budget', icon: DollarIcon, value: 'budget' },
+    { name: 'Team', icon: Users, value: 'team' },
+    { name: 'Settings', icon: Settings, value: 'settings' },
+  ];
   const { user } = useAuth();
 
   const { data: properties = [] } = useQuery<Property[]>({
@@ -450,63 +468,71 @@ const ConstructionPMApp = () => {
     );
   };
 
-  const TabBar = () => (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200">
-      <div className="flex justify-around py-2">
-        {[
-          { id: 'projects', icon: FileText, label: 'Projects' },
-          { id: 'schedule', icon: Calendar, label: 'Schedule' },
-          { id: 'budget', icon: DollarSign, label: 'Budget' },
-          { id: 'reports', icon: Camera, label: 'Reports' }
-        ].map(tab => (
-          <Button
-            key={tab.id}
-            variant="ghost"
-            onClick={() => setActiveView(tab.id)}
-            className={`flex flex-col items-center py-2 px-4 ${
-              activeView === tab.id ? 'text-blue-500' : 'text-gray-600'
-            }`}
-            data-testid={`button-tab-${tab.id}`}
-          >
-            <tab.icon className="w-5 h-5 mb-1" />
-            <span className="text-xs font-medium">{tab.label}</span>
-          </Button>
-        ))}
+  const SideNav = () => (
+    <div className="fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-gray-200">
+      <div className="p-4">
+        <h1 className="text-xl font-bold mb-6">BuilderOS PM</h1>
+        <div className="space-y-2">
+          {[
+            { id: 'projects', icon: Home, label: 'Projects' },
+            { id: 'documents', icon: FileText, label: 'Documents' },
+            { id: 'permits', icon: Shield, label: 'Permits' },
+            { id: 'schedule', icon: Calendar, label: 'Schedule' },
+            { id: 'budget', icon: DollarSign, label: 'Budget' },
+            { id: 'reports', icon: Camera, label: 'Reports' }
+          ].map(tab => (
+            <Button
+              key={tab.id}
+              variant={activeView === tab.id ? "default" : "ghost"}
+              onClick={() => setActiveView(tab.id)}
+              className="w-full justify-start"
+              data-testid={`nav-item-${tab.id}`}
+            >
+              <tab.icon className="w-4 h-4 mr-2" />
+              <span>{tab.label}</span>
+            </Button>
+          ))}
+        </div>
       </div>
     </div>
   );
 
-  if (selectedProperty) {
-    return <PropertyDetail property={selectedProperty} />;
-  }
+  const renderContent = () => {
+    if (selectedProperty) {
+      return <PropertyDetail property={selectedProperty} />;
+    }
 
-  return (
-    <div className="max-w-md mx-auto bg-gray-50 min-h-screen">
-      {activeView === 'projects' && <ProjectsView />}
-      
-      {activeView === 'schedule' && (
-        <div className="bg-gray-50 min-h-screen">
-          <div className="bg-white px-4 py-6 rounded-b-3xl shadow-sm">
-            <h1 className="text-3xl font-bold text-gray-900">Master Schedule</h1>
-            <p className="text-gray-600 mt-1">Critical path & gates</p>
-          </div>
-          <div className="p-4 space-y-3">
-            {properties.map(property => (
-              <Card key={property.id}>
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-center mb-3">
-                    <h3 className="font-semibold">{property.address}</h3>
-                    <div className="text-right">
-                      <span className={`text-sm ${property.scheduleAdherence < 85 ? 'text-red-600' : 'text-blue-600'}`}>
-                        {property.scheduleAdherence}% on-time
-                      </span>
+    switch (activeView) {
+      case 'documents':
+        return <DocumentsDashboard />;
+      case 'permits':
+        return <PermitsDashboard />;
+      case 'projects':
+        return <ProjectsView />;
+      case 'schedule':
+        return (
+          <div className="bg-gray-50 min-h-screen">
+            <div className="bg-white px-4 py-6 rounded-b-3xl shadow-sm">
+              <h1 className="text-3xl font-bold text-gray-900">Master Schedule</h1>
+              <p className="text-gray-600 mt-1">Critical path & gates</p>
+            </div>
+            <div className="p-4 space-y-3">
+              {properties.map(property => (
+                <Card key={property.id}>
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-center mb-3">
+                      <h3 className="font-semibold">{property.address}</h3>
+                      <div className="text-right">
+                        <span className={`text-sm ${property.scheduleAdherence < 85 ? 'text-red-600' : 'text-blue-600'}`}>
+                          {property.scheduleAdherence}% on-time
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <Card className="bg-yellow-50">
-                    <CardContent className="p-2">
-                      <p className="text-sm font-medium text-yellow-800">Next Milestone</p>
-                      <p className="text-xs text-yellow-700">
-                        Due: {property.dueDate ? new Date(property.dueDate).toLocaleDateString() : 'TBD'}
+                    <Card className="bg-yellow-50">
+                      <CardContent className="p-2">
+                        <p className="text-sm font-medium text-yellow-800">Next Milestone</p>
+                        <p className="text-xs text-yellow-700">
+                          Due: {property.dueDate ? new Date(property.dueDate).toLocaleDateString() : 'TBD'}
                       </p>
                     </CardContent>
                   </Card>

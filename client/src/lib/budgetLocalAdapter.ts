@@ -38,6 +38,10 @@ export function formatUSD(n: number): string {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(n);
 }
 
+export function formatUSDCompact(n: number): string {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', notation: 'compact', maximumFractionDigits: 2 }).format(n);
+}
+
 export function computeOverview(dataset: BudgetDatasetLocal) {
   const totalBudget = dataset.budgetLines.reduce((sum, b) => sum + (Number(b.contractAmount) || 0), 0);
 
@@ -101,4 +105,3 @@ export function recentTransactions(dataset: BudgetDatasetLocal, limit = 3) {
     .sort((a, b) => +new Date(b.date) - +new Date(a.date))
     .slice(0, limit);
 }
-

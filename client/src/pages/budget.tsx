@@ -98,9 +98,9 @@ export default function Budget() {
                   <div>
                     <p className="text-sm text-gray-600 mb-1">Spent</p>
                     <p className="text-3xl font-bold text-gray-900">{kpis ? formatUSD(kpis.spent) : '$1.8M'}</p>
-                    <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
+                    <p className={`text-xs mt-1 flex items-center gap-1 ${kpis && kpis.spent > (kpis.totalBudget || 1) ? 'text-red-600' : 'text-green-600'}`}>
                       <TrendingUp className="w-3 h-3" />
-                      75% utilized
+                      {kpis ? `${Math.round((kpis.spent / (kpis.totalBudget || 1)) * 100)}% utilized` : '75% utilized'}
                     </p>
                   </div>
                   <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
@@ -131,9 +131,18 @@ export default function Budget() {
                   <div>
                     <p className="text-sm text-gray-600 mb-1">Variance</p>
                     <p className="text-3xl font-bold text-gray-900">{kpis ? formatUSD(kpis.variance) : '-$45K'}</p>
-                    <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
-                      <TrendingDown className="w-3 h-3" />
-                      Over budget
+                    <p className={`text-xs mt-1 flex items-center gap-1 ${kpis && kpis.variance > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                      {kpis && kpis.variance > 0 ? (
+                        <>
+                          <TrendingDown className="w-3 h-3" />
+                          Over budget
+                        </>
+                      ) : (
+                        <>
+                          <TrendingUp className="w-3 h-3" />
+                          Under budget
+                        </>
+                      )}
                     </p>
                   </div>
                   <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
