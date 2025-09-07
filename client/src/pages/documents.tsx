@@ -239,30 +239,30 @@ export default function Documents() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-6">
       {/* Glass morphism background overlay */}
-      <div className="fixed inset-0 bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl pointer-events-none" />
+      <div className="fixed inset-0 bg-gradient-to-br from-black/60 via-gray-900/40 to-black/60 backdrop-blur-2xl pointer-events-none" />
       
       {/* Header Section */}
       <div className="relative z-10 mb-8">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-800 via-purple-700 to-pink-600 bg-clip-text text-transparent mb-2">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 via-gray-300 to-white bg-clip-text text-transparent mb-2">
             Document Management
           </h1>
-          <p className="text-gray-600 text-lg">Organize, version, and collaborate on project documents</p>
+          <p className="text-gray-300 text-lg">Organize, version, and collaborate on project documents</p>
         </div>
 
         {/* Main Feature Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {/* File Browser */}
-          <div className="bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.4)] border border-white/20 p-6">
+          <div className="bg-gradient-to-br from-gray-900/60 via-black/40 to-gray-800/60 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] border border-gray-700/30 p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center">
-                <FolderOpen className="w-6 h-6 text-blue-600" />
+              <div className="w-12 h-12 bg-blue-500/20 rounded-2xl flex items-center justify-center">
+                <FolderOpen className="w-6 h-6 text-blue-400" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900">File Browser</h3>
+              <h3 className="text-xl font-semibold text-white">File Browser</h3>
             </div>
-            <p className="text-gray-600 mb-4 text-sm">Browse and organize project files with advanced filtering and sorting.</p>
+            <p className="text-gray-300 mb-4 text-sm">Browse and organize project files with advanced filtering and sorting.</p>
             <Button 
               className="w-full bg-blue-600 hover:bg-blue-700 text-white"
               onClick={() => setActiveTab('browse')}
@@ -273,17 +273,17 @@ export default function Documents() {
           </div>
 
           {/* Bulk Upload */}
-          <div className="bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.4)] border border-white/20 p-6">
+          <div className="bg-gradient-to-br from-gray-900/60 via-black/40 to-gray-800/60 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] border border-gray-700/30 p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-green-500/10 rounded-2xl flex items-center justify-center">
-                <Upload className="w-6 h-6 text-green-600" />
+              <div className="w-12 h-12 bg-blue-500/20 rounded-2xl flex items-center justify-center">
+                <Upload className="w-6 h-6 text-blue-400" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900">Bulk Upload</h3>
+              <h3 className="text-xl font-semibold text-white">Bulk Upload</h3>
             </div>
-            <p className="text-gray-600 mb-4 text-sm">Upload multiple files simultaneously with automatic categorization.</p>
+            <p className="text-gray-300 mb-4 text-sm">Upload multiple files simultaneously with automatic categorization.</p>
             <Button 
               onClick={() => setShowUploadDialog(true)}
-              className="w-full bg-green-600 hover:bg-green-700 text-white"
+              className="w-full bg-gray-600 hover:bg-gray-700 text-white"
               data-testid="button-upload-documents"
             >
               Upload Documents
@@ -291,16 +291,16 @@ export default function Documents() {
           </div>
 
           {/* Version Control */}
-          <div className="bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.4)] border border-white/20 p-6">
+          <div className="bg-gradient-to-br from-gray-900/60 via-black/40 to-gray-800/60 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] border border-gray-700/30 p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-purple-500/10 rounded-2xl flex items-center justify-center">
-                <History className="w-6 h-6 text-purple-600" />
+              <div className="w-12 h-12 bg-gray-500/20 rounded-2xl flex items-center justify-center">
+                <History className="w-6 h-6 text-gray-400" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900">Version Control</h3>
+              <h3 className="text-xl font-semibold text-white">Version Control</h3>
             </div>
-            <p className="text-gray-600 mb-4 text-sm">Track document versions and maintain revision history.</p>
+            <p className="text-gray-300 mb-4 text-sm">Track document versions and maintain revision history.</p>
             <Button 
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+              className="w-full bg-gray-600 hover:bg-gray-700 text-white"
               onClick={() => setActiveTab('versions')}
               data-testid="button-manage-versions"
             >
@@ -309,16 +309,16 @@ export default function Documents() {
           </div>
 
           {/* Access Control */}
-          <div className="bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.4)] border border-white/20 p-6">
+          <div className="bg-gradient-to-br from-gray-900/60 via-black/40 to-gray-800/60 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] border border-gray-700/30 p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-orange-500/10 rounded-2xl flex items-center justify-center">
-                <Shield className="w-6 h-6 text-orange-600" />
+              <div className="w-12 h-12 bg-blue-500/20 rounded-2xl flex items-center justify-center">
+                <Shield className="w-6 h-6 text-blue-400" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900">Access Control</h3>
+              <h3 className="text-xl font-semibold text-white">Access Control</h3>
             </div>
-            <p className="text-gray-600 mb-4 text-sm">Manage user permissions and secure document access.</p>
+            <p className="text-gray-300 mb-4 text-sm">Manage user permissions and secure document access.</p>
             <Button 
-              className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
               onClick={() => setActiveTab('access')}
               data-testid="button-manage-access"
             >
@@ -327,16 +327,16 @@ export default function Documents() {
           </div>
 
           {/* Advanced Search */}
-          <div className="bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.4)] border border-white/20 p-6">
+          <div className="bg-gradient-to-br from-gray-900/60 via-black/40 to-gray-800/60 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] border border-gray-700/30 p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-red-500/10 rounded-2xl flex items-center justify-center">
-                <Search className="w-6 h-6 text-red-600" />
+              <div className="w-12 h-12 bg-gray-500/20 rounded-2xl flex items-center justify-center">
+                <Search className="w-6 h-6 text-gray-400" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900">Advanced Search</h3>
+              <h3 className="text-xl font-semibold text-white">Advanced Search</h3>
             </div>
-            <p className="text-gray-600 mb-4 text-sm">Search documents by content, metadata, and project association.</p>
+            <p className="text-gray-300 mb-4 text-sm">Search documents by content, metadata, and project association.</p>
             <Button 
-              className="w-full bg-red-600 hover:bg-red-700 text-white"
+              className="w-full bg-gray-600 hover:bg-gray-700 text-white"
               onClick={() => setActiveTab('search')}
               data-testid="button-search-documents"
             >
@@ -345,14 +345,14 @@ export default function Documents() {
           </div>
 
           {/* Export & Backup */}
-          <div className="bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.4)] border border-white/20 p-6">
+          <div className="bg-gradient-to-br from-gray-900/60 via-black/40 to-gray-800/60 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] border border-gray-700/30 p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center">
-                <Database className="w-6 h-6 text-blue-600" />
+              <div className="w-12 h-12 bg-blue-500/20 rounded-2xl flex items-center justify-center">
+                <Database className="w-6 h-6 text-blue-400" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900">Export & Backup</h3>
+              <h3 className="text-xl font-semibold text-white">Export & Backup</h3>
             </div>
-            <p className="text-gray-600 mb-4 text-sm">Export document collections and create automated backups.</p>
+            <p className="text-gray-300 mb-4 text-sm">Export document collections and create automated backups.</p>
             <Button 
               className="w-full bg-blue-600 hover:bg-blue-700 text-white"
               onClick={() => setActiveTab('export')}
@@ -366,9 +366,9 @@ export default function Documents() {
 
       {/* Upload Dialog - Working functionality preserved */}
       <Dialog open={showUploadDialog} onOpenChange={setShowUploadDialog}>
-        <DialogContent className="bg-gradient-to-br from-white/40 via-white/20 to-white/10 backdrop-blur-2xl border border-white/20 max-w-2xl">
+        <DialogContent className="bg-gradient-to-br from-gray-900/80 via-black/60 to-gray-800/80 backdrop-blur-2xl border border-gray-700/30 max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-indigo-800 to-purple-700 bg-clip-text text-transparent">
+            <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent">
               Upload New Document
             </DialogTitle>
           </DialogHeader>
@@ -380,7 +380,7 @@ export default function Documents() {
                 id="file"
                 type="file"
                 onChange={(e) => setUploadForm({ ...uploadForm, file: e.target.files?.[0] || null })}
-                className="bg-white/50 border-white/30"
+                className="bg-gray-800/50 border-gray-600/30 text-white"
                 data-testid="input-file-upload"
               />
             </div>
@@ -392,7 +392,7 @@ export default function Documents() {
                 value={uploadForm.name}
                 onChange={(e) => setUploadForm({ ...uploadForm, name: e.target.value })}
                 placeholder="Enter document name"
-                className="bg-white/50 border-white/30"
+                className="bg-gray-800/50 border-gray-600/30 text-white"
                 data-testid="input-document-name"
               />
             </div>
@@ -404,7 +404,7 @@ export default function Documents() {
                 value={uploadForm.description}
                 onChange={(e) => setUploadForm({ ...uploadForm, description: e.target.value })}
                 placeholder="Enter document description"
-                className="bg-white/50 border-white/30"
+                className="bg-gray-800/50 border-gray-600/30 text-white"
                 data-testid="textarea-document-description"
               />
             </div>
@@ -416,7 +416,7 @@ export default function Documents() {
                   value={uploadForm.category}
                   onValueChange={(value) => setUploadForm({ ...uploadForm, category: value })}
                 >
-                  <SelectTrigger className="bg-white/50 border-white/30" data-testid="select-document-category">
+                  <SelectTrigger className="bg-gray-800/50 border-gray-600/30 text-white" data-testid="select-document-category">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
@@ -435,7 +435,7 @@ export default function Documents() {
                   value={uploadForm.type}
                   onValueChange={(value) => setUploadForm({ ...uploadForm, type: value })}
                 >
-                  <SelectTrigger className="bg-white/50 border-white/30" data-testid="select-document-type">
+                  <SelectTrigger className="bg-gray-800/50 border-gray-600/30 text-white" data-testid="select-document-type">
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent>
@@ -456,7 +456,7 @@ export default function Documents() {
                   value={uploadForm.propertyId}
                   onValueChange={(value) => setUploadForm({ ...uploadForm, propertyId: value })}
                 >
-                  <SelectTrigger className="bg-white/50 border-white/30" data-testid="select-document-project">
+                  <SelectTrigger className="bg-gray-800/50 border-gray-600/30 text-white" data-testid="select-document-project">
                     <SelectValue placeholder="Select project" />
                   </SelectTrigger>
                   <SelectContent>
@@ -475,7 +475,7 @@ export default function Documents() {
                   value={uploadForm.accessLevel}
                   onValueChange={(value) => setUploadForm({ ...uploadForm, accessLevel: value })}
                 >
-                  <SelectTrigger className="bg-white/50 border-white/30" data-testid="select-access-level">
+                  <SelectTrigger className="bg-gray-800/50 border-gray-600/30 text-white" data-testid="select-access-level">
                     <SelectValue placeholder="Select access level" />
                   </SelectTrigger>
                   <SelectContent>
@@ -498,7 +498,7 @@ export default function Documents() {
                 value={uploadForm.tags}
                 onChange={(e) => setUploadForm({ ...uploadForm, tags: e.target.value })}
                 placeholder="e.g., contract, important, legal"
-                className="bg-white/50 border-white/30"
+                className="bg-gray-800/50 border-gray-600/30 text-white"
                 data-testid="input-document-tags"
               />
             </div>
@@ -507,7 +507,7 @@ export default function Documents() {
               <Button 
                 variant="outline" 
                 onClick={() => setShowUploadDialog(false)}
-                className="bg-white/50 border-white/30"
+                className="bg-gray-800/50 border-gray-600/30 text-white"
                 data-testid="button-cancel-upload"
               >
                 Cancel
@@ -527,8 +527,8 @@ export default function Documents() {
 
       {/* Recent Documents Section */}
       <div className="relative z-10 mb-8">
-        <div className="bg-gradient-to-r from-white/40 via-white/20 to-white/10 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.4)] border border-white/20 p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Documents</h2>
+        <div className="bg-gradient-to-r from-gray-900/60 via-black/40 to-gray-800/60 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] border border-gray-700/30 p-6">
+          <h2 className="text-2xl font-bold text-white mb-6">Recent Documents</h2>
           
           {isLoading ? (
             <div className="space-y-4">
@@ -541,8 +541,8 @@ export default function Documents() {
           ) : documents.length === 0 ? (
             <div className="text-center py-12">
               <FolderOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-600 mb-2">No documents yet</h3>
-              <p className="text-gray-500 mb-4">Upload your first document to get started</p>
+              <h3 className="text-lg font-semibold text-gray-300 mb-2">No documents yet</h3>
+              <p className="text-gray-400 mb-4">Upload your first document to get started</p>
               <Button 
                 onClick={() => setShowUploadDialog(true)}
                 className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
@@ -603,48 +603,48 @@ export default function Documents() {
 
       {/* Document Categories Section */}
       <div className="relative z-10">
-        <div className="bg-gradient-to-r from-white/40 via-white/20 to-white/10 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.4)] border border-white/20 p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Document Categories</h2>
+        <div className="bg-gradient-to-r from-gray-900/60 via-black/40 to-gray-800/60 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] border border-gray-700/30 p-6">
+          <h2 className="text-2xl font-bold text-white mb-6">Document Categories</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Plans & Drawings */}
-            <div className="bg-white/50 backdrop-blur-xl rounded-2xl p-6 hover:bg-white/60 transition-all duration-300 cursor-pointer border border-white/30">
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
-                <FileText className="w-6 h-6 text-blue-600" />
+            <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl p-6 hover:bg-gray-800/60 transition-all duration-300 cursor-pointer border border-gray-700/30">
+              <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center mb-4">
+                <FileText className="w-6 h-6 text-blue-400" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Plans & Drawings</h3>
-              <p className="text-sm text-gray-600 mb-4">Architectural and engineering plans</p>
-              <p className="text-2xl font-bold text-blue-600">{documents.filter(d => d.category === 'plans').length} files</p>
+              <h3 className="font-semibold text-white mb-2">Plans & Drawings</h3>
+              <p className="text-sm text-gray-300 mb-4">Architectural and engineering plans</p>
+              <p className="text-2xl font-bold text-blue-400">{documents.filter((d: any) => d.category === 'plans').length} files</p>
             </div>
 
             {/* Photos & Media */}
-            <div className="bg-white/50 backdrop-blur-xl rounded-2xl p-6 hover:bg-white/60 transition-all duration-300 cursor-pointer border border-white/30">
-              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4">
-                <Image className="w-6 h-6 text-green-600" />
+            <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl p-6 hover:bg-gray-800/60 transition-all duration-300 cursor-pointer border border-gray-700/30">
+              <div className="w-12 h-12 bg-gray-500/20 rounded-xl flex items-center justify-center mb-4">
+                <Image className="w-6 h-6 text-gray-400" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Photos & Media</h3>
-              <p className="text-sm text-gray-600 mb-4">Progress photos and videos</p>
-              <p className="text-2xl font-bold text-green-600">{documents.filter(d => d.category === 'photos').length} files</p>
+              <h3 className="font-semibold text-white mb-2">Photos & Media</h3>
+              <p className="text-sm text-gray-300 mb-4">Progress photos and videos</p>
+              <p className="text-2xl font-bold text-gray-400">{documents.filter((d: any) => d.category === 'photos').length} files</p>
             </div>
 
             {/* Permits & Legal */}
-            <div className="bg-white/50 backdrop-blur-xl rounded-2xl p-6 hover:bg-white/60 transition-all duration-300 cursor-pointer border border-white/30">
-              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
-                <Shield className="w-6 h-6 text-purple-600" />
+            <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl p-6 hover:bg-gray-800/60 transition-all duration-300 cursor-pointer border border-gray-700/30">
+              <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center mb-4">
+                <Shield className="w-6 h-6 text-blue-400" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Permits & Legal</h3>
-              <p className="text-sm text-gray-600 mb-4">Official documentation</p>
-              <p className="text-2xl font-bold text-purple-600">{documents.filter(d => d.category === 'permits' || d.category === 'legal').length} files</p>
+              <h3 className="font-semibold text-white mb-2">Permits & Legal</h3>
+              <p className="text-sm text-gray-300 mb-4">Official documentation</p>
+              <p className="text-2xl font-bold text-blue-400">{documents.filter((d: any) => d.category === 'permits' || d.category === 'legal').length} files</p>
             </div>
 
             {/* Contracts */}
-            <div className="bg-white/50 backdrop-blur-xl rounded-2xl p-6 hover:bg-white/60 transition-all duration-300 cursor-pointer border border-white/30">
-              <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mb-4">
-                <FileText className="w-6 h-6 text-orange-600" />
+            <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl p-6 hover:bg-gray-800/60 transition-all duration-300 cursor-pointer border border-gray-700/30">
+              <div className="w-12 h-12 bg-gray-500/20 rounded-xl flex items-center justify-center mb-4">
+                <FileText className="w-6 h-6 text-gray-400" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Contracts</h3>
-              <p className="text-sm text-gray-600 mb-4">Vendor and client agreements</p>
-              <p className="text-2xl font-bold text-orange-600">{documents.filter(d => d.category === 'contracts').length} files</p>
+              <h3 className="font-semibold text-white mb-2">Contracts</h3>
+              <p className="text-sm text-gray-300 mb-4">Vendor and client agreements</p>
+              <p className="text-2xl font-bold text-gray-400">{documents.filter((d: any) => d.category === 'contracts').length} files</p>
             </div>
           </div>
         </div>
