@@ -52,14 +52,14 @@ class APIService {
   async login(email: string, password: string) {
     return this.request('/auth/login', {
       method: 'POST',
-      body: { email, password },
+      body: JSON.stringify({ email, password }),
     });
   }
 
   async googleCallback(credential: string) {
     return this.request('/auth/google/callback', {
       method: 'POST',
-      body: { credential },
+      body: JSON.stringify({ credential }),
     });
   }
 
@@ -88,14 +88,14 @@ class APIService {
   async updateProject(projectId: string, data: any) {
     return this.request(`/projects/${projectId}`, {
       method: 'PUT',
-      body: data,
+      body: JSON.stringify(data),
     });
   }
 
   async createProject(data: { address: string; project_type: string }) {
     return this.request('/projects', {
       method: 'POST',
-      body: data,
+      body: JSON.stringify(data),
     });
   }
 
@@ -114,21 +114,21 @@ class APIService {
   async updateMilestone(milestoneId: string, data: any) {
     return this.request(`/milestones/${milestoneId}`, {
       method: 'PUT',
-      body: data,
+      body: JSON.stringify(data),
     });
   }
 
   async completeMilestone(milestoneId: string, data: any = {}) {
     return this.request(`/milestones/${milestoneId}`, {
       method: 'PUT',
-      body: { ...data, status: 'complete', actual_end: new Date().toISOString() },
+      body: JSON.stringify({ ...data, status: 'complete', actual_end: new Date().toISOString() }),
     });
   }
 
   async createMilestone(projectId: string, data: any) {
     return this.request(`/projects/${projectId}/milestones`, {
       method: 'POST',
-      body: data,
+      body: JSON.stringify(data),
     });
   }
 
@@ -140,14 +140,14 @@ class APIService {
   async createBudgetLine(projectId: string, data: any) {
     return this.request(`/projects/${projectId}/budget_lines`, {
       method: 'POST',
-      body: data,
+      body: JSON.stringify(data),
     });
   }
 
   async updateBudgetLine(budgetLineId: string, data: any) {
     return this.request(`/budget_lines/${budgetLineId}`, {
       method: 'PUT',
-      body: data,
+      body: JSON.stringify(data),
     });
   }
 
@@ -159,14 +159,14 @@ class APIService {
   async createVendor(data: any) {
     return this.request('/vendors', {
       method: 'POST',
-      body: data,
+      body: JSON.stringify(data),
     });
   }
 
   async updateVendor(vendorId: string, data: any) {
     return this.request(`/vendors/${vendorId}`, {
       method: 'PUT',
-      body: data,
+      body: JSON.stringify(data),
     });
   }
 
@@ -178,35 +178,35 @@ class APIService {
   async createCompany(data: { name: string; type: string }) {
     return this.request('/companies', {
       method: 'POST',
-      body: data,
+      body: JSON.stringify(data),
     });
   }
 
   // RFQs and Procurement
   async getRFQs(projectId?: string) {
     const params = projectId ? { propertyId: projectId } : {};
-    const queryString = new URLSearchParams(params).toString();
+    const queryString = new URLSearchParams(params as Record<string, string>).toString();
     return this.request(`/rfqs?${queryString}`);
   }
 
   async createRFQ(data: any) {
     return this.request('/rfqs', {
       method: 'POST',
-      body: data,
+      body: JSON.stringify(data),
     });
   }
 
   async updateRFQ(rfqId: string, data: any) {
     return this.request(`/rfqs/${rfqId}`, {
       method: 'PUT',
-      body: data,
+      body: JSON.stringify(data),
     });
   }
 
   async sendRFQ(rfqId: string, vendorIds: string[]) {
     return this.request(`/rfqs/${rfqId}/send`, {
       method: 'POST',
-      body: { vendorIds },
+      body: JSON.stringify({ vendorIds }),
     });
   }
 
@@ -217,7 +217,7 @@ class APIService {
   async createBid(rfqId: string, data: any) {
     return this.request(`/rfqs/${rfqId}/bids`, {
       method: 'POST',
-      body: data,
+      body: JSON.stringify(data),
     });
   }
 
@@ -235,14 +235,14 @@ class APIService {
   async createPermit(projectId: string, data: any) {
     return this.request(`/properties/${projectId}/permits`, {
       method: 'POST',
-      body: data,
+      body: JSON.stringify(data),
     });
   }
 
   async updatePermit(permitId: string, data: any) {
     return this.request(`/permits/${permitId}`, {
       method: 'PUT',
-      body: data,
+      body: JSON.stringify(data),
     });
   }
 
@@ -258,14 +258,14 @@ class APIService {
   async createRisk(projectId: string, data: any) {
     return this.request(`/properties/${projectId}/risks`, {
       method: 'POST',
-      body: data,
+      body: JSON.stringify(data),
     });
   }
 
   async updateRisk(riskId: string, data: any) {
     return this.request(`/risks/${riskId}`, {
       method: 'PUT',
-      body: data,
+      body: JSON.stringify(data),
     });
   }
 
@@ -323,7 +323,7 @@ class APIService {
   async createActivity(data: any) {
     return this.request('/activities', {
       method: 'POST',
-      body: data,
+      body: JSON.stringify(data),
     });
   }
 
@@ -363,7 +363,7 @@ class APIService {
   async setObjectACL(documentURL: string, aclPolicy: any) {
     return this.request('/objects', {
       method: 'PUT',
-      body: { documentURL, ...aclPolicy },
+      body: JSON.stringify({ documentURL, ...aclPolicy }),
     });
   }
 
@@ -371,7 +371,7 @@ class APIService {
   async adminLogin(email: string) {
     return this.request('/admin/login', {
       method: 'POST',
-      body: { email },
+      body: JSON.stringify({ email }),
     });
   }
 
@@ -383,7 +383,7 @@ class APIService {
   async createChangeOrder(projectId: string, data: any) {
     return this.request(`/properties/${projectId}/change-orders`, {
       method: 'POST',
-      body: data,
+      body: JSON.stringify(data),
     });
   }
 
@@ -402,14 +402,14 @@ class APIService {
   async createRFI(projectId: string, data: any) {
     return this.request(`/properties/${projectId}/rfis`, {
       method: 'POST',
-      body: data,
+      body: JSON.stringify(data),
     });
   }
 
   async answerRFI(rfiId: string, answer: string) {
     return this.request(`/rfis/${rfiId}/answer`, {
       method: 'POST',
-      body: { answer },
+      body: JSON.stringify({ answer }),
     });
   }
 
@@ -422,7 +422,7 @@ class APIService {
   async createDailyLog(projectId: string, data: any) {
     return this.request(`/properties/${projectId}/daily-logs`, {
       method: 'POST',
-      body: data,
+      body: JSON.stringify(data),
     });
   }
 
@@ -435,7 +435,7 @@ class APIService {
   async createPunchItem(projectId: string, data: any) {
     return this.request(`/properties/${projectId}/punch-list`, {
       method: 'POST',
-      body: data,
+      body: JSON.stringify(data),
     });
   }
 
@@ -453,7 +453,7 @@ class APIService {
   async reportSafetyIncident(projectId: string, data: any) {
     return this.request(`/properties/${projectId}/safety-incidents`, {
       method: 'POST',
-      body: data,
+      body: JSON.stringify(data),
     });
   }
 
@@ -465,7 +465,7 @@ class APIService {
   async sendMessage(projectId: string, data: any) {
     return this.request(`/properties/${projectId}/messages`, {
       method: 'POST',
-      body: data,
+      body: JSON.stringify(data),
     });
   }
 
@@ -484,7 +484,7 @@ class APIService {
   async lookupPermit(data: { projectAddress: string; scopeOfWork: string }) {
     return this.request('/api/v1/permits/lookup', {
       method: 'POST',
-      body: data,
+      body: JSON.stringify(data),
     });
   }
 }
